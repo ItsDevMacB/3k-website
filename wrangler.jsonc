@@ -1,14 +1,10 @@
 {
-	"$schema": "./node_modules/wrangler/config-schema.json",
-	"compatibility_date": "2026-08-25",
-	"compatibility_flags": ["global_fetch_strictly_public"],
-	"name": "3k-website",
-	"main": "@astrojs/cloudflare/entrypoints/server",
-	"assets": {
-		"directory": "./dist",
-		"binding": "ASSETS"
-	},
-	"observability": {
-		"enabled": true
-	}
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "3k-website",
+  "compatibility_date": "2026-08-25",
+  "pages_build_output_dir": "./dist",
+  "compatibility_flags": ["global_fetch_strictly_public"],
+  "observability": {
+    "enabled": true
+  }
 }
