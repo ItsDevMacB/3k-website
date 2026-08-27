@@ -3,7 +3,9 @@
   "name": "3k-website",
   "compatibility_date": "2026-08-25",
   "pages_build_output_dir": "./dist",
-  "compatibility_flags": ["global_fetch_strictly_public"],
+  "compatibility_flags": [
+    "global_fetch_strictly_public"
+  ],
   "observability": {
     "enabled": true
   }

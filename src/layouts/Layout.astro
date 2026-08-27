@@ -10,6 +10,14 @@
 	</head>
 	<body>
 		<slot />
+		<script>
+      import Lenis from 'lenis';
+
+      // Inicializa el scroll suave globalmente
+      const lenis = new Lenis({
+        autoRaf: true,
+      });
+    </script>
 	</body>
 </html>
 
