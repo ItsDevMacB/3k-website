@@ -1,0 +1,129 @@
+<div class="boot" data-boot aria-hidden="true" hidden>
+	<div class="boot-inner">
+		<pre data-boot-text></pre>
+		<p class="boot-skip">[ clic para saltar ]</p>
+	</div>
+</div>
+
+<script is:inline>
+	// Se muestra solo en la primera visita de la sesión y sin "reduced motion".
+	(function () {
+		if (document.documentElement.classList.contains('is-static')) return;
+		try {
+			if (sessionStorage.getItem('3k-booted')) return;
+			sessionStorage.setItem('3k-booted', '1');
+		} catch {
+			// sessionStorage bloqueado: se muestra igual
+		}
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		const boot = document.querySelector('[data-boot]');
+		if (boot) boot.hidden = false;
+	})();
+</script>
+
+<style>
+	.boot {
+		position: fixed;
+		inset: 0;
+		z-index: 100;
+		display: grid;
+		place-items: center;
+		background: var(--color-ink);
+		color: var(--color-cream);
+		font-family: var(--font-pixel);
+		cursor: pointer;
+		/* Respaldo: si el script falla, la pantalla de arranque nunca bloquea el sitio */
+		animation: boot-failsafe 0.3s 4s forwards;
+	}
+	@keyframes boot-failsafe {
+		to {
+			opacity: 0;
+			visibility: hidden;
+		}
+	}
+	.boot[hidden] {
+		display: none;
+	}
+	.boot::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: repeating-linear-gradient(0deg, rgb(0 0 0 / 0.35) 0 1px, transparent 1px 3px);
+		pointer-events: none;
+	}
+	.boot-inner {
+		width: min(560px, 86vw);
+	}
+	.boot pre {
+		margin: 0;
+		min-height: 9em;
+		font: inherit;
+		font-size: clamp(18px, 3.2vw, 26px);
+		line-height: 1.15;
+		white-space: pre-wrap;
+		text-shadow: 0 0 8px rgb(255 140 60 / 0.6);
+	}
+	.boot pre :global(.hl) {
+		color: var(--color-orange);
+	}
+	.boot pre :global(.ok) {
+		color: var(--color-lime);
+	}
+	.boot-skip {
+		margin-top: 1.5rem;
+		opacity: 0.4;
+		font-size: 16px;
+	}
+	.boot.is-off {
+		animation: crt-off 0.55s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+	}
+	@keyframes crt-off {
+		0% {
+			clip-path: inset(0 0 0 0);
+			filter: brightness(1);
+		}
+		60% {
+			clip-path: inset(49.6% 0 49.6% 0);
+			filter: brightness(4);
+		}
+		100% {
+			clip-path: inset(50% 50% 50% 50%);
+			filter: brightness(6);
+		}
+	}
+</style>
+
+<script>
+	const boot = document.querySelector<HTMLElement>('[data-boot]');
+	const text = boot?.querySelector<HTMLElement>('[data-boot-text]');
+
+	if (boot && text && !boot.hidden) {
+		document.documentElement.style.overflow = 'hidden';
+		setTimeout(() => (document.documentElement.style.overflow = ''), 4000);
+		const lines = [
+			'3K BIOS v2.6 — (c) Puebla, MX',
+			'memoria .............. <ok>OK</ok>',
+			'ideas ................ <ok>∞</ok>',
+			'cargando M · B · O ... <ok>OK</ok>',
+			'',
+			'<hl>> CREATIVE SYSTEM READY.</hl>',
+		];
+		let done = false;
+		const finish = () => {
+			if (done) return;
+			done = true;
+			boot.classList.add('is-off');
+			document.documentElement.style.overflow = '';
+			setTimeout(() => boot.remove(), 600);
+		};
+		boot.addEventListener('click', finish);
+		let i = 0;
+		const tick = () => {
+			if (done) return;
+			text.innerHTML = lines.slice(0, ++i).join('\n') + '█';
+			if (i < lines.length) setTimeout(tick, 170);
+			else setTimeout(finish, 650);
+		};
+		setTimeout(tick, 150);
+	}
+</script>

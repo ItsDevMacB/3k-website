@@ -1,0 +1,20 @@
+---
+import { marquee } from '../data/site';
+
+const items = [...marquee, ...marquee];
+---
+
+<div class="relative z-10 -rotate-1 border-y-2 border-ink bg-ink py-4 text-cream" aria-label="Servicios">
+	<div class="flex overflow-hidden">
+		<ul class="flex shrink-0 animate-marquee items-center gap-8 pr-8 whitespace-nowrap hover:[animation-play-state:paused]">
+			{
+				[...items, ...items].map((item, i) => (
+					<li class="flex items-center gap-8 font-display text-2xl uppercase md:text-3xl" aria-hidden={i >= marquee.length ? 'true' : undefined}>
+						<span class={i % 3 === 1 ? 'text-lime' : i % 3 === 2 ? 'text-orange' : ''}>{item}</span>
+						<span class="font-pixel text-3xl text-cream/50">✦</span>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</div>

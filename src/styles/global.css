@@ -1,1 +1,283 @@
 @import "tailwindcss";
+
+@theme {
+	/* Paleta 3K — Digital Playground */
+	--color-orange: #ff5c00;
+	--color-orange-dark: #d94e00;
+	--color-lime: #c7ff32;
+	--color-cream: #f4f3ef;
+	--color-stone: #d6d5d1;
+	--color-ink: #101010;
+	--color-ink-2: #1f222a;
+	--color-ink-3: #35383f;
+	--color-phosphor: #9dff6a;
+
+	--font-display: "Archivo Black", "Arial Black", sans-serif;
+	--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+	--font-mono: "JetBrains Mono", ui-monospace, monospace;
+	--font-pixel: "VT323", ui-monospace, monospace;
+
+	--shadow-pixel: 6px 6px 0 0 var(--color-ink);
+	--shadow-pixel-sm: 3px 3px 0 0 var(--color-ink);
+
+	--animate-marquee: marquee 30s linear infinite;
+	--animate-blink: blink 1s steps(1) infinite;
+	--animate-float: float 6s ease-in-out infinite;
+
+	@keyframes marquee {
+		to {
+			transform: translateX(-50%);
+		}
+	}
+	@keyframes blink {
+		50% {
+			opacity: 0;
+		}
+	}
+	@keyframes float {
+		0%,
+		100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(-14px);
+		}
+	}
+}
+
+@layer base {
+	html {
+		scroll-behavior: smooth;
+		scroll-padding-top: 6rem;
+	}
+	body {
+		@apply bg-cream font-sans text-ink antialiased;
+		overflow-x: clip;
+	}
+	h1 .block,
+	h2 .block {
+		text-wrap: balance;
+	}
+	::selection {
+		@apply bg-orange text-cream;
+	}
+	:focus-visible {
+		outline: 3px solid var(--color-orange);
+		outline-offset: 3px;
+	}
+}
+
+@layer components {
+	/* Etiqueta tipo [ SECCIÓN ] */
+	.kicker {
+		@apply font-mono text-[11px] font-medium tracking-[0.14em] text-orange uppercase;
+	}
+
+	/* Botones con sombra pixel que se "presionan" */
+	.btn {
+		@apply inline-flex items-center gap-2 rounded-full border-2 border-ink px-6 py-3.5 font-mono text-xs font-bold tracking-wider uppercase transition-[transform,box-shadow,background-color] duration-150;
+		box-shadow: var(--shadow-pixel-sm);
+	}
+	.btn:hover {
+		transform: translate(-2px, -2px);
+		box-shadow: 5px 5px 0 0 var(--color-ink);
+	}
+	.btn:active {
+		transform: translate(3px, 3px);
+		box-shadow: 0 0 0 0 var(--color-ink);
+	}
+	.btn-primary {
+		@apply bg-orange text-cream;
+	}
+	.btn-ghost {
+		@apply bg-cream text-ink;
+	}
+
+	/* Ventana estilo sistema operativo clásico */
+	.window {
+		@apply overflow-hidden rounded-xl border-2 border-ink bg-cream;
+		box-shadow: var(--shadow-pixel);
+	}
+	.window-bar {
+		@apply flex items-center justify-between border-b-2 border-ink bg-ink px-3 py-1.5 font-pixel text-lg leading-none text-cream;
+	}
+	.window-stripes {
+		background-image: repeating-linear-gradient(
+			0deg,
+			transparent 0 3px,
+			color-mix(in srgb, var(--color-cream) 22%, transparent) 3px 4px
+		);
+	}
+
+	/* Fondo con cuadrícula de pantalla */
+	.grid-bg {
+		background-image:
+			linear-gradient(color-mix(in srgb, var(--color-ink) 6%, transparent) 1px, transparent 1px),
+			linear-gradient(90deg, color-mix(in srgb, var(--color-ink) 6%, transparent) 1px, transparent 1px);
+		background-size: 32px 32px;
+	}
+	.dots-bg {
+		background-image: radial-gradient(color-mix(in srgb, var(--color-cream) 14%, transparent) 1px, transparent 1px);
+		background-size: 18px 18px;
+	}
+}
+
+/* ---------- Detalles retro ---------- */
+
+/* Cursores pixelados (solo con mouse) */
+@media (any-pointer: fine) {
+	html {
+		cursor: url("/cursors/arrow.svg") 1 1, auto;
+	}
+	a,
+	button,
+	label,
+	summary,
+	[role="button"] {
+		cursor: url("/cursors/hand.svg") 9 1, pointer;
+	}
+}
+
+/* Scrollbar gruesa estilo OS clásico */
+html {
+	scrollbar-color: var(--color-orange) var(--color-ink);
+}
+::-webkit-scrollbar {
+	width: 14px;
+	height: 14px;
+}
+::-webkit-scrollbar-track {
+	background: var(--color-ink);
+}
+::-webkit-scrollbar-thumb {
+	background: var(--color-orange);
+	border: 3px solid var(--color-ink);
+}
+
+/* Transición de tramado (dither) entre secciones */
+.dither {
+	height: 24px;
+	background-color: var(--dither-bg, var(--color-cream));
+	/* Tile 2×6 píxeles de 4px: de disperso (arriba) a denso (abajo) */
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='24' shape-rendering='crispEdges'%3E%3Cg fill='%23101010'%3E%3Crect x='0' y='0' width='4' height='4'/%3E%3Crect x='0' y='8' width='4' height='4'/%3E%3Crect x='4' y='12' width='4' height='4'/%3E%3Crect x='0' y='16' width='8' height='4'/%3E%3Crect x='0' y='20' width='4' height='4'/%3E%3C/g%3E%3C/svg%3E");
+	background-size: 8px 24px;
+	image-rendering: pixelated;
+}
+.dither-up {
+	transform: scaleY(-1);
+}
+
+/* "Boil" de stop motion: tiembla cuadro por cuadro */
+.boil {
+	animation: boil 0.5s steps(1) infinite;
+}
+@keyframes boil {
+	0% {
+		transform: translate(0, 0) rotate(var(--r, 0deg));
+	}
+	25% {
+		transform: translate(0.6px, -0.6px) rotate(calc(var(--r, 0deg) + 0.6deg));
+	}
+	50% {
+		transform: translate(-0.5px, 0.4px) rotate(calc(var(--r, 0deg) - 0.5deg));
+	}
+	75% {
+		transform: translate(0.4px, 0.6px) rotate(calc(var(--r, 0deg) + 0.3deg));
+	}
+}
+
+/* Estela de píxeles del cursor */
+.pixel-trail {
+	position: fixed;
+	z-index: 70;
+	width: 8px;
+	height: 8px;
+	pointer-events: none;
+	animation: trail 0.6s steps(4) forwards;
+}
+@keyframes trail {
+	to {
+		transform: translateY(14px) scale(0);
+		opacity: 0;
+	}
+}
+
+/* Código Konami: modo turbo */
+html.turbo main,
+html.turbo footer {
+	filter: invert(1) hue-rotate(180deg);
+}
+html.turbo main img,
+html.turbo footer img {
+	filter: invert(1) hue-rotate(180deg);
+}
+
+/* ---------- Efecto CRT global (muy sutil) ---------- */
+.crt-overlay {
+	pointer-events: none;
+	position: fixed;
+	inset: 0;
+	z-index: 60;
+	background: repeating-linear-gradient(0deg, rgb(0 0 0 / 0.035) 0 1px, transparent 1px 3px);
+	mix-blend-mode: multiply;
+}
+
+/* ---------- Revelado al hacer scroll ---------- */
+[data-reveal] {
+	opacity: 0;
+	transform: translateY(28px);
+	transition:
+		opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+		transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+	transition-delay: calc(var(--d, 0) * 90ms);
+}
+[data-reveal="pop"] {
+	transform: translateY(18px) scale(0.94);
+}
+[data-reveal].is-in {
+	opacity: 1;
+	transform: none;
+}
+
+/* Revelado de títulos tipo "pixel wipe" */
+[data-wipe] {
+	clip-path: inset(-20% 100% -20% 0);
+	transition: clip-path 0.9s steps(14);
+	transition-delay: calc(var(--d, 0) * 120ms);
+}
+[data-wipe].is-in {
+	clip-path: inset(-20% -10% -20% -10%);
+}
+
+.no-js [data-reveal],
+.no-js [data-wipe] {
+	opacity: 1;
+	transform: none;
+	clip-path: none;
+}
+.is-static .crt-overlay {
+	display: none;
+}
+.is-static *,
+.is-static *::before,
+.is-static *::after {
+	animation: none !important;
+	transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+	[data-reveal],
+	[data-wipe] {
+		opacity: 1;
+		transform: none;
+		clip-path: none;
+	}
+}

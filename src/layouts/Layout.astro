@@ -1,31 +1,66 @@
+---
+import '../styles/global.css';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const {
+	title = '3K Studio — Estudio de desarrollo web en Puebla',
+	description = '3K es un estudio digital de tres personas en Puebla, México. Creamos sitios web, e-commerce, sistemas a medida y experiencias digitales con personalidad.',
+} = Astro.props;
+---
+
 <!doctype html>
-<html lang="en">
+<html lang="es" class="no-js">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<meta name="theme-color" content="#FF5C00" />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:type" content="website" />
+		<meta property="og:locale" content="es_MX" />
+
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=VT323&display=swap"
+			rel="stylesheet"
+		/>
+		<script is:inline>
+			// Captura a Figma (html-to-design): solo se carga con #figmacapture en la URL
+			if (location.hash.includes('figmacapture')) {
+				const s = document.createElement('script');
+				s.src = 'https://mcp.figma.com/mcp/html-to-design/capture.js';
+				s.async = true;
+				document.head.appendChild(s);
+			}
+			// ?static muestra todo sin animaciones (útil para capturas/Figma)
+			if (/[?&]static\b/.test(location.search)) document.documentElement.classList.add('is-static');
+			else document.documentElement.classList.remove('no-js');
+		</script>
 	</head>
 	<body>
 		<slot />
+		<div class="crt-overlay" aria-hidden="true"></div>
 		<script>
-      import Lenis from 'lenis';
+			import Lenis from 'lenis';
+			import 'lenis/dist/lenis.css';
 
-      // Inicializa el scroll suave globalmente
-      const lenis = new Lenis({
-        autoRaf: true,
-      });
-    </script>
+			// Scroll suave global; se omite con "reducir movimiento" o en modo ?static
+			const skip =
+				window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+				document.documentElement.classList.contains('is-static');
+			if (!skip) {
+				// anchors: los enlaces #seccion también usan el scroll suave (con el offset del nav fijo)
+				new Lenis({ autoRaf: true, anchors: { offset: -96 } });
+			}
+		</script>
 	</body>
 </html>
-
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>

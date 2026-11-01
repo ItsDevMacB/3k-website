@@ -1,0 +1,81 @@
+---
+// Efectos globales: estela de píxeles del cursor y código Konami (modo turbo).
+---
+
+<div class="turbo-toast window bg-ink text-cream" role="status" aria-live="polite" data-toast hidden>
+	<div class="window-bar !bg-orange"><span>turbo.exe</span><span>✕</span></div>
+	<p class="px-4 py-3 font-pixel text-xl leading-tight" data-toast-text></p>
+</div>
+
+<style>
+	.turbo-toast {
+		position: fixed;
+		right: 1rem;
+		bottom: 1rem;
+		z-index: 80;
+		width: min(300px, calc(100vw - 2rem));
+		animation: toast-in 0.4s steps(4) both;
+	}
+	.turbo-toast[hidden] {
+		display: none;
+	}
+	@keyframes toast-in {
+		from {
+			transform: translateY(120%);
+		}
+	}
+</style>
+
+<script>
+	const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	const fine = window.matchMedia('(pointer: fine)').matches;
+	const isStatic = document.documentElement.classList.contains('is-static');
+
+	// Estela de píxeles
+	if (fine && !reduced && !isStatic) {
+		const colors = ['#FF5C00', '#C7FF32', '#101010'];
+		let last = 0;
+		let alive = 0;
+		window.addEventListener(
+			'pointermove',
+			(e) => {
+				const now = performance.now();
+				if (now - last < 45 || alive > 18) return;
+				last = now;
+				const px = document.createElement('span');
+				px.className = 'pixel-trail';
+				// Alinea a una rejilla de 8px para que se vea pixelado
+				px.style.left = `${Math.round(e.clientX / 8) * 8 + 6}px`;
+				px.style.top = `${Math.round(e.clientY / 8) * 8 + 10}px`;
+				px.style.background = colors[Math.floor(Math.random() * colors.length)];
+				document.body.appendChild(px);
+				alive++;
+				px.addEventListener('animationend', () => {
+					px.remove();
+					alive--;
+				});
+			},
+			{ passive: true },
+		);
+	}
+
+	// Código Konami: ↑ ↑ ↓ ↓ ← → ← → B A
+	const code = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+	const toast = document.querySelector<HTMLElement>('[data-toast]');
+	const toastText = document.querySelector<HTMLElement>('[data-toast-text]');
+	let pos = 0;
+	let toastTimer: number | undefined;
+	window.addEventListener('keydown', (e) => {
+		const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+		pos = key === code[pos] ? pos + 1 : key === code[0] ? 1 : 0;
+		if (pos < code.length) return;
+		pos = 0;
+		const on = document.documentElement.classList.toggle('turbo');
+		if (toast && toastText) {
+			toastText.textContent = on ? '> MODO TURBO ACTIVADO ★' : '> modo turbo apagado';
+			toast.hidden = false;
+			window.clearTimeout(toastTimer);
+			toastTimer = window.setTimeout(() => (toast.hidden = true), 2600);
+		}
+	});
+</script>

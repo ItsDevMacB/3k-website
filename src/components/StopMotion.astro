@@ -1,0 +1,475 @@
+---
+import { Image } from 'astro:assets';
+import computer from '../assets/retro-computer.png';
+
+const title = 'CUADRO POR CUADRO';
+---
+
+<section id="stop-motion" class="relative overflow-hidden bg-ink px-4 py-24 text-cream md:px-8 md:py-32" data-stopmotion>
+	<div class="mx-auto max-w-[1312px]">
+		<div class="grid gap-6 md:grid-cols-[1.4fr_1fr] md:items-end">
+			<div>
+				<p class="kicker" data-reveal>[ Hecho a mano ]</p>
+				<h2 class="mt-4 font-display text-[clamp(1.9rem,5.5vw,4.5rem)] leading-[0.95] uppercase">
+					<span class="block" data-wipe>Cada detalle,</span>
+					<span class="block" data-wipe style="--d:1">cuadro por cuadro<span class="text-orange">.</span></span>
+				</h2>
+			</div>
+			<p class="max-w-sm text-cream/70 md:justify-self-end" data-reveal style="--d:2">
+				Nos tomamos el tiempo de animar, ajustar y pulir cada pieza como en el stop motion de antes. Dale play, pausa o
+				avanza un cuadro.
+			</p>
+		</div>
+
+		<!-- Tira de película -->
+		<div class="film mt-14" data-reveal="pop">
+			<div class="sprockets" aria-hidden="true"></div>
+
+			<div class="film-frame" role="img" aria-label="Animación en stop motion: la computadora de 3K entra saltando, recibe un disquete, celebra y sale">
+				<div class="scene grid-bg" aria-hidden="true">
+					<p class="scene-title" data-sm-title>{title}</p>
+
+					<div class="desk"></div>
+					<div class="sm-shadow" data-sm-shadow></div>
+
+					<div class="sm-computer" data-sm-computer>
+						<Image src={computer} alt="" width={420} height={420} class="size-full" />
+						<div class="sm-screen"><span data-sm-screen></span></div>
+					</div>
+
+					<div class="floppy" data-sm-floppy>
+						<span class="floppy-shutter"></span>
+						<span class="floppy-label">3K</span>
+					</div>
+
+					<span class="sm-flash" data-sm-flash></span>
+					<div class="grain"></div>
+				</div>
+
+				<!-- HUD de cámara -->
+				<div class="hud" aria-hidden="true">
+					<span class="rec"><span class="rec-dot"></span> REC</span>
+					<span>8 FPS</span>
+				</div>
+				<p class="counter" aria-hidden="true">FRAME <span data-sm-count>01</span>/24</p>
+			</div>
+
+			<div class="sprockets" aria-hidden="true"></div>
+		</div>
+
+		<!-- Controles tipo VCR -->
+		<div class="mt-6 flex flex-wrap items-center gap-3 font-mono text-xs font-bold tracking-widest uppercase">
+			<button type="button" class="vcr" data-sm-prev aria-label="Cuadro anterior">◀◀</button>
+			<button type="button" class="vcr vcr-main" data-sm-toggle aria-label="Pausar animación">❚❚ Pausa</button>
+			<button type="button" class="vcr" data-sm-next aria-label="Cuadro siguiente">▶▶</button>
+			<span class="ml-auto hidden font-pixel text-xl tracking-normal text-cream/50 normal-case sm:block">
+				&gt; 24 cuadros · 3 segundos · 0 renders
+			</span>
+		</div>
+	</div>
+</section>
+
+<style>
+	.film {
+		background: #050505;
+		border: 2px solid var(--color-cream);
+		border-radius: 1rem;
+		padding: 0 clamp(0.75rem, 2vw, 1.5rem);
+		box-shadow: 8px 8px 0 0 var(--color-orange);
+		transform: rotate(-0.6deg);
+	}
+	.sprockets {
+		height: 26px;
+		background: repeating-linear-gradient(90deg, transparent 0 14px, var(--color-cream) 14px 32px, transparent 32px 46px);
+		background-size: 46px 12px;
+		background-repeat: repeat-x;
+		background-position: 0 center;
+		opacity: 0.85;
+		animation: sprockets 0.5s steps(4) infinite;
+	}
+	@keyframes sprockets {
+		to {
+			background-position: -46px center;
+		}
+	}
+	.film-frame {
+		position: relative;
+		border: 2px solid var(--color-cream);
+		border-radius: 0.5rem;
+		overflow: hidden;
+	}
+	.scene {
+		position: relative;
+		aspect-ratio: 16 / 7;
+		min-height: 240px;
+		background-color: var(--color-cream);
+		color: var(--color-ink);
+		container-type: size;
+		overflow: hidden;
+	}
+	.scene-title {
+		position: absolute;
+		top: calc(2.4rem + 3%);
+		left: 0;
+		right: 0;
+		text-align: center;
+		font-family: var(--font-display);
+		font-size: clamp(1.1rem, 7cqh, 3.2rem);
+		letter-spacing: 0.04em;
+		white-space: pre;
+	}
+	.scene-title :global(span) {
+		display: inline-block;
+	}
+	.desk {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: 16%;
+		background: var(--color-stone);
+		border-top: 3px solid var(--color-ink);
+	}
+	.sm-computer {
+		position: absolute;
+		bottom: 11%;
+		left: 0;
+		width: 56cqh;
+		aspect-ratio: 1;
+		transform-origin: 50% 90%;
+		will-change: transform;
+	}
+	.sm-screen {
+		position: absolute;
+		left: 30.4%;
+		top: 22.6%;
+		width: 32.4%;
+		height: 31.4%;
+		border-radius: 9% / 11%;
+		background: #121412;
+		box-shadow: inset 0 0 12px #000;
+		display: grid;
+		place-items: center;
+		font-family: var(--font-pixel);
+		font-size: 6.5cqh;
+		line-height: 1;
+		color: var(--color-cream);
+		text-shadow: 0 0 6px rgb(255 140 60 / 0.7);
+	}
+	.sm-shadow {
+		position: absolute;
+		bottom: 10%;
+		left: 0;
+		width: 46cqh;
+		height: 5cqh;
+		border-radius: 50%;
+		background: radial-gradient(closest-side, rgb(16 16 16 / 0.35), transparent);
+	}
+	.floppy {
+		position: absolute;
+		bottom: 16%;
+		left: 0;
+		width: 15cqh;
+		aspect-ratio: 1;
+		background: var(--color-ink);
+		border-radius: 6% 18% 6% 6%;
+		box-shadow: 3px 3px 0 var(--color-orange);
+	}
+	.floppy-shutter {
+		position: absolute;
+		top: 0;
+		left: 25%;
+		width: 45%;
+		height: 32%;
+		background: var(--color-stone);
+	}
+	.floppy-label {
+		position: absolute;
+		left: 14%;
+		right: 14%;
+		bottom: 10%;
+		height: 42%;
+		background: var(--color-orange);
+		color: var(--color-ink);
+		font-family: var(--font-display);
+		font-size: 3.6cqh;
+		display: grid;
+		place-items: center;
+	}
+	.sm-flash {
+		position: absolute;
+		inset: 0;
+		background: var(--color-cream);
+		opacity: 0;
+		pointer-events: none;
+	}
+	.grain {
+		position: absolute;
+		inset: -50%;
+		pointer-events: none;
+		opacity: 0.18;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+		animation: grain 0.5s steps(4) infinite;
+		mix-blend-mode: multiply;
+	}
+	@keyframes grain {
+		0% {
+			transform: translate(0, 0);
+		}
+		25% {
+			transform: translate(-7%, 4%);
+		}
+		50% {
+			transform: translate(5%, -6%);
+		}
+		75% {
+			transform: translate(-3%, -2%);
+		}
+	}
+	.hud {
+		position: absolute;
+		top: 0.75rem;
+		left: 0.9rem;
+		right: 0.9rem;
+		display: flex;
+		justify-content: space-between;
+		font-family: var(--font-pixel);
+		font-size: 1.25rem;
+		color: var(--color-ink);
+		pointer-events: none;
+	}
+	.rec {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+	}
+	.rec-dot {
+		width: 0.7rem;
+		height: 0.7rem;
+		border-radius: 50%;
+		background: var(--color-orange);
+		animation: rec 1s steps(1) infinite;
+	}
+	@keyframes rec {
+		50% {
+			opacity: 0;
+		}
+	}
+	[data-stopmotion].is-paused .rec-dot {
+		animation: none;
+		opacity: 0.3;
+	}
+	.counter {
+		position: absolute;
+		right: 0.9rem;
+		bottom: 0.6rem;
+		margin: 0;
+		font-family: var(--font-pixel);
+		font-size: 1.25rem;
+		color: var(--color-ink);
+	}
+
+	.vcr {
+		border: 2px solid var(--color-cream);
+		border-radius: 0.5rem;
+		padding: 0.7rem 1rem;
+		background: transparent;
+		color: var(--color-cream);
+		box-shadow: 3px 3px 0 0 var(--color-cream);
+		transition:
+			transform 0.1s,
+			box-shadow 0.1s;
+	}
+	.vcr:hover {
+		background: var(--color-cream);
+		color: var(--color-ink);
+	}
+	.vcr:active {
+		transform: translate(3px, 3px);
+		box-shadow: none;
+	}
+	.vcr-main {
+		background: var(--color-orange);
+		border-color: var(--color-orange);
+		color: var(--color-ink);
+		min-width: 8.5rem;
+	}
+
+	@media (max-width: 640px) {
+		.scene {
+			aspect-ratio: 4 / 3;
+		}
+		.hud,
+		.counter {
+			font-size: 1rem;
+		}
+	}
+</style>
+
+<script>
+	const root = document.querySelector<HTMLElement>('[data-stopmotion]');
+
+	if (root) {
+		const $ = <T extends HTMLElement>(s: string) => root.querySelector<T>(s)!;
+		const scene = $('.scene');
+		const pc = $('[data-sm-computer]');
+		const shadow = $('[data-sm-shadow]');
+		const floppy = $('[data-sm-floppy]');
+		const screen = $('[data-sm-screen]');
+		const flash = $('[data-sm-flash]');
+		const titleEl = $('[data-sm-title]');
+		const count = $('[data-sm-count]');
+		const toggle = $<HTMLButtonElement>('[data-sm-toggle]');
+
+		const TITLE = titleEl.textContent ?? '';
+		const FRAMES = 24;
+		const FPS = 8;
+
+		type Pose = {
+			x: number; // posición en % del ancho de la escena
+			y: number; // salto en % de la altura
+			sx: number;
+			sy: number;
+			r: number;
+			fx: number | null; // disquete (null = oculto)
+			fr: number;
+			fy: number;
+			text: string;
+			flash: number;
+		};
+
+		// Guion de 24 cuadros: entra saltando, recibe el disquete, celebra y sale.
+		const poses: Pose[] = Array.from({ length: FRAMES }, (_, f) => {
+			const p: Pose = { x: 36, y: 0, sx: 1, sy: 1, r: 0, fx: null, fr: 0, fy: 0, text: '', flash: 0 };
+			if (f <= 7) {
+				// Entrada a saltos (pose arriba / pose abajo)
+				p.x = -30 + f * 9.5;
+				const up = f % 2 === 1;
+				p.y = up ? 14 : 0;
+				p.sx = up ? 0.95 : 1.07;
+				p.sy = up ? 1.06 : 0.93;
+				p.r = up ? -6 : 3;
+			} else if (f === 8) {
+				// Aterriza: aplastado
+				p.sx = 1.12;
+				p.sy = 0.86;
+			} else if (f <= 15) {
+				// Espera y escribe en pantalla; el disquete llega dando vueltas
+				p.text = ['H', 'HO', 'HOL', 'HOLA', 'HOLA', 'HOLA', 'HOLA'][f - 9];
+				p.r = f % 2 ? 1 : -1;
+				p.fx = 98 - (f - 9) * 5.6;
+				p.fr = -(f - 9) * 55;
+				p.fy = f % 2 ? 6 : 0;
+			} else if (f === 16) {
+				// ¡Lo recibe!
+				p.sx = 1.1;
+				p.sy = 1.1;
+				p.r = -4;
+				p.text = '★';
+				p.flash = 0.7;
+			} else if (f <= 18) {
+				p.text = '3K!';
+				p.y = f === 17 ? 20 : 8;
+				p.sy = f === 17 ? 1.08 : 1;
+				p.r = f === 17 ? 8 : -5;
+			} else {
+				// Sale saltando a la derecha
+				const k = f - 18;
+				p.x = 36 + k * 15;
+				const up = k % 2 === 1;
+				p.y = up ? 14 : 0;
+				p.sx = up ? 0.95 : 1.07;
+				p.sy = up ? 1.06 : 0.93;
+				p.r = up ? 6 : -3;
+				p.text = 'BYE';
+			}
+			return p;
+		});
+
+		// "Boil": micro-desplazamiento distinto por cuadro, como plastilina
+		const boil = (f: number) => [((f * 37) % 5) - 2, ((f * 53) % 5) - 2].map((v) => v * 0.35);
+
+		const titleChars = [...TITLE];
+		let frame = 0;
+
+		function render(f: number) {
+			const p = poses[f];
+			const w = scene.clientWidth;
+			const h = scene.clientHeight;
+			const [bx, by] = boil(f);
+
+			pc.style.transform = `translate(${(p.x / 100) * w + bx}px, ${-(p.y / 100) * h + by}px) rotate(${p.r}deg) scale(${p.sx}, ${p.sy})`;
+			shadow.style.transform = `translateX(${(p.x / 100) * w + h * 0.04}px) scale(${1 - p.y / 40})`;
+			shadow.style.opacity = String(1 - p.y / 30);
+			screen.textContent = p.text;
+
+			if (p.fx === null) {
+				floppy.style.visibility = 'hidden';
+			} else {
+				floppy.style.visibility = 'visible';
+				floppy.style.transform = `translate(${(p.fx / 100) * w}px, ${-(p.fy / 100) * h}px) rotate(${p.fr}deg)`;
+			}
+			flash.style.opacity = String(p.flash);
+
+			// El título aparece una letra por cuadro y cada letra "tiembla"
+			const shown = Math.min(titleChars.length, f + 1);
+			titleEl.innerHTML = titleChars
+				.map((c, i) => {
+					if (i >= shown) return `<span style="visibility:hidden">${c === ' ' ? '&nbsp;' : c}</span>`;
+					const r = (((i + f) * 7) % 5) - 2;
+					return `<span style="transform:rotate(${r * 1.5}deg) translateY(${(((i * 3 + f) % 3) - 1) * 2}px)">${c === ' ' ? '&nbsp;' : c}</span>`;
+				})
+				.join('');
+
+			count.textContent = String(f + 1).padStart(2, '0');
+		}
+
+		const reduced =
+			window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+			document.documentElement.classList.contains('is-static');
+		let playing = !reduced;
+		let visible = false;
+		let timer: number | undefined;
+
+		const setPlaying = (on: boolean) => {
+			playing = on;
+			root.classList.toggle('is-paused', !on);
+			toggle.innerHTML = on ? '❚❚ Pausa' : '▶ Play';
+			toggle.setAttribute('aria-label', on ? 'Pausar animación' : 'Reproducir animación');
+			schedule();
+		};
+
+		const schedule = () => {
+			window.clearInterval(timer);
+			if (playing && visible) {
+				timer = window.setInterval(() => {
+					frame = (frame + 1) % FRAMES;
+					render(frame);
+				}, 1000 / FPS);
+			}
+		};
+
+		toggle.addEventListener('click', () => setPlaying(!playing));
+		$('[data-sm-next]').addEventListener('click', () => {
+			setPlaying(false);
+			frame = (frame + 1) % FRAMES;
+			render(frame);
+		});
+		$('[data-sm-prev]').addEventListener('click', () => {
+			setPlaying(false);
+			frame = (frame - 1 + FRAMES) % FRAMES;
+			render(frame);
+		});
+
+		// Solo anima cuando está en pantalla
+		new IntersectionObserver(([e]) => {
+			visible = e.isIntersecting;
+			schedule();
+		}).observe(scene);
+		window.addEventListener('resize', () => render(frame));
+
+		frame = reduced ? 13 : 0;
+		render(frame);
+		setPlaying(playing);
+	}
+</script>

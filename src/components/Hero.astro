@@ -1,0 +1,51 @@
+---
+import RetroComputer from './RetroComputer.astro';
+import { whatsappLink } from '../data/site';
+---
+
+<section id="top" class="grid-bg relative overflow-hidden px-4 pt-28 pb-16 md:px-8 md:pt-32 md:pb-20">
+	<div class="mx-auto grid max-w-[1312px] items-center gap-10 lg:grid-cols-12">
+		<div class="relative z-10 min-w-0 lg:col-span-7">
+			<p class="kicker" data-reveal>[ Experiencias digitales / 2026 ]</p>
+
+			<h1
+				class="mt-5 font-display text-[clamp(2.1rem,10vw,4rem)] leading-[0.95] tracking-tight uppercase lg:text-[clamp(3.4rem,min(5.6vw,10.5vh),6rem)] lg:whitespace-nowrap"
+			>
+				<span class="block" data-wipe style="--d:0">Hacemos cosas</span>
+				<span class="block" data-wipe style="--d:1"><span class="hero-pill boil" style="--r:-2deg">digitales</span></span>
+				<span class="block" data-wipe style="--d:2">que se quedan<span class="text-orange">.</span></span>
+			</h1>
+
+			<p class="mt-7 max-w-[34rem] text-lg leading-relaxed text-ink/80" data-reveal style="--d:3">
+				3K es un estudio digital de tres personas en Puebla. Creamos sitios web, tiendas en línea y sistemas para
+				negocios que quieren verse diferentes <span class="font-semibold text-ink">— y funcionar mejor.</span>
+			</p>
+
+			<div class="mt-9 flex flex-wrap items-center gap-4" data-reveal style="--d:4">
+				<a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-primary">Iniciar un proyecto ↗</a>
+				<a href="#trabajo" class="btn btn-ghost">Ver trabajo ↓</a>
+			</div>
+
+			<p class="mt-10 hidden items-center gap-3 pointer-fine:flex font-mono text-[11px] tracking-widest text-ink/60 uppercase" data-reveal style="--d:5">
+				<span class="inline-block size-2 rounded-full bg-lime ring-2 ring-ink"></span>
+				Psst… escribe algo en tu teclado
+			</p>
+		</div>
+
+		<div class="relative min-w-0 lg:col-span-5" data-reveal="pop" style="--d:2">
+			<RetroComputer />
+		</div>
+	</div>
+</section>
+
+<style>
+	.hero-pill {
+		display: inline-block;
+		padding: 0 0.18em;
+		border: 0.06em solid var(--color-ink);
+		border-radius: 0.18em;
+		background: var(--color-lime);
+		box-shadow: 0.06em 0.06em 0 var(--color-ink);
+		transform: rotate(var(--r));
+	}
+</style>

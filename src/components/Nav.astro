@@ -1,0 +1,93 @@
+---
+import { nav, whatsappLink } from '../data/site';
+---
+
+<header class="fixed inset-x-0 top-0 z-50 px-4 pt-4 md:px-8 md:pt-6" data-nav>
+	<!-- En md+ es una rejilla 1fr/auto/1fr para que la píldora quede centrada sin importar el ancho de los lados -->
+	<div class="mx-auto flex max-w-[1312px] items-center justify-between gap-4 md:grid md:grid-cols-[1fr_auto_1fr]">
+		<a
+			href="#top"
+			class="group flex items-center justify-self-start gap-2 rounded-lg border-2 border-ink bg-cream px-3 py-1.5 font-display text-xl shadow-[var(--shadow-pixel-sm)] transition-transform hover:-rotate-3"
+			aria-label="3K Studio, ir al inicio"
+		>
+			3K<span class="text-orange animate-blink">_</span>
+		</a>
+
+		<nav
+			class="hidden items-center gap-1 rounded-full border-2 border-ink bg-ink p-1.5 pl-5 text-cream md:flex"
+			aria-label="Principal"
+		>
+			{
+				nav.map((item) => (
+					<a
+						href={item.href}
+						class="nav-link relative rounded-full px-4 py-2 font-mono text-[11px] font-bold tracking-widest uppercase transition-colors hover:text-lime"
+					>
+						{item.label}
+					</a>
+				))
+			}
+			<a href={whatsappLink()} target="_blank" rel="noopener" class="ml-2 rounded-full bg-orange px-5 py-2.5 font-mono text-[11px] font-bold tracking-widest uppercase transition-colors hover:bg-lime hover:text-ink">
+				Iniciar ↗
+			</a>
+		</nav>
+
+		<p class="hidden justify-self-end text-right font-mono text-[10px] tracking-widest text-ink/70 uppercase xl:block">
+			Estudio digital independiente / Puebla, MX
+		</p>
+
+		<button
+			type="button"
+			class="flex size-11 flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-ink bg-cream shadow-[var(--shadow-pixel-sm)] md:hidden"
+			aria-label="Abrir menú"
+			aria-expanded="false"
+			aria-controls="mobile-menu"
+			data-menu-toggle
+		>
+			<span class="h-0.5 w-5 bg-ink transition-transform"></span>
+			<span class="h-0.5 w-5 bg-ink transition-transform"></span>
+		</button>
+	</div>
+
+	<div
+		id="mobile-menu"
+		class="window invisible mx-auto mt-3 max-w-[1312px] -translate-y-2 opacity-0 transition-all duration-200 md:hidden"
+		data-menu
+	>
+		<div class="window-bar"><span>menu.exe</span><span>▢ ✕</span></div>
+		<ul class="divide-y-2 divide-ink/10">
+			{
+				nav.map((item, i) => (
+					<li>
+						<a href={item.href} class="flex items-center justify-between px-5 py-4 font-display text-2xl uppercase" data-menu-link>
+							{item.label}
+							<span class="font-mono text-xs text-orange">0{i + 1}</span>
+						</a>
+					</li>
+				))
+			}
+			<li class="p-4">
+				<a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-primary w-full justify-center">Iniciar proyecto ↗</a>
+			</li>
+		</ul>
+	</div>
+</header>
+
+<script>
+	const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+	const menu = document.querySelector<HTMLElement>('[data-menu]');
+	const setOpen = (open: boolean) => {
+		toggle?.setAttribute('aria-expanded', String(open));
+		toggle?.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+		menu?.classList.toggle('invisible', !open);
+		menu?.classList.toggle('opacity-0', !open);
+		menu?.classList.toggle('-translate-y-2', !open);
+		const [a, b] = toggle?.querySelectorAll('span') ?? [];
+		a?.classList.toggle('translate-y-1', open);
+		a?.classList.toggle('rotate-45', open);
+		b?.classList.toggle('-translate-y-1', open);
+		b?.classList.toggle('-rotate-45', open);
+	};
+	toggle?.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+	document.querySelectorAll('[data-menu-link]').forEach((link) => link.addEventListener('click', () => setOpen(false)));
+</script>

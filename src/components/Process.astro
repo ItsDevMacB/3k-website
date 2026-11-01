@@ -1,0 +1,78 @@
+---
+import { process } from '../data/site';
+---
+
+<section id="proceso" class="px-4 py-24 md:px-8 md:py-32">
+	<div class="mx-auto max-w-[1312px]">
+		<p class="kicker" data-reveal>[ Cómo trabajamos ]</p>
+		<h2 class="mt-4 font-display text-[clamp(1.9rem,5.5vw,4.5rem)] leading-[0.95] uppercase">
+			<span class="block" data-wipe>Equipo pequeño.</span>
+			<span class="block" data-wipe style="--d:1">Proceso claro.</span>
+		</h2>
+
+		<!-- Barra de progreso estilo instalador -->
+		<div class="mt-12 hidden items-center gap-3 font-pixel text-xl md:flex" data-reveal style="--d:2">
+			<span>instalando_proyecto.exe</span>
+			<div class="relative h-6 flex-1 overflow-hidden rounded border-2 border-ink bg-cream">
+				<div class="progress h-full bg-[repeating-linear-gradient(90deg,var(--color-orange)_0_14px,transparent_14px_18px)]" data-progress></div>
+			</div>
+			<span data-progress-label>0%</span>
+		</div>
+
+		<ol class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+			{
+				process.map((p, i) => (
+					<li
+						class:list={[
+							'window group flex min-h-56 flex-col sm:min-h-72 p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-[10px_10px_0_0_var(--color-ink)]',
+							i === 1 ? 'bg-orange text-cream' : 'bg-cream',
+						]}
+						data-reveal="pop"
+						style={`--d:${i}`}
+					>
+						<span class:list={['font-mono text-xs', i === 1 ? 'text-cream/80' : 'text-orange']}>0{i + 1}</span>
+						<h3 class="mt-3 font-display text-2xl uppercase">{p.step}</h3>
+						<p class:list={['mt-3 text-sm leading-relaxed', i === 1 ? 'text-cream/90' : 'text-ink/70']}>{p.body}</p>
+						<span
+							class:list={[
+								'mt-auto self-end transition-transform duration-300 group-hover:scale-125 group-hover:-rotate-12',
+								// VT323 no tiene "↗"; usar mono para que no caiga a emoji
+								p.icon === '↗' ? 'font-mono text-3xl font-bold' : 'font-pixel text-4xl',
+							]}
+						>
+							<span class="boil inline-block" style={`--r:${i % 2 ? 4 : -4}deg`}>{p.icon}</span>
+						</span>
+					</li>
+				))
+			}
+		</ol>
+	</div>
+</section>
+
+<style>
+	.progress {
+		width: 0;
+		transition: width 2.4s steps(24);
+	}
+</style>
+
+<script>
+	const bar = document.querySelector<HTMLElement>('[data-progress]');
+	const label = document.querySelector<HTMLElement>('[data-progress-label]');
+	if (bar && label) {
+		new IntersectionObserver(
+			([e], obs) => {
+				if (!e.isIntersecting) return;
+				obs.disconnect();
+				bar.style.width = '100%';
+				let n = 0;
+				const id = setInterval(() => {
+					n = Math.min(100, n + 4);
+					label.textContent = n === 100 ? '100% ✓' : `${n}%`;
+					if (n === 100) clearInterval(id);
+				}, 100);
+			},
+			{ threshold: 0.6 },
+		).observe(bar);
+	}
+</script>
