@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# documentacion interna de trabajo (tareas, preguntas, flujo); no se sube a GitHub
+docs/
