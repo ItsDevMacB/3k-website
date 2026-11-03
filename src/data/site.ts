@@ -117,9 +117,17 @@ export const services = [
 ];
 
 export const process = [
-	{ step: 'Descubrir', body: 'Entendemos tu negocio, tu público y el objetivo real antes de mover un pixel.', icon: '◎' },
+	{
+		step: 'Descubrir',
+		body: 'Entendemos tu negocio, tu público y el objetivo real antes de mover un pixel.',
+		icon: '◎',
+	},
 	{ step: 'Diseñar', body: 'Definimos dirección, jerarquía e interacción en un prototipo editable.', icon: '✦' },
-	{ step: 'Construir', body: 'Convertimos el diseño aprobado en un producto responsivo y fácil de mantener.', icon: '</>' },
+	{
+		step: 'Construir',
+		body: 'Convertimos el diseño aprobado en un producto responsivo y fácil de mantener.',
+		icon: '</>',
+	},
 	{ step: 'Lanzar', body: 'QA, despliegue y los detalles necesarios para salir al mundo real.', icon: '↗' },
 ];
 
@@ -128,4 +136,3 @@ export const team = [
 	{ initial: 'B', name: 'Brandon', role: 'Diseño', stat: 'ART 99', tone: 'lime' },
 	{ initial: 'O', name: 'Omar', role: 'Desarrollo', stat: 'DEV 99', tone: 'cream' },
 ] as const;
-

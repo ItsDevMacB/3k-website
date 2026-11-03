@@ -14,7 +14,11 @@ import { process } from '../data/site';
 		<div class="mt-12 hidden items-center gap-3 font-pixel text-xl md:flex" data-reveal style="--d:2">
 			<span>instalando_proyecto.exe</span>
 			<div class="relative h-6 flex-1 overflow-hidden rounded border-2 border-ink bg-cream">
-				<div class="progress h-full bg-[repeating-linear-gradient(90deg,var(--color-orange)_0_14px,transparent_14px_18px)]" data-progress></div>
+				<div
+					class="progress h-full bg-[repeating-linear-gradient(90deg,var(--color-orange)_0_14px,transparent_14px_18px)]"
+					data-progress
+				>
+				</div>
 			</div>
 			<span data-progress-label>0%</span>
 		</div>
@@ -24,7 +28,7 @@ import { process } from '../data/site';
 				process.map((p, i) => (
 					<li
 						class:list={[
-							'window group flex min-h-56 flex-col sm:min-h-72 p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-[10px_10px_0_0_var(--color-ink)]',
+							'window group flex min-h-56 flex-col p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-[10px_10px_0_0_var(--color-ink)] sm:min-h-72',
 							i === 1 ? 'bg-orange text-cream' : 'bg-cream',
 						]}
 						data-reveal="pop"
@@ -40,7 +44,9 @@ import { process } from '../data/site';
 								p.icon === '↗' ? 'font-mono text-3xl font-bold' : 'font-pixel text-4xl',
 							]}
 						>
-							<span class="boil inline-block" style={`--r:${i % 2 ? 4 : -4}deg`}>{p.icon}</span>
+							<span class="boil inline-block" style={`--r:${i % 2 ? 4 : -4}deg`}>
+								{p.icon}
+							</span>
 						</span>
 					</li>
 				))

@@ -9,7 +9,9 @@ const tones = {
 ---
 
 <section id="equipo" class="px-4 py-24 md:px-8 md:py-32">
-	<div class="mx-auto max-w-[1312px] rounded-[2rem] border-2 border-ink bg-stone p-6 shadow-[var(--shadow-pixel)] md:p-14">
+	<div
+		class="mx-auto max-w-[1312px] rounded-[2rem] border-2 border-ink bg-stone p-6 shadow-[var(--shadow-pixel)] md:p-14"
+	>
 		<div class="grid gap-12 lg:grid-cols-[1.2fr_1fr] lg:items-center">
 			<div>
 				<p class="kicker" data-reveal>[ Las personas detrás de 3K ]</p>
@@ -22,8 +24,8 @@ const tones = {
 
 			<div>
 				<p class="max-w-md text-ink/75" data-reveal>
-					Somos un equipo freelance compacto de Puebla que combina desarrollo, diseño y pensamiento de producto.
-					Lo bastante pequeños para estar cerca de cada detalle; lo bastante técnicos para construir lo que imaginas.
+					Somos un equipo freelance compacto de Puebla que combina desarrollo, diseño y pensamiento de producto. Lo
+					bastante pequeños para estar cerca de cada detalle; lo bastante técnicos para construir lo que imaginas.
 				</p>
 
 				<ul class="mt-8 grid grid-cols-3 gap-3 md:gap-5">
@@ -31,8 +33,12 @@ const tones = {
 						team.map((m, i) => (
 							<li class="player group" data-reveal="pop" style={`--d:${i + 1}`}>
 								<div class="player-inner">
-									<div class:list={['player-face window flex aspect-square items-center justify-center', tones[m.tone]]}>
-										<span class="boil font-display text-5xl md:text-7xl" style={`--r:${(i - 1) * 3}deg`}>{m.initial}</span>
+									<div
+										class:list={['player-face window flex aspect-square items-center justify-center', tones[m.tone]]}
+									>
+										<span class="boil font-display text-5xl md:text-7xl" style={`--r:${(i - 1) * 3}deg`}>
+											{m.initial}
+										</span>
 									</div>
 									<div class="player-face player-back window flex aspect-square flex-col justify-between bg-ink p-3 font-pixel text-lime md:p-4">
 										<span class="text-sm leading-none text-cream/60 md:text-base">P{i + 1} · LVL 99</span>

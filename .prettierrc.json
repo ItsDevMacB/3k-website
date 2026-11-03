@@ -1,10 +1,8 @@
 {
   "singleQuote": true,
   "useTabs": true,
-  "plugins": [
-    "prettier-plugin-astro",
-    "prettier-plugin-tailwindcss"
-  ],
+  "printWidth": 120,
+  "plugins": ["prettier-plugin-astro", "prettier-plugin-tailwindcss"],
   "tailwindStylesheet": "./src/styles/global.css",
   "overrides": [
     {

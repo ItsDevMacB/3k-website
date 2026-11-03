@@ -55,7 +55,13 @@ const tones = {
 												sizes="(min-width: 768px) 600px, 90vw"
 												class="size-full object-cover transition-transform duration-500 group-hover:scale-105"
 											/>
-											<span class:list={['absolute top-3 left-3 rounded-md border-2 border-ink px-2.5 py-1 font-display text-sm uppercase shadow-[var(--shadow-pixel-sm)] md:text-base', t.accent, p.tone === 'stone' ? 'text-cream' : 'text-ink']}>
+											<span
+												class:list={[
+													'absolute top-3 left-3 rounded-md border-2 border-ink px-2.5 py-1 font-display text-sm uppercase shadow-[var(--shadow-pixel-sm)] md:text-base',
+													t.accent,
+													p.tone === 'stone' ? 'text-cream' : 'text-ink',
+												]}
+											>
 												{p.name}
 											</span>
 											<span class="pointer-events-none absolute inset-0 translate-y-full bg-ink/90 p-5 font-pixel text-xl leading-tight text-lime transition-transform duration-300 group-hover:translate-y-0 md:p-7 md:text-2xl">

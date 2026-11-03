@@ -5,7 +5,11 @@ import computer from '../assets/retro-computer.png';
 const title = 'CUADRO POR CUADRO';
 ---
 
-<section id="stop-motion" class="relative overflow-hidden bg-ink px-4 py-24 text-cream md:px-8 md:py-32" data-stopmotion>
+<section
+	id="stop-motion"
+	class="relative overflow-hidden bg-ink px-4 py-24 text-cream md:px-8 md:py-32"
+	data-stopmotion
+>
 	<div class="mx-auto max-w-[1312px]">
 		<div class="grid gap-6 md:grid-cols-[1.4fr_1fr] md:items-end">
 			<div>
@@ -25,7 +29,11 @@ const title = 'CUADRO POR CUADRO';
 		<div class="film mt-14" data-reveal="pop">
 			<div class="sprockets" aria-hidden="true"></div>
 
-			<div class="film-frame" role="img" aria-label="Animación en stop motion: la computadora de 3K entra saltando, recibe un disquete, celebra y sale">
+			<div
+				class="film-frame"
+				role="img"
+				aria-label="Animación en stop motion: la computadora de 3K entra saltando, recibe un disquete, celebra y sale"
+			>
 				<div class="scene grid-bg" aria-hidden="true">
 					<p class="scene-title" data-sm-title>{title}</p>
 
@@ -80,7 +88,12 @@ const title = 'CUADRO POR CUADRO';
 	}
 	.sprockets {
 		height: 26px;
-		background: repeating-linear-gradient(90deg, transparent 0 14px, var(--color-cream) 14px 32px, transparent 32px 46px);
+		background: repeating-linear-gradient(
+			90deg,
+			transparent 0 14px,
+			var(--color-cream) 14px 32px,
+			transparent 32px 46px
+		);
 		background-size: 46px 12px;
 		background-repeat: repeat-x;
 		background-position: 0 center;

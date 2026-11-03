@@ -60,7 +60,18 @@
 	}
 
 	// Código Konami: ↑ ↑ ↓ ↓ ← → ← → B A
-	const code = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+	const code = [
+		'ArrowUp',
+		'ArrowUp',
+		'ArrowDown',
+		'ArrowDown',
+		'ArrowLeft',
+		'ArrowRight',
+		'ArrowLeft',
+		'ArrowRight',
+		'b',
+		'a',
+	];
 	const toast = document.querySelector<HTMLElement>('[data-toast]');
 	const toastText = document.querySelector<HTMLElement>('[data-toast-text]');
 	let pos = 0;

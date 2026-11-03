@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
 	/* Paleta 3K — Digital Playground */
@@ -12,10 +12,10 @@
 	--color-ink-3: #35383f;
 	--color-phosphor: #9dff6a;
 
-	--font-display: "Archivo Black", "Arial Black", sans-serif;
-	--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-	--font-mono: "JetBrains Mono", ui-monospace, monospace;
-	--font-pixel: "VT323", ui-monospace, monospace;
+	--font-display: 'Archivo Black', 'Arial Black', sans-serif;
+	--font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+	--font-mono: 'JetBrains Mono', ui-monospace, monospace;
+	--font-pixel: 'VT323', ui-monospace, monospace;
 
 	--shadow-pixel: 6px 6px 0 0 var(--color-ink);
 	--shadow-pixel-sm: 3px 3px 0 0 var(--color-ink);
@@ -127,14 +127,18 @@
 /* Cursores pixelados (solo con mouse) */
 @media (any-pointer: fine) {
 	html {
-		cursor: url("/cursors/arrow.svg") 1 1, auto;
+		cursor:
+			url('/cursors/arrow.svg') 1 1,
+			auto;
 	}
 	a,
 	button,
 	label,
 	summary,
-	[role="button"] {
-		cursor: url("/cursors/hand.svg") 9 1, pointer;
+	[role='button'] {
+		cursor:
+			url('/cursors/hand.svg') 9 1,
+			pointer;
 	}
 }
 
@@ -231,7 +235,7 @@ html.turbo footer img {
 		transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
 	transition-delay: calc(var(--d, 0) * 90ms);
 }
-[data-reveal="pop"] {
+[data-reveal='pop'] {
 	transform: translateY(18px) scale(0.94);
 }
 [data-reveal].is-in {

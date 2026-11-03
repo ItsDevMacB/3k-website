@@ -7,10 +7,10 @@ import { nav, whatsappLink } from '../data/site';
 	<div class="mx-auto flex max-w-[1312px] items-center justify-between gap-4 md:grid md:grid-cols-[1fr_auto_1fr]">
 		<a
 			href="#top"
-			class="group flex items-center justify-self-start gap-2 rounded-lg border-2 border-ink bg-cream px-3 py-1.5 font-display text-xl shadow-[var(--shadow-pixel-sm)] transition-transform hover:-rotate-3"
+			class="group flex items-center gap-2 justify-self-start rounded-lg border-2 border-ink bg-cream px-3 py-1.5 font-display text-xl shadow-[var(--shadow-pixel-sm)] transition-transform hover:-rotate-3"
 			aria-label="3K Studio, ir al inicio"
 		>
-			3K<span class="text-orange animate-blink">_</span>
+			3K<span class="animate-blink text-orange">_</span>
 		</a>
 
 		<nav
@@ -27,7 +27,12 @@ import { nav, whatsappLink } from '../data/site';
 					</a>
 				))
 			}
-			<a href={whatsappLink()} target="_blank" rel="noopener" class="ml-2 rounded-full bg-orange px-5 py-2.5 font-mono text-[11px] font-bold tracking-widest uppercase transition-colors hover:bg-lime hover:text-ink">
+			<a
+				href={whatsappLink()}
+				target="_blank"
+				rel="noopener"
+				class="ml-2 rounded-full bg-orange px-5 py-2.5 font-mono text-[11px] font-bold tracking-widest uppercase transition-colors hover:bg-lime hover:text-ink"
+			>
 				Iniciar ↗
 			</a>
 		</nav>
@@ -59,7 +64,11 @@ import { nav, whatsappLink } from '../data/site';
 			{
 				nav.map((item, i) => (
 					<li>
-						<a href={item.href} class="flex items-center justify-between px-5 py-4 font-display text-2xl uppercase" data-menu-link>
+						<a
+							href={item.href}
+							class="flex items-center justify-between px-5 py-4 font-display text-2xl uppercase"
+							data-menu-link
+						>
 							{item.label}
 							<span class="font-mono text-xs text-orange">0{i + 1}</span>
 						</a>
@@ -67,7 +76,9 @@ import { nav, whatsappLink } from '../data/site';
 				))
 			}
 			<li class="p-4">
-				<a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-primary w-full justify-center">Iniciar proyecto ↗</a>
+				<a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-primary w-full justify-center"
+					>Iniciar proyecto ↗</a
+				>
 			</li>
 		</ul>
 	</div>

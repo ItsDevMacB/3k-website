@@ -23,7 +23,9 @@ import { services } from '../data/site';
 					<li class="service group border-b border-cream/15" data-reveal style={`--d:${i}`}>
 						<div class="relative grid items-center gap-3 overflow-hidden py-7 md:grid-cols-[4rem_1.2fr_1.6fr_3rem] md:gap-8 md:py-9">
 							<span class="absolute inset-0 -z-0 origin-left scale-x-0 bg-orange transition-transform duration-500 ease-out group-hover:scale-x-100" />
-							<span class="relative font-mono text-xs text-orange transition-colors group-hover:text-ink">0{i + 1}</span>
+							<span class="relative font-mono text-xs text-orange transition-colors group-hover:text-ink">
+								0{i + 1}
+							</span>
 							<h3 class="relative font-display text-2xl uppercase transition-transform duration-300 group-hover:translate-x-3 md:text-3xl">
 								{s.title}
 							</h3>
@@ -31,7 +33,9 @@ import { services } from '../data/site';
 								<p class="text-sm leading-relaxed text-cream/70 transition-colors group-hover:text-cream">{s.body}</p>
 								<p class="mt-2 font-pixel text-lg text-lime transition-colors group-hover:text-ink">$ 3k {s.cmd}</p>
 							</div>
-							<span class="relative hidden text-2xl transition-transform duration-300 group-hover:rotate-45 md:block">↗</span>
+							<span class="relative hidden text-2xl transition-transform duration-300 group-hover:rotate-45 md:block">
+								↗
+							</span>
 						</div>
 					</li>
 				))
