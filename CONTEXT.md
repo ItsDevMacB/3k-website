@@ -36,6 +36,7 @@ Al asignar o proponer tareas, usar este reparto (campo *Asignada a* en `docs/TAS
 | Hosting | Cloudflare (`wrangler.json`, `pages_build_output_dir: ./dist`); dominio `3k.software`. Pages vs Workers por confirmar (T-12) | wrangler ^4.126.0 |
 | Calidad | ESLint 10 (flat) + typescript-eslint + eslint-plugin-astro, Prettier 3 + prettier-plugin-astro + prettier-plugin-tailwindcss (0.8.1, instalado 2026-11-02; verificado como paquete oficial de `tailwindlabs`) | ver package.json |
 | Paquetes | **pnpm** (`pnpm-workspace.yaml`), Node ≥ 22.12 (`.nvmrc`: v26.7.0) | — |
+| Imágenes | sharp 0.35.4 (dependencia directa desde 2026-11-02; la usa `astro:assets` al compilar) | 0.35.4 |
 | Lenguaje | TypeScript estricto (`astro/tsconfigs/strict`) | — |
 
 Subagente de IA del proyecto: `ux-ui-reviewer` (`.claude/agents/`), revisor UX/UI y accesibilidad; actúa como Brandon cuando él no está.
@@ -187,7 +188,7 @@ Decisiones: **una sola URL** (sin `/en/`), detección vía **Cloudflare** (se ha
 
 **Pendiente principal, por prioridad** (detalle y % en `docs/TASKS.md` de cada persona; esta lista es el estado del proyecto al 2026-11-02):
 - **P0**: datos reales de contacto (se mantienen como *placeholders* hasta que el usuario los dé; T-01).
-- **P1**: build roto por `sharp` (T-16), contraste AA (T-09), adaptador Cloudflare (T-12), fuentes autoalojadas (T-05), rendimiento (T-06), SEO (T-07), pruebas cross-browser/móvil (T-10), accesibilidad restante (T-14).
+- **P1**: contraste AA (T-09), adaptador Cloudflare (T-12), fuentes autoalojadas (T-05), rendimiento (T-06), SEO (T-07), pruebas cross-browser/móvil (T-10), accesibilidad restante (T-14).
 - **P2**: i18n (T-03), roles de la sección Equipo (T-13), enlaces de proyectos (T-08), daltonismo (T-04), convención de `docs/` individuales y traspasos (T-15, lista para verificar).
 - **P3**: logo y nombre definitivos (T-11).
 
@@ -198,7 +199,6 @@ Decisiones: **una sola URL** (sin `/en/`), detección vía **Cloudflare** (se ha
 - Marquee y píxeles del footer se mueven sin control de pausa (WCAG 2.2.2); la pantalla de arranque solo se salta con clic.
 - Fuentes desde Google Fonts: dependencia externa, costo de rendimiento y de privacidad.
 - Sin `<link rel="canonical">`, `og:image`, `twitter:*`, sitemap, robots ni 404.
-- `pnpm build` **falla en este entorno** con `MissingSharp` (ocurre también en `main` sin cambios): `sharp` no es dependencia directa y Astro 7 no lo encuentra al generar imágenes. Pendiente de aprobar `pnpm add sharp@0.35.4` (T-16).
 - `eslint.config.js` apunta a un `Seo.astro` futuro (T-07).
 - Velocidad de carga: hero dependiente de JS para mostrarse (retrasa LCP), imagen del hero sin `widths`, animaciones infinitas sin pausar fuera de pantalla, overlay CRT con `mix-blend-mode` a pantalla completa. Plan de mejora en T-06.
 - Modo turbo con `filter: invert` sobre `main`/`footer` puede ser costoso en dispositivos modestos.
@@ -212,6 +212,7 @@ Ver `AGENTS.md` y `WORKFLOW.md`. Resumen: al terminar cualquier cambio que afect
 
 | Fecha | Cambio |
 | --- | --- |
+| 2026-11-02 | Cuarta ronda: commits integrados a `main` (la gráfica de contribuciones de GitHub solo cuenta commits en la rama por defecto); `sharp@0.35.4` instalado con pnpm (verificado oficial: lovell, Apache-2.0, con procedencia), `pnpm build` vuelve a funcionar (T-16, lista para verificar). |
 | 2026-11-02 | Tercera ronda: instalado `prettier-plugin-tailwindcss@0.8.1` con pnpm (verificado oficial) y `printWidth: 120`; código reformateado con `pnpm format`; `docs/` pasa a ser individual por persona; `WORKFLOW.md` movido a la raíz (compartido) con formatos de `docs/`, traspasos y reglas UI/UX; creado subagente `ux-ui-reviewer`; roles del equipo actualizados; detectado build roto por `sharp` (T-16). |
 | 2026-11-02 | Segunda ronda: prioridades P0–P3 en tareas; T-09 con auditoría de contraste (20 puntos y sustituciones); nuevas tareas T-12 a T-15; plan de rendimiento en T-06; scripts `lint`/`lint:fix`/`format`/`format:check` en `package.json`; dominio `3k.software`; decisiones: una sola URL para i18n, Cloudflare para después, roles públicos sin cambios por ahora; reglas de paquetes (preguntar + `pnpm`), commits/ramas y arranque de sesión en `AGENTS.md` y `docs/WORKFLOW.md`; `QUESTIONS.md` solo conserva abiertas. |
 | 2026-11-02 | Creación de `CONTEXT.md`, `docs/` (README, TASKS, QUESTIONS, WORKFLOW), actualización de `AGENTS.md`/`CLAUDE.md` y `.gitignore` (`docs/`). Análisis completo del proyecto. |
