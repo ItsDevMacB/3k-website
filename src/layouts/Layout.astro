@@ -47,6 +47,7 @@ const {
 		</script>
 	</head>
 	<body>
+		<a href="#main" class="skip-link">Saltar al contenido</a>
 		<slot />
 		<div class="crt-overlay" aria-hidden="true"></div>
 		<script>
@@ -59,7 +60,7 @@ const {
 				document.documentElement.classList.contains('is-static');
 			if (!skip) {
 				// anchors: los enlaces #seccion también usan el scroll suave (con el offset del nav fijo)
-				new Lenis({ autoRaf: true, anchors: { offset: -96 } });
+				window.lenis = new Lenis({ autoRaf: true, anchors: { offset: -96 } });
 			}
 		</script>
 	</body>
