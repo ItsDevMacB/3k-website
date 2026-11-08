@@ -16,17 +16,17 @@ import Contact from '../components/Contact.astro';
 <Layout>
 	<BootScreen />
 	<Nav />
-	<main>
+	<main id="main" tabindex="-1">
 		<Hero />
 		<Marquee />
 		<Projects />
-		<div class="dither" aria-hidden="true"></div>
+		<div class="dither" aria-hidden="true" data-nav-bg="dark"></div>
 		<Services />
-		<div class="dither dither-up" aria-hidden="true"></div>
+		<div class="dither dither-up" aria-hidden="true" data-nav-bg="dark"></div>
 		<Process />
-		<div class="dither" aria-hidden="true"></div>
+		<div class="dither" aria-hidden="true" data-nav-bg="dark"></div>
 		<StopMotion />
-		<div class="dither dither-up" aria-hidden="true"></div>
+		<div class="dither dither-up" aria-hidden="true" data-nav-bg="dark"></div>
 		<Team />
 	</main>
 	<Contact />

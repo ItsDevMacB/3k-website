@@ -2,26 +2,28 @@
 import { nav, whatsappLink } from '../data/site';
 ---
 
-<header class="fixed inset-x-0 top-0 z-50 px-4 pt-4 md:px-8 md:pt-6" data-nav>
+<!-- data-nav-theme cambia según el fondo bajo el nav (ver script); los colores viven en variables de este componente -->
+<header class="fixed inset-x-0 top-0 z-50 px-4 pt-4 md:px-8 md:pt-6" data-nav data-nav-theme="light">
 	<!-- En md+ es una rejilla 1fr/auto/1fr para que la píldora quede centrada sin importar el ancho de los lados -->
 	<div class="mx-auto flex max-w-[1312px] items-center justify-between gap-4 md:grid md:grid-cols-[1fr_auto_1fr]">
 		<a
 			href="#top"
-			class="group flex items-center gap-2 justify-self-start rounded-lg border-2 border-ink bg-cream px-3 py-1.5 font-display text-xl shadow-[var(--shadow-pixel-sm)] transition-transform hover:-rotate-3"
+			class="nav-logo nav-skin group flex items-center gap-2 justify-self-start rounded-lg border-2 px-3 py-1.5 font-display text-xl transition-transform hover:-rotate-3"
 			aria-label="3K Studio, ir al inicio"
+			data-nav-row
 		>
-			3K<span class="animate-blink text-orange">_</span>
+			3K<span class="nav-cursor nav-skin animate-blink" aria-hidden="true">_</span>
 		</a>
 
 		<nav
-			class="hidden items-center gap-1 rounded-full border-2 border-ink bg-ink p-1.5 pl-5 text-cream md:flex"
+			class="nav-pill nav-skin hidden items-center gap-1 rounded-full border-2 p-1.5 pl-5 md:flex"
 			aria-label="Principal"
 		>
 			{
 				nav.map((item) => (
 					<a
 						href={item.href}
-						class="nav-link relative rounded-full px-4 py-2 font-mono text-[11px] font-bold tracking-widest uppercase transition-colors hover:text-lime"
+						class="nav-link relative rounded-full px-4 py-2 font-mono text-[11px] font-bold tracking-widest uppercase"
 					>
 						{item.label}
 					</a>
@@ -31,62 +33,223 @@ import { nav, whatsappLink } from '../data/site';
 				href={whatsappLink()}
 				target="_blank"
 				rel="noopener"
-				class="ml-2 rounded-full bg-orange px-5 py-2.5 font-mono text-[11px] font-bold tracking-widest uppercase transition-colors hover:bg-lime hover:text-ink"
+				class="nav-cta nav-skin ml-2 rounded-full border-2 px-5 py-2 font-mono text-[11px] font-bold tracking-widest uppercase"
 			>
-				Iniciar ↗
+				Iniciar <span aria-hidden="true">↗</span><span class="sr-only"> (abre WhatsApp en una pestaña nueva)</span>
 			</a>
 		</nav>
 
-		<p class="hidden justify-self-end text-right font-mono text-[10px] tracking-widest text-ink/70 uppercase xl:block">
+		<p
+			class="nav-tagline nav-skin hidden justify-self-end text-right font-mono text-xs tracking-[0.08em] uppercase xl:block"
+		>
 			Estudio digital independiente / Puebla, MX
 		</p>
 
 		<button
 			type="button"
-			class="flex size-11 flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-ink bg-cream shadow-[var(--shadow-pixel-sm)] md:hidden"
+			class="nav-menu-btn nav-skin flex size-11 flex-col items-center justify-center gap-1.5 rounded-lg border-2 md:hidden"
 			aria-label="Abrir menú"
 			aria-expanded="false"
 			aria-controls="mobile-menu"
 			data-menu-toggle
 		>
-			<span class="h-0.5 w-5 bg-ink transition-transform"></span>
-			<span class="h-0.5 w-5 bg-ink transition-transform"></span>
+			<span class="nav-bar nav-skin h-0.5 w-5 transition-transform"></span>
+			<span class="nav-bar nav-skin h-0.5 w-5 transition-transform"></span>
 		</button>
 	</div>
 
 	<div
 		id="mobile-menu"
-		class="window invisible mx-auto mt-3 max-w-[1312px] -translate-y-2 opacity-0 transition-all duration-200 md:hidden"
+		class="nav-window window invisible mx-auto mt-3 max-w-[1312px] -translate-y-2 opacity-0 transition-all duration-200 md:hidden"
 		data-menu
+		data-lenis-prevent
 	>
-		<div class="window-bar"><span>menu.exe</span><span>▢ ✕</span></div>
-		<ul class="divide-y-2 divide-ink/10">
-			{
-				nav.map((item, i) => (
-					<li>
-						<a
-							href={item.href}
-							class="flex items-center justify-between px-5 py-4 font-display text-2xl uppercase"
-							data-menu-link
-						>
-							{item.label}
-							<span class="font-mono text-xs text-orange">0{i + 1}</span>
-						</a>
-					</li>
-				))
-			}
-			<li class="p-4">
-				<a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-primary w-full justify-center"
-					>Iniciar proyecto ↗</a
-				>
-			</li>
-		</ul>
+		<div class="window-bar">
+			<span>menu.exe</span>
+			<span class="flex items-center gap-2">
+				<span aria-hidden="true">▢</span>
+				<button type="button" class="px-1 leading-none" aria-label="Cerrar menú" data-menu-close>✕</button>
+			</span>
+		</div>
+		<!-- El nav de escritorio está oculto en móvil, así que este es el landmark principal ahí -->
+		<nav aria-label="Principal">
+			<ul class="divide-y-2 divide-ink/10">
+				{
+					nav.map((item, i) => (
+						<li>
+							<a
+								href={item.href}
+								class="flex items-center justify-between px-5 py-4 font-display text-2xl uppercase"
+								data-menu-link
+							>
+								{item.label}
+								<span class="font-mono text-xs text-ink/70" aria-hidden="true">
+									0{i + 1}
+								</span>
+							</a>
+						</li>
+					))
+				}
+				<li class="p-4">
+					<a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-primary w-full justify-center text-ink"
+						>Iniciar proyecto <span aria-hidden="true">↗</span><span class="sr-only">
+							(abre WhatsApp en una pestaña nueva)</span
+						></a
+					>
+				</li>
+			</ul>
+		</nav>
 	</div>
 </header>
 
+<style>
+	/* Temas del nav. Todos los pares pasan WCAG AA (revisión ux-ui-reviewer, T-17). */
+	[data-nav] {
+		--logo-bg: var(--color-cream);
+		--logo-fg: var(--color-ink);
+		--logo-border: var(--color-ink);
+		--logo-shadow: var(--color-ink);
+		--cursor: var(--color-orange);
+		--pill-bg: var(--color-ink);
+		--pill-fg: var(--color-cream);
+		--pill-border: var(--color-ink);
+		--link-hover-bg: transparent;
+		--link-hover-fg: var(--color-lime);
+		--cta-bg: var(--color-orange);
+		--cta-fg: var(--color-ink);
+		--cta-border: var(--color-orange);
+		--tagline-fg: var(--color-ink);
+		--tagline-halo: var(--color-cream);
+		--menu-bg: var(--color-cream);
+		--menu-fg: var(--color-ink);
+		--menu-border: var(--color-ink);
+		--menu-shadow: var(--color-ink);
+	}
+	/* Sobre ink, marquee y dither. Es legible también sobre claro, por eso es el respaldo sin JS. */
+	[data-nav][data-nav-theme='dark'],
+	:global(html.no-js:not(.is-static)) [data-nav] {
+		--logo-shadow: var(--color-orange);
+		--pill-bg: var(--color-cream);
+		--pill-fg: var(--color-ink);
+		--pill-border: var(--color-cream);
+		--link-hover-bg: var(--color-ink);
+		--cta-border: var(--color-ink);
+		--tagline-fg: var(--color-cream);
+		--tagline-halo: var(--color-ink);
+		--menu-shadow: var(--color-orange);
+	}
+	/* Sobre el footer naranja */
+	[data-nav][data-nav-theme='orange'] {
+		--logo-bg: var(--color-ink);
+		--logo-fg: var(--color-cream);
+		--logo-border: var(--color-cream);
+		--cursor: var(--color-lime);
+		--pill-bg: var(--color-cream);
+		--pill-fg: var(--color-ink);
+		--link-hover-bg: var(--color-ink);
+		--cta-bg: var(--color-ink);
+		--cta-fg: var(--color-lime);
+		--cta-border: var(--color-ink);
+		--tagline-halo: var(--color-orange);
+		--menu-bg: var(--color-ink);
+		--menu-fg: var(--color-cream);
+		--menu-border: var(--color-cream);
+	}
+
+	.nav-logo {
+		background-color: var(--logo-bg);
+		color: var(--logo-fg);
+		border-color: var(--logo-border);
+		box-shadow: 3px 3px 0 0 var(--logo-shadow);
+	}
+	.nav-cursor {
+		color: var(--cursor);
+	}
+	.nav-pill {
+		background-color: var(--pill-bg);
+		color: var(--pill-fg);
+		border-color: var(--pill-border);
+	}
+	.nav-link {
+		transition: background-color 150ms ease;
+	}
+	.nav-link:hover {
+		background-color: var(--link-hover-bg);
+		color: var(--link-hover-fg);
+	}
+	.nav-cta {
+		background-color: var(--cta-bg);
+		color: var(--cta-fg);
+		border-color: var(--cta-border);
+	}
+	.nav-cta:hover {
+		background-color: var(--color-lime);
+		color: var(--color-ink);
+		border-color: var(--color-ink);
+	}
+	/* El texto puede quedar a caballo entre dos fondos (p. ej. borde negro de la tira de película):
+	   el contorno de 1 px es del color del fondo del tema, así que solo se ve donde hace falta. */
+	.nav-tagline {
+		color: var(--tagline-fg);
+		text-shadow:
+			-1px 0 var(--tagline-halo),
+			1px 0 var(--tagline-halo),
+			0 -1px var(--tagline-halo),
+			0 1px var(--tagline-halo);
+	}
+	.nav-menu-btn {
+		background-color: var(--menu-bg);
+		border-color: var(--menu-border);
+		box-shadow: 3px 3px 0 0 var(--menu-shadow);
+	}
+	.nav-bar {
+		background-color: var(--menu-fg);
+	}
+	.nav-window {
+		box-shadow: 6px 6px 0 0 var(--menu-shadow);
+	}
+
+	/* Halo de foco compuesto con la sombra pixel de cada pieza */
+	.nav-logo:focus-visible {
+		box-shadow:
+			var(--focus-halo),
+			3px 3px 0 0 var(--logo-shadow);
+	}
+	.nav-menu-btn:focus-visible {
+		box-shadow:
+			var(--focus-halo),
+			3px 3px 0 0 var(--menu-shadow);
+	}
+
+	/* Cambio de tema suave: el fondo se desliza y el texto cambia en un instante breve justo a mitad, cuando el
+	   fondo está en gris medio. Fondo y texto que se invierten siempre se cruzan en el mismo gris; así ese cruce
+	   dura un solo fotograma en lugar de ~50 ms. Solo se activa tras el primer cálculo (no anima al cargar). */
+	[data-nav-ready] .nav-skin {
+		transition:
+			background-color 200ms ease-in-out,
+			border-color 200ms ease-in-out,
+			box-shadow 200ms ease-in-out,
+			color 40ms linear 80ms,
+			transform 150ms ease;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		[data-nav-ready] .nav-skin,
+		.nav-link {
+			transition: none;
+		}
+	}
+</style>
+
 <script>
+	import { observeNavTheme } from '../scripts/nav-theme';
+
+	const header = document.querySelector<HTMLElement>('[data-nav]');
 	const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
 	const menu = document.querySelector<HTMLElement>('[data-menu]');
+
+	if (header) observeNavTheme(header);
+
+	const isOpen = () => toggle?.getAttribute('aria-expanded') === 'true';
 	const setOpen = (open: boolean) => {
 		toggle?.setAttribute('aria-expanded', String(open));
 		toggle?.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
@@ -98,7 +261,28 @@ import { nav, whatsappLink } from '../data/site';
 		a?.classList.toggle('rotate-45', open);
 		b?.classList.toggle('-translate-y-1', open);
 		b?.classList.toggle('-rotate-45', open);
+		// Lenis ignora overflow:hidden, por eso se detiene aparte
+		document.documentElement.style.overflow = open ? 'hidden' : '';
+		if (open) window.lenis?.stop();
+		else window.lenis?.start();
 	};
-	toggle?.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+	toggle?.addEventListener('click', () => setOpen(!isOpen()));
 	document.querySelectorAll('[data-menu-link]').forEach((link) => link.addEventListener('click', () => setOpen(false)));
+	document.querySelector('[data-menu-close]')?.addEventListener('click', () => {
+		setOpen(false);
+		toggle?.focus();
+	});
+	// Si el foco sale del nav con el menú abierto (Tab hacia el contenido), se cierra
+	header?.addEventListener('focusout', (e) => {
+		const next = e.relatedTarget as Node | null;
+		if (isOpen() && next && !header.contains(next)) setOpen(false);
+	});
+	document.addEventListener('keydown', (e) => {
+		if (e.key !== 'Escape' || !isOpen()) return;
+		setOpen(false);
+		toggle?.focus();
+	});
+	matchMedia('(min-width: 768px)').addEventListener('change', (e) => {
+		if (e.matches && isOpen()) setOpen(false);
+	});
 </script>

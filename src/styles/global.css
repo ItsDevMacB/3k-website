@@ -46,6 +46,10 @@
 }
 
 @layer base {
+	:root {
+		/* Foco de dos tonos: anillo ink con halo cream; se lee sobre cream, stone, ink, lima y naranja */
+		--focus-halo: 0 0 0 4px var(--color-cream);
+	}
 	html {
 		scroll-behavior: smooth;
 		scroll-padding-top: 6rem;
@@ -62,8 +66,12 @@
 		@apply bg-orange text-cream;
 	}
 	:focus-visible {
-		outline: 3px solid var(--color-orange);
+		outline: 3px solid var(--color-ink);
 		outline-offset: 3px;
+		box-shadow: var(--focus-halo);
+	}
+	main:focus {
+		outline: none;
 	}
 }
 
@@ -82,6 +90,9 @@
 		transform: translate(-2px, -2px);
 		box-shadow: 5px 5px 0 0 var(--color-ink);
 	}
+	.btn:focus-visible {
+		box-shadow: var(--focus-halo), var(--shadow-pixel-sm);
+	}
 	.btn:active {
 		transform: translate(3px, 3px);
 		box-shadow: 0 0 0 0 var(--color-ink);
@@ -91,6 +102,16 @@
 	}
 	.btn-ghost {
 		@apply bg-cream text-ink;
+	}
+
+	/* Enlace para saltar al contenido: oculto hasta recibir foco */
+	.skip-link {
+		@apply fixed top-4 left-4 z-[60] inline-flex min-h-11 -translate-y-[200%] items-center rounded-lg border-2 border-ink bg-lime px-4 font-mono text-sm font-bold text-ink uppercase;
+		box-shadow: var(--shadow-pixel-sm);
+	}
+	.skip-link:focus-visible {
+		@apply translate-y-0;
+		box-shadow: var(--focus-halo), var(--shadow-pixel-sm);
 	}
 
 	/* Ventana estilo sistema operativo clásico */

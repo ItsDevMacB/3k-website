@@ -4,7 +4,11 @@ import { marquee } from '../data/site';
 const items = [...marquee, ...marquee];
 ---
 
-<div class="relative z-10 -rotate-1 border-y-2 border-ink bg-ink py-4 text-cream" aria-label="Servicios">
+<div
+	class="relative z-10 -rotate-1 border-y-2 border-ink bg-ink py-4 text-cream"
+	aria-label="Servicios"
+	data-nav-bg="dark"
+>
 	<div class="flex overflow-hidden">
 		<ul
 			class="flex shrink-0 animate-marquee items-center gap-8 pr-8 whitespace-nowrap hover:[animation-play-state:paused]"
