@@ -63,6 +63,7 @@ Scripts (`package.json`): `dev`, `build`, `preview`, `astro`, `generate-types`, 
     ├── layouts/Layout.astro         <head>, fuentes, Lenis, overlay CRT, flags ?static/#figmacapture
     ├── styles/global.css            tokens @theme + utilidades (.btn, .window, .kicker, .dither, .boil…)
     ├── data/site.ts                 TODO el contenido editable (textos, proyectos, equipo, contacto)
+    ├── scripts/nav-theme.ts         IntersectionObserver que cambia el tema del nav según [data-nav-bg]
     ├── components/                  ver §6
     └── assets/
         ├── retro-computer.png       1024×1024 RGBA (hero y stop motion)
@@ -141,7 +142,7 @@ Notas: VT323 no tiene `↗` (usar mono). Hay textos de 10–11 px (kickers, etiq
 | # | Sección | Componente | Ancla | Contenido |
 | --- | --- | --- | --- | --- |
 | 0 | Boot screen | `BootScreen` | — | Pantalla de arranque |
-| 1 | Navegación fija | `Nav` | — | Logo 3K_, píldora con Trabajo/Servicios/Proceso/Equipo + «Iniciar ↗» (WhatsApp); menú móvil `menu.exe` |
+| 1 | Navegación fija | `Nav` | — | Logo 3K_, píldora con Trabajo/Servicios/Proceso/Equipo + «Iniciar ↗» (WhatsApp); texto «Estudio digital independiente / Puebla, MX» (xl); menú móvil `menu.exe` (cierra con `Esc`, bloquea scroll). **Tema adaptable** `data-nav-theme="light|dark|orange"` según la sección marcada con `data-nav-bg` bajo el nav (`src/scripts/nav-theme.ts`); el texto derecho es texto suelto (sin chip) que solo cambia de color; transición suave (T-17) |
 | 2 | Hero | `Hero` + `RetroComputer` | `#top` | H1, párrafo, 2 CTAs, computadora retro |
 | 3 | Marquee | `Marquee` | — | 6 servicios en cinta inclinada |
 | 4 | Trabajo | `Projects` | `#trabajo` | 4 proyectos en ventanas con imagen y overlay terminal |
@@ -188,13 +189,16 @@ Decisiones: **una sola URL** (sin `/en/`), detección vía **Cloudflare** (se ha
 
 **Pendiente principal, por prioridad** (detalle y % en `docs/TASKS.md` de cada persona; esta lista es el estado del proyecto al 2026-11-02):
 - **P0**: datos reales de contacto (se mantienen como *placeholders* hasta que el usuario los dé; T-01).
-- **P1**: contraste AA (T-09), adaptador Cloudflare (T-12), fuentes autoalojadas (T-05), rendimiento (T-06), SEO (T-07), pruebas cross-browser/móvil (T-10), accesibilidad restante (T-14).
-- **P2**: i18n (T-03), roles de la sección Equipo (T-13), enlaces de proyectos (T-08), daltonismo (T-04), convención de `docs/` individuales y traspasos (T-15, lista para verificar).
-- **P3**: logo y nombre definitivos (T-11).
+- **P1**: contraste AA (T-09), navbar adaptable al fondo (T-17), tipografía y baja visión (T-18), proyectos reales sin MathMass (T-23), adaptador Cloudflare (T-12, bloqueada por hosting sin confirmar), fuentes autoalojadas (T-05), rendimiento (T-06), SEO (T-07), pruebas cross-browser/móvil (T-10), accesibilidad restante (T-14).
+- **P2**: i18n (T-03), rework de Equipo con fotos y enlaces (T-13), enlaces de proyectos (T-08), daltonismo (T-04), chips del hero arrastrables (T-19), videojuego que sustituye al modo turbo (T-22), CI (T-25), pruebas automáticas (T-26), cabeceras de seguridad (T-27).
+- **P3**: logo y nombre definitivos (T-11), rework de «Cómo trabajamos» (T-20), evaluar librería de animación (T-24; recomendación: no agregar por ahora), README real (T-28), ideas de contenido (T-29).
+- Lista para verificar: T-02 (tooling) y T-15 (convención de `docs/`). Cerrada: T-16 (`sharp`).
 
 ## 11. Problemas conocidos detectados en el análisis
 
 - `contact.whatsapp = '520000000000'`, `email = 'hola@3kstudio.mx'` y redes (`instagram.com/` genérico) son *placeholders* (decisión: se dejan así hasta que se pidan cambios; faltan listados en T-01).
+- Tipografía: hay textos de 10–11 px, VT323 con información funcional y contrastes bajos; auditoría y escala propuesta en T-18.
+- Modo turbo (Konami) deja la página ilegible; se sustituirá por un videojuego (T-22).
 - Contraste: 20 puntos incumplen AA (botón primario, nav «Iniciar», kickers, tarjeta 2 de Proceso, H2 del footer, foco, textos con opacidad…); lista completa con sustituciones en T-09.
 - Marquee y píxeles del footer se mueven sin control de pausa (WCAG 2.2.2); la pantalla de arranque solo se salta con clic.
 - Fuentes desde Google Fonts: dependencia externa, costo de rendimiento y de privacidad.
@@ -212,6 +216,9 @@ Ver `AGENTS.md` y `WORKFLOW.md`. Resumen: al terminar cualquier cambio que afect
 
 | Fecha | Cambio |
 | --- | --- |
+| 2026-11-08 | T-17 (ajustes tras prueba de Brandon): el logo conserva el fondo cream en zonas oscuras y solo cambia la sombra a naranja (sin lima, tampoco en el botón de menú); el texto derecho vuelve a ser texto suelto (sin chip) con contorno de 1 px del color del fondo del tema; se quita el parpadeo CRT y la transición pasa a fundido suave (fondo 200 ms, texto en un instante a mitad); la pantalla blanca de stop motion (`.scene`) se marca `data-nav-bg="light"` y la ventana ink del footer `dark`. |
+| 2026-11-08 | T-17: nav adaptable al fondo (`light` / `dark` lima+cream / `orange` ink) con `IntersectionObserver` y transición CRT por pasos; secciones marcadas con `data-nav-bg` (Servicios, Stop motion, Marquee, dither, footer); foco global de dos tonos (anillo ink + halo cream, `--focus-halo`); enlace «Saltar al contenido» (`main#main`); menú móvil con `Esc`, bloqueo de scroll (`window.lenis`) y cierre al pasar a md; «Iniciar» del nav con texto ink. |
+| 2026-11-02 | Quinta ronda: nuevas tareas T-17 a T-29 (navbar adaptable, tipografía, chips arrastrables, rework de «Cómo trabajamos» y Equipo, videojuego, proyectos reales, librería de animación, CI, pruebas, cabeceras, README, ideas); revisiones del subagente `ux-ui-reviewer` registradas en T-17 y T-18; T-16 cerrada. |
 | 2026-11-02 | Cuarta ronda: commits integrados a `main` (la gráfica de contribuciones de GitHub solo cuenta commits en la rama por defecto); `sharp@0.35.4` instalado con pnpm (verificado oficial: lovell, Apache-2.0, con procedencia), `pnpm build` vuelve a funcionar (T-16, lista para verificar). |
 | 2026-11-02 | Tercera ronda: instalado `prettier-plugin-tailwindcss@0.8.1` con pnpm (verificado oficial) y `printWidth: 120`; código reformateado con `pnpm format`; `docs/` pasa a ser individual por persona; `WORKFLOW.md` movido a la raíz (compartido) con formatos de `docs/`, traspasos y reglas UI/UX; creado subagente `ux-ui-reviewer`; roles del equipo actualizados; detectado build roto por `sharp` (T-16). |
 | 2026-11-02 | Segunda ronda: prioridades P0–P3 en tareas; T-09 con auditoría de contraste (20 puntos y sustituciones); nuevas tareas T-12 a T-15; plan de rendimiento en T-06; scripts `lint`/`lint:fix`/`format`/`format:check` en `package.json`; dominio `3k.software`; decisiones: una sola URL para i18n, Cloudflare para después, roles públicos sin cambios por ahora; reglas de paquetes (preguntar + `pnpm`), commits/ramas y arranque de sesión en `AGENTS.md` y `docs/WORKFLOW.md`; `QUESTIONS.md` solo conserva abiertas. |
