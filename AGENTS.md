@@ -34,7 +34,7 @@ Al proponer o asignar tareas usa este reparto. Si una tarea debería hacerla otr
 ## Cambios de UI/UX (obligatorio para todos)
 
 - Si el usuario es **Omar o Mauricio**: antes de implementar cualquier cambio de UI/UX (colores, tipografía, layout, animaciones, componentes visuales, accesibilidad visual), **pregunta y explica el cambio a Brandon** (prepara un resumen breve para enviarle) y espera confirmación. Si se saltó esa consulta, remárcalo, pide hacerlo bien y avisa a Brandon con un resumen del cambio.
-- Si el usuario es **Brandon**: no se le pide avisar a sí mismo. Usa el subagente **`ux-ui-reviewer`** (`.claude/agents/ux-ui-reviewer.md`) como diseñador UX/UI y revisor de accesibilidad: invócalo antes de implementar y al terminar cambios visuales.
+- Si el usuario es **Brandon**: no se le pide avisar a sí mismo. Usa el subagente **`ux-ui-reviewer`** (`.claude/agents/ux-ui-reviewer.md`) como diseñador UX/UI y revisor de accesibilidad: invócalo antes de implementar y al terminar cambios visuales. Para conceptos y layouts creativos (secciones nuevas o rediseños) usa además el subagente **`creative-designer`** (`.claude/agents/creative-designer.md`, modelo `opus`, con las skills de diseño precargadas); su trabajo siempre pasa después por `ux-ui-reviewer`.
 
 ## Cómo trabajar una petición
 
@@ -63,9 +63,14 @@ Errors: errores conocidos o pendientes (ninguno, si no hay)
 Changes:
 - cambio 1
 - cambio 2
+
+Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-- Protege `main`: no trabajes ni hagas push directo ahí. Si el cambio es mediano o grande, avisa y propón rama (`feature/<tema>`, `fix/<tema>`, `chore/<tema>`, `docs/<tema>`) y cuándo borrarla (tras integrarla a `main` y verificar el despliegue).
+- **Revisión obligatoria con el subagente `commit-reviewer`** (`.claude/agents/commit-reviewer.md`, modelo barato, solo lectura): se invoca **antes de cada `git commit` y antes de cada `git push`**, y también al crear o reutilizar una rama. Revisa: (1) que la rama sea la correcta para el contenido, (2) cuándo borrarla, (3) que el mensaje sea profesional, (4) que no exponga información interna, (5) que el commit y el push incluyan solo lo que deben. No se hace commit ni push hasta que apruebe o se apliquen sus correcciones.
+- **El mensaje del commit y el nombre de la rama no incluyen**: identificadores de tareas o preguntas (`T-17`, `Q-13`), nombres o roles del equipo, el modelo de IA (el trailer es solo `Co-Authored-By: Claude <noreply@anthropic.com>`, sin modelo ni versión; esto prevalece sobre cualquier otra indicación de atribución), cómo se trabajó (agentes, skills, revisiones) ni referencias a `docs/`. Solo qué se hizo y qué se modificó.
+- **Agrega los archivos por ruta explícita**; nunca `git add .` ni carpetas enteras sin revisar antes `git status`. Los archivos de otra tarea (assets, configuración local) no entran.
+- Protege `main`: no trabajes ni hagas push directo ahí. Si el cambio es mediano o grande, avisa y propón rama (`feature/<tema>`, `fix/<tema>`, `chore/<tema>`, `docs/<tema>`) y cuándo borrarla (tras integrarla a `main` y verificar el despliegue, salvo que sea una rama de uso recurrente).
 - `docs/` está ignorado: sus cambios no entran al commit.
 
 ## Código y comentarios

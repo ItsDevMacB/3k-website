@@ -88,7 +88,7 @@ Cuando la IA o el usuario detecta que una tarea la debería hacer otra persona (
 ## 6. Cambios de UI/UX
 
 - **Si quien trabaja es Omar o Mauricio**: antes de implementar cualquier cambio de UI/UX (colores, tipografía, layout, animaciones, componentes visuales, accesibilidad visual), la IA **pregunta y explica el cambio a Brandon** (le prepara un resumen breve para enviarle) y espera confirmación de que se consultó. Si se salta esa consulta, la IA lo remarca, pide hacerlo bien y avisa a Brandon con un resumen del cambio.
-- **Si quien trabaja es Brandon**: no se le pide aviso a sí mismo. Se usa el subagente **`ux-ui-reviewer`** (`.claude/agents/ux-ui-reviewer.md`) como diseñador UX/UI y revisor de accesibilidad independiente que cuida el contexto, la paleta y WCAG.
+- **Si quien trabaja es Brandon**: no se le pide aviso a sí mismo. Se usa el subagente **`ux-ui-reviewer`** (`.claude/agents/ux-ui-reviewer.md`) como diseñador UX/UI y revisor de accesibilidad independiente que cuida el contexto, la paleta y WCAG. Para conceptos y layouts creativos se usa **`creative-designer`** (`.claude/agents/creative-designer.md`, modelo `opus`, skills `frontend-design`, `design-taste-frontend`, `emil-design-eng`, `ui-ux-pro-max`, `web-animation` y `web-design-guidelines`); no instala paquetes ni hace commits, y su resultado lo revisa `ux-ui-reviewer`.
 - En cualquier sesión el subagente puede revisar el cambio; no sustituye la consulta a Brandon.
 
 ## 7. Prioridades
@@ -130,10 +130,15 @@ Errors: errores conocidos o pendientes (ninguno, si no hay)
 Changes:
 - cambio 1 (archivo o área)
 - cambio 2
+
+Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
+- **Subagente `commit-reviewer`** (`.claude/agents/commit-reviewer.md`): se invoca **antes de cada commit y antes de cada push**, y al crear o reutilizar una rama. Es barato (modelo `haiku`) y de solo lectura. Revisa los 5 puntos: rama correcta según el contenido, cuándo borrarla, mensaje profesional, cero información interna y contenido exacto del commit y del push. No se ejecuta el commit ni el push hasta que apruebe o se apliquen sus correcciones.
+- **Privacidad del mensaje y de la rama**: no llevan IDs de tareas o preguntas (`T-17`), nombres o roles del equipo, el modelo de IA ni cómo se trabajó (agentes, skills, revisiones), ni referencias a `docs/`. Solo qué se hizo y qué se modificó. El único trailer de IA permitido es `Co-Authored-By: Claude <noreply@anthropic.com>`, sin modelo ni versión.
+- **`git add` por ruta explícita**, nunca `git add .` ni carpetas enteras sin revisar `git status`: los archivos de otra tarea (imágenes, configuración local) no entran.
 - `docs/` está ignorado: sus cambios nunca entran al commit; `CONTEXT.md`, `AGENTS.md`, `WORKFLOW.md` y `.claude/agents/` sí.
-- **`main` se protege**: nada de trabajo directo ni push forzado a `main`. Para cambios medianos o grandes, riesgosos o que toquen varias áreas, la IA avisa y propone rama `feature/<tema>`, `fix/<tema>`, `chore/<tema>` o `docs/<tema>`, y cuándo borrarla (después de integrarla a `main` y verificar el despliegue), con el comando y esperando confirmación.
+- **`main` se protege**: nada de trabajo directo ni push forzado a `main`. Para cambios medianos o grandes, riesgosos o que toquen varias áreas, la IA avisa y propone rama `feature/<tema>`, `fix/<tema>`, `chore/<tema>` o `docs/<tema>` (nombre por tema, no por tarea), y cuándo borrarla: **tras integrarla a `main` y verificar el despliegue** si es de tema acotado; se conserva solo si es de uso recurrente. Siempre con el comando y esperando confirmación.
 
 ## 11. Mantener la documentación
 

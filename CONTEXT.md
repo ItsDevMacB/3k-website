@@ -1,7 +1,7 @@
 # CONTEXT — Portafolio 3K
 
 > **Lo primero que se lee en cada conversación.** Fuente de verdad del proyecto. Si algo del código contradice este archivo, se corrige el que esté mal y se anota en el [Registro de cambios](#13-registro-de-cambios).
-> Última verificación contra el código: **2026-11-02** (commit `5d4ec18` + cambios sin commitear).
+> Última verificación contra el código: **2026-11-08** (commit `5d4ec18` + cambios sin commitear).
 > **Reglas fijas:** (1) todo paquete necesario o recomendado por la IA se **pregunta al usuario primero** (nombre y versión) y, si se aprueba, se instala **siempre con `pnpm`** por seguridad; (2) `main` se protege (ver `WORKFLOW.md` §10); (3) al iniciar sesión se muestran tareas pendientes y se pregunta cuál sigue, y si otros compañeros tienen tareas contempladas para el usuario; (4) **cambios de UI/UX**: Omar y Mauricio siempre preguntan y explican a Brandon antes de implementar; en sesiones de Brandon se usa el subagente `ux-ui-reviewer`; (5) `docs/` es individual por persona con el mismo formato (`WORKFLOW.md` §1–2).
 
 Archivos relacionados: [`AGENTS.md`](AGENTS.md) (`CLAUDE.md` es un symlink a este) · [`WORKFLOW.md`](WORKFLOW.md) (flujo de sesión, formatos de `docs/`, prioridades, traspasos, commits y paquetes; compartido por todos) · [`.claude/agents/ux-ui-reviewer.md`](.claude/agents/ux-ui-reviewer.md) (subagente UX/UI y accesibilidad) · `docs/` (**individual por persona**, local, no se sube a GitHub): `docs/README.md`, `docs/TASKS.md`, `docs/QUESTIONS.md`.
@@ -39,7 +39,7 @@ Al asignar o proponer tareas, usar este reparto (campo *Asignada a* en `docs/TAS
 | Imágenes | sharp 0.35.4 (dependencia directa desde 2026-11-02; la usa `astro:assets` al compilar) | 0.35.4 |
 | Lenguaje | TypeScript estricto (`astro/tsconfigs/strict`) | — |
 
-Subagente de IA del proyecto: `ux-ui-reviewer` (`.claude/agents/`), revisor UX/UI y accesibilidad; actúa como Brandon cuando él no está.
+Subagentes de IA del proyecto (`.claude/agents/`): `ux-ui-reviewer`, revisor UX/UI y accesibilidad (actúa como Brandon cuando él no está); `commit-reviewer`, revisor de rama, commit y push (modelo `haiku`, solo lectura; obligatorio antes de cada commit y push); `creative-designer`, director creativo para conceptos, layouts e interacción (modelo `opus`, skills de diseño precargadas; no instala paquetes ni hace commits; lo revisa `ux-ui-reviewer`).
 
 Sin framework de UI (React/Vue/etc.): todo es `.astro` + `<script>` con TypeScript vanilla. Sin tests, sin CI, sin backend.
 
@@ -67,7 +67,7 @@ Scripts (`package.json`): `dev`, `build`, `preview`, `astro`, `generate-types`, 
     ├── components/                  ver §6
     └── assets/
         ├── retro-computer.png       1024×1024 RGBA (hero y stop motion)
-        ├── projects/*.jpg           1264×848 (bordicrea, egresados, 3k-studio, mathmass)
+        ├── projects/                bordicrea.jpg y egresados.jpg (placeholders 1264×848, T-30); Sociograma UTP/ (MainScreen.png 1920×1080 real y logo-comite-icon.png 96 px para la barra)
         └── icons/*.svg              computer, cursor, facebook, instagram, tiktok
 ```
 
@@ -132,6 +132,7 @@ Notas: VT323 no tiene `↗` (usar mono). Hay textos de 10–11 px (kickers, etiq
 | `boil` (temblor de stop motion) | pills, iniciales, iconos | `steps(1)` |
 | Estela de píxeles del cursor | `RetroFx.astro` | Solo mouse fino y sin reduced-motion; máx. 18 nodos |
 | Código Konami → modo turbo (`html.turbo` invierte colores) + toast `role="status"` | `RetroFx.astro` | Easter egg |
+| Disquete que entra a la ranura, LED, cambio de canal (estática ≤ 0.25, máx. 1 cada 400 ms) y encendido CRT de la terminal; transición del visor (View Transitions 260/180 ms) | `Projects.astro`, `projects/*` | Sin viaje ni estática con reduced-motion y `?static`; fundido si no hay View Transitions |
 | Marquee, progreso «instalador», flip de tarjetas del equipo (hover/focus-within), píxeles que suben en el footer, reloj en vivo | varios | Marquee/píxeles no tienen botón de pausa (T-09) |
 | Modos de depuración | `?static` (sin animaciones), `#figmacapture` (script de Figma) | Útiles para capturas/QA |
 
@@ -145,7 +146,7 @@ Notas: VT323 no tiene `↗` (usar mono). Hay textos de 10–11 px (kickers, etiq
 | 1 | Navegación fija | `Nav` | — | Logo 3K_, píldora con Trabajo/Servicios/Proceso/Equipo + «Iniciar ↗» (WhatsApp); texto «Estudio digital independiente / Puebla, MX» (xl); menú móvil `menu.exe` (cierra con `Esc`, bloquea scroll). **Tema adaptable** `data-nav-theme="light|dark|orange"` según la sección marcada con `data-nav-bg` bajo el nav (`src/scripts/nav-theme.ts`); el texto derecho es texto suelto (sin chip) que solo cambia de color; transición suave (T-17) |
 | 2 | Hero | `Hero` + `RetroComputer` | `#top` | H1, párrafo, 2 CTAs, computadora retro |
 | 3 | Marquee | `Marquee` | — | 6 servicios en cinta inclinada |
-| 4 | Trabajo | `Projects` | `#trabajo` | 4 proyectos en ventanas con imagen y overlay terminal |
+| 4 | Trabajo | `Projects` + `projects/ProjectTerminal`, `FloppyDisk`, `ProjectViewer` | `#trabajo` | **Terminal 3K-2600** (dibujada en CSS/SVG) con un disquete 3½″ por proyecto como selector (tabs accesibles; el activo queda «En unidad» y un clon viaja a la ranura), monitor con captura, ficha (nombre, descripción, tipo, ◀ ▶, Ampliar) y unidad A: con LED; el ✕ se niega con `error.exe`; **visor a pantalla completa** (View Transitions, ◀ ▶ cruza todos los proyectos, zoom 1:1, swipe, Esc; imágenes cargadas solo al abrir) (T-23) |
 | 5 | Servicios | `Services` | `#servicios` | 5 servicios en lista (fondo ink) |
 | 6 | Proceso | `Process` | `#proceso` | 4 pasos + barra de progreso |
 | 7 | Stop motion | `StopMotion` | `#stop-motion` | Animación interactiva |
@@ -153,7 +154,7 @@ Notas: VT323 no tiene `↗` (usar mono). Hay textos de 10–11 px (kickers, etiq
 | 9 | Contacto / footer | `Contact` | `#contacto` | CTA WhatsApp, correo, redes, barra de tareas |
 | — | Efectos globales | `RetroFx` | — | Estela de cursor, Konami, toast |
 
-Proyectos mostrados: **Bordicrea** (e-commerce/web), **App Egresados** (web app), **3K Studio** (marca), **MathMass** (PWA). Servicios: Desarrollo web, Catálogos y e-commerce, Sistemas web a medida, Automatización e integraciones, Mantenimiento y soporte.
+Proyectos mostrados (en este orden): **Sociograma UTP** (sistema web, captura real), **App Egresados** (web app) y **Bordicrea** (e-commerce); los dos últimos aún con imagen provisional (T-30). MathMass y 3K Studio se retiraron. Servicios: Desarrollo web, Catálogos y e-commerce, Sistemas web a medida, Automatización e integraciones, Mantenimiento y soporte.
 
 ## 7. Especificaciones y convenciones técnicas
 
@@ -206,7 +207,7 @@ Decisiones: **una sola URL** (sin `/en/`), detección vía **Cloudflare** (se ha
 - `eslint.config.js` apunta a un `Seo.astro` futuro (T-07).
 - Velocidad de carga: hero dependiente de JS para mostrarse (retrasa LCP), imagen del hero sin `widths`, animaciones infinitas sin pausar fuera de pantalla, overlay CRT con `mix-blend-mode` a pantalla completa. Plan de mejora en T-06.
 - Modo turbo con `filter: invert` sobre `main`/`footer` puede ser costoso en dispositivos modestos.
-- Proyectos no enlazan a ningún sitio/caso de estudio (la flecha ↗ es decorativa).
+- Proyectos no enlazan a ningún sitio/caso de estudio (T-08); la flecha ↗ decorativa se quitó y vuelve con los enlaces.
 
 ## 12. Cómo se mantiene este archivo (auto-actualizable)
 
@@ -216,6 +217,11 @@ Ver `AGENTS.md` y `WORKFLOW.md`. Resumen: al terminar cualquier cambio que afect
 
 | Fecha | Cambio |
 | --- | --- |
+| 2026-11-08 | T-23 (tercera ronda): «Trabajo» pasa de ventanas a una terminal 3K-2600 con disquetes (concepto de `creative-designer`, revisado por `ux-ui-reviewer`): `src/components/projects/` (`ProjectTerminal`, `FloppyDisk`, `ProjectViewer`), visor a pantalla completa; se elimina `ProjectWindowBar.astro`, minimizar y el campo `status`; `Project` suma `gallery?` y `url?`. |
+| 2026-11-08 | Nuevo subagente `creative-designer` (`opus`, skills de diseño precargadas) para conceptos y layouts creativos; registrado en `AGENTS.md` y `WORKFLOW.md` §6. Nueva tarea T-31 (Lenis: tipos, bloqueo de scroll centralizado y scroll fluido). |
+| 2026-11-08 | T-23 (segunda ronda): nuevo `ProjectWindowBar.astro` con ícono del proyecto (campo `icon` opcional; Sociograma con `logo-comite-icon.png` rasterizado desde su SVG) y botones minimizar / maximizar (`<dialog>`) / cerrar (mensaje `error.exe`, no se cierra); ventana activa en hover y foco. |
+| 2026-11-08 | T-23: la sección «Trabajo» queda con 3 proyectos (Sociograma UTP con captura real, App Egresados y Bordicrea con placeholder, T-30); se retiran MathMass y 3K Studio (datos e imágenes). Rediseño: destacada a ancho completo con panel de propiedades, dos ventanas debajo, descripción siempre visible, encendido CRT al entrar en viewport; sin overlay de hover, índice `0N` ni flecha ↗. Nuevo campo `imageAlt` en `Project`. |
+| 2026-11-08 | Nuevo subagente `commit-reviewer` (modelo `haiku`, solo lectura), obligatorio antes de cada commit y push: valida rama, borrado de rama, mensaje profesional, ausencia de información interna y contenido exacto del commit y del push. Reglas: el trailer es solo `Co-Authored-By: Claude <noreply@anthropic.com>` (sin modelo), `git add` por ruta, y mensajes y ramas sin IDs de tareas ni nombres del equipo (`AGENTS.md`, `WORKFLOW.md` §10). |
 | 2026-11-08 | T-17 (ajustes tras prueba de Brandon): el logo conserva el fondo cream en zonas oscuras y solo cambia la sombra a naranja (sin lima, tampoco en el botón de menú); el texto derecho vuelve a ser texto suelto (sin chip) con contorno de 1 px del color del fondo del tema; se quita el parpadeo CRT y la transición pasa a fundido suave (fondo 200 ms, texto en un instante a mitad); la pantalla blanca de stop motion (`.scene`) se marca `data-nav-bg="light"` y la ventana ink del footer `dark`. |
 | 2026-11-08 | T-17: nav adaptable al fondo (`light` / `dark` lima+cream / `orange` ink) con `IntersectionObserver` y transición CRT por pasos; secciones marcadas con `data-nav-bg` (Servicios, Stop motion, Marquee, dither, footer); foco global de dos tonos (anillo ink + halo cream, `--focus-halo`); enlace «Saltar al contenido» (`main#main`); menú móvil con `Esc`, bloqueo de scroll (`window.lenis`) y cierre al pasar a md; «Iniciar» del nav con texto ink. |
 | 2026-11-02 | Quinta ronda: nuevas tareas T-17 a T-29 (navbar adaptable, tipografía, chips arrastrables, rework de «Cómo trabajamos» y Equipo, videojuego, proyectos reales, librería de animación, CI, pruebas, cabeceras, README, ideas); revisiones del subagente `ux-ui-reviewer` registradas en T-17 y T-18; T-16 cerrada. |
