@@ -1,13 +1,10 @@
 ---
-import { Image } from 'astro:assets';
 import { projects } from '../data/site';
+import FloppyDisk from './projects/FloppyDisk.astro';
+import ProjectTerminal from './projects/ProjectTerminal.astro';
+import ProjectViewer from './projects/ProjectViewer.astro';
 
-const tones = {
-	orange: { frame: 'bg-orange', screen: 'bg-cream', accent: 'bg-orange' },
-	stone: { frame: 'bg-stone', screen: 'bg-cream', accent: 'bg-ink' },
-	lime: { frame: 'bg-lime', screen: 'bg-cream', accent: 'bg-lime' },
-	ink: { frame: 'bg-ink', screen: 'bg-cream', accent: 'bg-orange' },
-};
+const slugOf = (file: string) => file.split('.')[0];
 ---
 
 <section id="trabajo" class="px-4 py-24 md:px-8 md:py-32">
@@ -17,7 +14,9 @@ const tones = {
 				<p class="kicker" data-reveal>[ Trabajo seleccionado ]</p>
 				<h2 class="mt-4 font-display text-[clamp(1.9rem,5.5vw,4.5rem)] leading-[0.95] uppercase">
 					<span class="block" data-wipe>Proyectos</span>
-					<span class="block" data-wipe style="--d:1">que nos enorgullecen<span class="text-orange">.</span></span>
+					<span class="block" data-wipe style="--d:1"
+						>que nos enorgullecen<span class="text-orange" aria-hidden="true">.</span></span
+					>
 				</h2>
 			</div>
 			<p class="max-w-sm text-ink/75 md:justify-self-end" data-reveal style="--d:2">
@@ -25,68 +24,578 @@ const tones = {
 			</p>
 		</div>
 
-		<div class="mt-16 grid gap-10 md:grid-cols-2 md:gap-x-12">
-			{
-				projects.map((p, i) => {
-					const t = tones[p.tone];
-					return (
-						<article class:list={['project group', i % 2 === 1 && 'md:mt-24']} data-reveal style={`--d:${i % 2}`}>
-							<div class="window transition-transform duration-300 group-hover:-translate-y-2 group-hover:-rotate-1">
-								<div class="window-bar">
-									<span class="flex items-center gap-2">
-										<span class="inline-block size-2.5 rounded-sm bg-orange" />
-										{p.file}
-									</span>
-									<span class="tracking-widest">_ ▢ ✕</span>
-								</div>
+		<div class="desk mt-14 md:mt-16" data-reveal>
+			<p class="desk-hint" id="disk-hint">
+				<span class="js-hint">Elige un disquete para cargarlo en la terminal</span>
+				<span class="nojs-hint">Proyectos</span>
+			</p>
+			<div class="floppies" data-tablist aria-describedby="disk-hint">
+				{projects.map((p, i) => <FloppyDisk project={p} slug={slugOf(p.file)} index={i} active={i === 0} />)}
+			</div>
+		</div>
 
-								<div class:list={['relative p-5 md:p-7', t.frame]}>
-									<div class:list={['window aspect-[16/10] !shadow-none', t.screen]}>
-										<div class="flex h-5 items-center gap-1.5 border-b-2 border-ink bg-ink px-2">
-											<span class="size-1.5 rounded-full bg-orange" />
-											<span class="size-1.5 rounded-full bg-lime" />
-											<span class="size-1.5 rounded-full bg-cream" />
-										</div>
-										<div class="relative h-[calc(100%-1.25rem)] overflow-hidden">
-											<Image
-												src={p.image}
-												alt={`Vista del proyecto ${p.name}`}
-												widths={[480, 800, 1264]}
-												sizes="(min-width: 768px) 600px, 90vw"
-												class="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-											/>
-											<span
-												class:list={[
-													'absolute top-3 left-3 rounded-md border-2 border-ink px-2.5 py-1 font-display text-sm uppercase shadow-[var(--shadow-pixel-sm)] md:text-base',
-													t.accent,
-													p.tone === 'stone' ? 'text-cream' : 'text-ink',
-												]}
-											>
-												{p.name}
-											</span>
-											<span class="pointer-events-none absolute inset-0 translate-y-full bg-ink/90 p-5 font-pixel text-xl leading-tight text-lime transition-transform duration-300 group-hover:translate-y-0 md:p-7 md:text-2xl">
-												&gt; {p.description}
-												<span class="ml-1 inline-block h-5 w-2.5 animate-blink bg-lime align-middle" />
-											</span>
-										</div>
-									</div>
-								</div>
-
-								<div class="flex items-end justify-between gap-4 border-t-2 border-ink bg-cream px-5 py-4">
-									<div>
-										<p class="font-mono text-[10px] text-orange">0{i + 1}</p>
-										<h3 class="text-lg font-bold">{p.name}</h3>
-										<p class="text-xs text-ink/60">{p.tags}</p>
-									</div>
-									<span class="flex size-10 items-center justify-center rounded-full border-2 border-ink text-lg transition-all group-hover:rotate-45 group-hover:bg-orange group-hover:text-cream">
-										↗
-									</span>
-								</div>
-							</div>
-						</article>
-					);
-				})
-			}
+		<div class="term-stage mt-8" id="project-panel" data-reveal style="--d:1" data-panel>
+			{projects.map((p, i) => <ProjectTerminal project={p} slug={slugOf(p.file)} index={i} />)}
 		</div>
 	</div>
+
+	<p class="sr-only" aria-live="polite" data-disk-live></p>
+
+	<div class="err-toast window" data-err hidden>
+		<div class="err-bar" aria-hidden="true">error.exe</div>
+		<div class="flex items-start gap-3 p-4">
+			<span class="err-icon" aria-hidden="true">!</span>
+			<p class="font-mono text-sm leading-snug font-bold" data-err-text></p>
+		</div>
+		<div class="flex justify-end px-4 pb-4">
+			<button type="button" class="btn btn-ghost px-5 py-2.5" data-err-ok>Ok</button>
+		</div>
+	</div>
+	<p class="sr-only" role="status" data-err-live></p>
+
+	<ProjectViewer projects={projects} />
 </section>
+
+<style>
+	.desk-hint {
+		font-family: var(--font-mono);
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: color-mix(in srgb, var(--color-ink) 75%, transparent);
+	}
+	.nojs-hint {
+		display: none;
+	}
+	:global(#trabajo:not([data-ready])) .js-hint {
+		display: none;
+	}
+	:global(#trabajo:not([data-ready])) .nojs-hint {
+		display: inline;
+	}
+
+	/* Fila de disquetes sobre la línea del escritorio; en escritorio quedan encima de la unidad A: */
+	.desk {
+		border-bottom: 2px solid var(--color-ink);
+		padding-bottom: 1.25rem;
+	}
+	.floppies {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 8.5rem));
+		gap: 1.75rem 1rem;
+		margin-top: 1.25rem;
+		padding: 0.75rem 0.25rem 0;
+	}
+	@media (min-width: 380px) {
+		.floppies {
+			grid-template-columns: repeat(3, minmax(0, 8.5rem));
+		}
+	}
+	@media (min-width: 768px) {
+		.floppies {
+			gap: 1.5rem;
+			padding-inline: 0.5rem;
+		}
+	}
+	@media (min-width: 1024px) {
+		.desk {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) auto;
+			align-items: end;
+			gap: 2rem;
+		}
+		.desk-hint {
+			max-width: 18rem;
+			justify-self: end;
+			align-self: center;
+			text-align: right;
+		}
+		/* Borde derecho de la fila alineado con la unidad A: (padding + borde del gabinete) */
+		.floppies {
+			margin-top: 0;
+			padding-right: calc(1.75rem + 2px);
+		}
+	}
+
+	.term-stage {
+		display: grid;
+		gap: 2.5rem;
+	}
+
+	/* Encendido CRT al entrar en pantalla: punto, línea y pantalla completa, una sola vez.
+	   Solo se oculta con JS activo y fuera de ?static, para que nunca quede apagada sin revelado. */
+	:global(:root:not(.no-js):not(.is-static) #trabajo [data-panel]:not(.is-in) [data-crt]) {
+		clip-path: inset(50% 50% 50% 50%);
+	}
+	:global(:root:not(.no-js):not(.is-static) #trabajo [data-panel].is-in:not([data-booted]) [data-crt]) {
+		animation: crt-on 0.7s steps(8) 0.15s both;
+	}
+	@keyframes crt-on {
+		0% {
+			clip-path: inset(50% 50% 50% 50%);
+			filter: brightness(1.4);
+		}
+		35% {
+			clip-path: inset(calc(50% - 1px) 0 calc(50% - 1px) 0);
+		}
+		100% {
+			clip-path: inset(0);
+			filter: brightness(1);
+		}
+	}
+
+	/* error.exe: aparece dentro del monitor, sobre la captura */
+	.err-toast {
+		position: absolute;
+		bottom: 1.25rem;
+		left: 1.25rem;
+		z-index: 5;
+		width: min(21rem, calc(100% - 2.5rem));
+		animation: err-open 0.2s steps(5) both;
+	}
+	.err-toast[hidden] {
+		display: none;
+	}
+	@keyframes err-open {
+		from {
+			transform: scale(0.8);
+			opacity: 0;
+		}
+	}
+	.err-bar {
+		border-bottom: 2px solid var(--color-ink);
+		background: var(--color-orange);
+		padding: 0.25rem 0.75rem;
+		font-family: var(--font-pixel);
+		font-size: 1.25rem;
+		line-height: 1.2;
+		color: var(--color-ink);
+	}
+	.err-icon {
+		display: grid;
+		flex-shrink: 0;
+		place-items: center;
+		width: 2rem;
+		height: 2rem;
+		border: 2px solid var(--color-ink);
+		background: var(--color-lime);
+		font-family: var(--font-display);
+		font-size: 1.125rem;
+		color: var(--color-ink);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		:global(#trabajo [data-crt]) {
+			clip-path: none !important;
+			animation: none !important;
+			filter: none !important;
+		}
+	}
+</style>
+
+<script>
+	const section = document.getElementById('trabajo');
+	const tablist = section?.querySelector<HTMLElement>('[data-tablist]');
+	const panel = section?.querySelector<HTMLElement>('[data-panel]');
+
+	if (section && tablist && panel) {
+		const root = document.documentElement;
+		const tabs = [...tablist.querySelectorAll<HTMLAnchorElement>('[data-disk]')];
+		const units = [...panel.querySelectorAll<HTMLElement>('[data-unit]')];
+		const diskLive = section.querySelector<HTMLElement>('[data-disk-live]');
+		const calm = () =>
+			root.classList.contains('is-static') || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		let current = 0;
+		let lastStatic = 0;
+
+		/* ---------- Disquetes como tabs (roving tabindex, activación automática) ---------- */
+		tablist.setAttribute('role', 'tablist');
+		tablist.setAttribute('aria-label', 'Proyectos');
+		panel.setAttribute('role', 'tabpanel');
+		tabs.forEach((tab, i) => {
+			tab.setAttribute('role', 'tab');
+			tab.setAttribute('aria-controls', panel.id);
+			tab.removeAttribute('href');
+			tab.dataset.unit = String(i);
+		});
+
+		const eagerLoad = () => {
+			units.forEach((u) => u.querySelector<HTMLImageElement>('img[data-shot]')?.setAttribute('loading', 'eager'));
+		};
+		tablist.addEventListener('pointerenter', eagerLoad, { once: true });
+		tablist.addEventListener('focusin', eagerLoad, { once: true });
+
+		const announce = (el: HTMLElement | null | undefined, message: string) => {
+			if (!el) return;
+			el.textContent = '';
+			window.setTimeout(() => (el.textContent = message), 50);
+		};
+
+		// Estática ≤ 0.25 y encendido corto; nunca en ráfaga (WCAG 2.3.1)
+		const channelFx = (unit: HTMLElement, repeat: boolean) => {
+			const now = performance.now();
+			if (repeat || now - lastStatic < 400) return;
+			lastStatic = now;
+			unit
+				.querySelector<HTMLElement>('[data-static]')
+				?.animate([{ opacity: 0.25 }, { opacity: 0 }], { duration: 120, easing: 'steps(2)' });
+			unit.querySelector<HTMLElement>('[data-crt]')?.animate(
+				[
+					{ clipPath: 'inset(calc(50% - 1px) 0 calc(50% - 1px) 0)', filter: 'brightness(1.4)' },
+					{ clipPath: 'inset(0)', filter: 'brightness(1)' },
+				],
+				{ duration: 220, delay: 80, easing: 'steps(5)', fill: 'backwards' },
+			);
+		};
+
+		// Un clon decorativo del disquete viaja a la ranura; el disquete real se queda como hueco
+		const flyDisk = (tab: HTMLElement, unit: HTMLElement) => {
+			const art = tab.querySelector<SVGSVGElement>('[data-disk-art]');
+			const slot = unit.querySelector<HTMLElement>('[data-slot]');
+			if (!art || !slot) return;
+			const a = art.getBoundingClientRect();
+			const b = slot.getBoundingClientRect();
+			if (b.bottom < 0 || b.top > window.innerHeight) return;
+			const ghost = art.cloneNode(true) as SVGSVGElement;
+			ghost.setAttribute('aria-hidden', 'true');
+			Object.assign(ghost.style, {
+				position: 'fixed',
+				left: `${a.left}px`,
+				top: `${a.top}px`,
+				width: `${a.width}px`,
+				height: `${a.height}px`,
+				zIndex: '40',
+				pointerEvents: 'none',
+				transformOrigin: 'top left',
+			});
+			document.body.append(ghost);
+			const scale = Math.min(1, (b.width * 0.8) / a.width);
+			const dx = b.left + (b.width - a.width * scale) / 2 - a.left;
+			const dy = b.top + b.height / 2 - a.top;
+			ghost
+				.animate(
+					[
+						{ transform: 'translate(0, 0) scale(1)', opacity: 1 },
+						{ transform: `translate(${dx}px, ${dy}px) scale(${scale}, 0.08)`, opacity: 0.6 },
+					],
+					{ duration: 280, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' },
+				)
+				.finished.finally(() => ghost.remove());
+		};
+
+		const readLed = (unit: HTMLElement) => {
+			const led = unit.querySelector<HTMLElement>('[data-led]');
+			if (!led) return;
+			led.classList.remove('is-reading');
+			void led.offsetWidth;
+			led.classList.add('is-reading');
+		};
+
+		type Source = 'init' | 'tab-key' | 'pointer' | 'button' | 'viewer';
+
+		const select = (index: number, source: Source, repeat = false) => {
+			const next = (index + units.length) % units.length;
+			const changed = next !== current;
+			current = next;
+			tabs.forEach((tab, i) => {
+				const on = i === next;
+				tab.setAttribute('aria-selected', String(on));
+				tab.tabIndex = on ? 0 : -1;
+				tab.toggleAttribute('data-active', on);
+			});
+			units.forEach((u, i) => (u.hidden = i !== next));
+			panel.setAttribute('aria-labelledby', tabs[next].id);
+			if (!changed || source === 'init') return;
+
+			hideToast();
+			const unit = units[next];
+			if (!calm() && source !== 'viewer') {
+				channelFx(unit, repeat);
+				if (source === 'pointer') flyDisk(tabs[next], unit);
+				readLed(unit);
+			}
+			// Con los tabs el lector ya anuncia el disquete enfocado
+			if (source === 'button') announce(diskLive, `${unit.dataset.name} en la unidad`);
+		};
+
+		const initial = units.findIndex((u) => location.hash === `#${u.id}`);
+		select(initial > 0 ? initial : 0, 'init');
+		section.dataset.ready = '';
+
+		tablist.addEventListener('click', (event) => {
+			const tab = (event.target as Element).closest<HTMLElement>('[role="tab"]');
+			if (!tab) return;
+			event.preventDefault();
+			select(Number(tab.dataset.unit), event.detail === 0 ? 'tab-key' : 'pointer');
+		});
+		tablist.addEventListener('keydown', (event) => {
+			const keys: Record<string, number> = {
+				ArrowRight: current + 1,
+				ArrowDown: current + 1,
+				ArrowLeft: current - 1,
+				ArrowUp: current - 1,
+				Home: 0,
+				End: tabs.length - 1,
+			};
+			if (!(event.key in keys)) return;
+			event.preventDefault();
+			select(keys[event.key], 'tab-key', event.repeat);
+			tabs[current].focus();
+		});
+
+		/* ---------- error.exe al intentar cerrar ---------- */
+		const toast = section.querySelector<HTMLElement>('[data-err]');
+		const toastText = section.querySelector<HTMLElement>('[data-err-text]');
+		const errLive = section.querySelector<HTMLElement>('[data-err-live]');
+		const lines = [
+			(file: string) => `No se puede cerrar ${file}. Este proyecto se queda.`,
+			(file: string) => `Acceso denegado: ${file} está demasiado bien hecho para cerrarlo.`,
+			() => 'Error 3K: cerrar proyectos no viene en el plan.',
+			() => 'Ya en serio, no se cierra. Mejor escríbenos y hacemos el tuyo.',
+		];
+		let closeCount = 0;
+		let toastTimer: number | undefined;
+		let lastCloser: HTMLElement | null = null;
+
+		function hideToast(fromOk = false) {
+			window.clearTimeout(toastTimer);
+			if (!toast || toast.hidden) return;
+			const hadFocus = toast.contains(document.activeElement);
+			toast.hidden = true;
+			if ((hadFocus || fromOk) && lastCloser && !lastCloser.closest('[hidden]')) lastCloser.focus();
+		}
+		const armToast = () => {
+			window.clearTimeout(toastTimer);
+			toastTimer = window.setTimeout(() => hideToast(), 6000);
+		};
+		const refuseClose = (unit: HTMLElement, btn: HTMLElement) => {
+			lastCloser = btn;
+			const monitor = unit.querySelector<HTMLElement>('[data-monitor]');
+			const bezel = unit.querySelector<HTMLElement>('[data-bezel]');
+			if (monitor) {
+				monitor.classList.remove('is-shaking');
+				void monitor.offsetWidth;
+				monitor.classList.add('is-shaking');
+			}
+			if (toast && bezel && toast.parentElement !== bezel) bezel.append(toast);
+			const message = lines[closeCount % lines.length](unit.dataset.file ?? '');
+			closeCount++;
+			if (toast && toastText) {
+				toastText.textContent = message;
+				toast.hidden = false;
+			}
+			announce(errLive, message);
+			armToast();
+		};
+		section.addEventListener('animationend', (event) => {
+			const el = event.target as HTMLElement;
+			if (el.classList.contains('is-shaking')) el.classList.remove('is-shaking');
+			if (el.classList.contains('is-reading')) el.classList.remove('is-reading');
+			// El encendido de entrada ocurre una vez; al mostrar otra unidad no se repite
+			if (event.animationName.startsWith('crt-on')) panel.dataset.booted = '';
+		});
+		section.querySelector('[data-err-ok]')?.addEventListener('click', () => hideToast(true));
+		toast?.addEventListener('mouseenter', () => window.clearTimeout(toastTimer));
+		toast?.addEventListener('mouseleave', () => {
+			if (!toast.contains(document.activeElement)) armToast();
+		});
+		toast?.addEventListener('focusin', () => window.clearTimeout(toastTimer));
+		toast?.addEventListener('focusout', armToast);
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape' && toast && !toast.hidden && !viewer?.open) hideToast(true);
+		});
+
+		/* ---------- Visor a pantalla completa ---------- */
+		const viewer = section.querySelector<HTMLDialogElement>('[data-viewer]');
+		const stage = viewer?.querySelector<HTMLElement>('[data-viewer-stage]');
+		const slides = [...(viewer?.querySelectorAll<HTMLImageElement>('[data-slide]') ?? [])];
+		const zoomBtn = viewer?.querySelector<HTMLButtonElement>('[data-v="zoom"]');
+		const siteLink = viewer?.querySelector<HTMLAnchorElement>('[data-v="site"]');
+		const viewerLive = viewer?.querySelector<HTMLElement>('[data-viewer-live]');
+		let slide = 0;
+		let opener: HTMLElement | null = null;
+		let open = false;
+
+		const text = (sel: string, value: string) => {
+			const el = viewer?.querySelector<HTMLElement>(sel);
+			if (el) el.textContent = value;
+		};
+		const monitorShot = () => units[current].querySelector<HTMLImageElement>('img[data-shot]');
+
+		const setZoom = (on: boolean) => {
+			stage?.classList.toggle('is-actual', on);
+			zoomBtn?.setAttribute('aria-pressed', String(on));
+			stage?.setAttribute(
+				'aria-label',
+				on ? 'Captura a tamaño real; usa las flechas para desplazarte' : 'Captura ampliada',
+			);
+			if (stage) stage.scrollTo(0, 0);
+		};
+
+		// Las capturas del visor no traen src en el HTML: se asignan al mostrarse (y la anterior y la siguiente)
+		const load = (img: HTMLImageElement) => {
+			if (img.getAttribute('src')) return;
+			if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+			if (img.dataset.src) img.src = img.dataset.src;
+		};
+
+		const showSlide = (index: number, speak: boolean) => {
+			slide = (index + slides.length) % slides.length;
+			const img = slides[slide];
+			const d = img.dataset;
+			const pi = Number(d.project);
+			load(img);
+			load(slides[(slide + 1) % slides.length]);
+			load(slides[(slide - 1 + slides.length) % slides.length]);
+			slides.forEach((s) => (s.hidden = s !== img));
+			const n = Number(d.shot) + 1;
+			text('[data-viewer-file]', d.file ?? '');
+			text('[data-viewer-count]', `${n}/${d.count}`);
+			text('[data-viewer-label]', `${d.name}, captura ${n} de ${d.count}`);
+			if (siteLink) {
+				siteLink.hidden = !d.url;
+				if (d.url) siteLink.href = d.url;
+			}
+			viewer?.querySelectorAll<HTMLElement>('[data-thumbs]').forEach((g) => {
+				const on = Number(g.dataset.thumbs) === pi;
+				g.hidden = !on;
+				// Las miniaturas viven en un <template> hasta que su proyecto se muestra
+				const tpl = g.querySelector<HTMLTemplateElement>('template[data-thumbs-tpl]');
+				if (on && tpl) tpl.replaceWith(tpl.content.cloneNode(true));
+			});
+			viewer?.querySelectorAll<HTMLElement>('[data-thumb]').forEach((t) => {
+				t.setAttribute('aria-current', String(Number(t.dataset.thumb) === slide));
+			});
+			if (pi !== current) select(pi, 'viewer');
+			if (speak) announce(viewerLive, `Captura ${n} de ${d.count}, ${d.name}`);
+		};
+
+		const lockScroll = (on: boolean) => {
+			// Lenis ignora overflow:hidden, por eso se detiene aparte
+			root.style.overflow = on ? 'hidden' : '';
+			if (on) window.lenis?.stop();
+			else window.lenis?.start();
+		};
+
+		const transition = (update: () => void, out: boolean) => {
+			if (!document.startViewTransition || calm()) {
+				update();
+				return;
+			}
+			root.classList.add('vt');
+			root.classList.toggle('vt-out', out);
+			const vt = document.startViewTransition(update);
+			vt.finished.finally(() => {
+				root.classList.remove('vt', 'vt-out');
+				slides.forEach((s) => (s.style.viewTransitionName = ''));
+				const shot = monitorShot();
+				if (shot) shot.style.viewTransitionName = '';
+			});
+		};
+
+		const openViewer = async (btn: HTMLElement) => {
+			if (!viewer || open) return;
+			open = true;
+			opener = btn;
+			const first = slides.findIndex((s) => Number(s.dataset.project) === current);
+			showSlide(first, false);
+			setZoom(false);
+			const img = slides[slide];
+			// Espera breve a que la captura grande esté lista para que la transición no muestre un hueco
+			await Promise.race([img.decode().catch(() => {}), new Promise((r) => setTimeout(r, 300))]);
+			const shot = monitorShot();
+			if (shot) shot.style.viewTransitionName = 'shot';
+			transition(() => {
+				if (shot) shot.style.viewTransitionName = '';
+				img.style.viewTransitionName = 'shot';
+				viewer.showModal();
+				stage?.focus({ preventScroll: true });
+				lockScroll(true);
+			}, false);
+		};
+
+		const closeViewer = () => {
+			if (!viewer?.open) return;
+			const img = slides[slide];
+			const actual = stage?.classList.contains('is-actual');
+			if (!actual) img.style.viewTransitionName = 'shot';
+			transition(() => {
+				img.style.viewTransitionName = '';
+				const shot = monitorShot();
+				if (shot && !actual) shot.style.viewTransitionName = 'shot';
+				viewer.close();
+			}, true);
+		};
+
+		section.addEventListener('click', (event) => {
+			const btn = (event.target as Element).closest<HTMLElement>('[data-act]');
+			const unit = btn?.closest<HTMLElement>('[data-unit]');
+			if (!btn || !unit) return;
+			const act = btn.dataset.act;
+			if (act === 'zoom') openViewer(btn);
+			else if (act === 'close') refuseClose(unit, btn);
+			else {
+				select(current + (act === 'next' ? 1 : -1), 'button');
+				// El botón presionado quedó en la unidad oculta: el foco pasa al mismo botón de la nueva
+				units[current].querySelector<HTMLElement>(`[data-act="${act}"]`)?.focus();
+			}
+		});
+
+		viewer?.addEventListener('click', (event) => {
+			const el = (event.target as Element).closest<HTMLElement>('[data-v], [data-thumb]');
+			if (!el) return;
+			if (el.dataset.thumb) return showSlide(Number(el.dataset.thumb), true);
+			const v = el.dataset.v;
+			if (v === 'prev' || v === 'next') {
+				setZoom(false);
+				showSlide(slide + (v === 'next' ? 1 : -1), true);
+			} else if (v === 'zoom') {
+				setZoom(!stage?.classList.contains('is-actual'));
+				if (stage?.classList.contains('is-actual')) stage.focus();
+			} else if (v === 'close') closeViewer();
+		});
+		viewer?.addEventListener('keydown', (event) => {
+			if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+			// Con 1:1 las flechas desplazan la imagen (scroll nativo del área)
+			if (stage?.classList.contains('is-actual')) return;
+			event.preventDefault();
+			showSlide(slide + (event.key === 'ArrowRight' ? 1 : -1), true);
+		});
+		viewer?.addEventListener('cancel', (event) => {
+			event.preventDefault();
+			closeViewer();
+		});
+		viewer?.addEventListener('close', () => {
+			open = false;
+			lockScroll(false);
+			setZoom(false);
+			// Si en el visor se cruzó de proyecto, el foco vuelve al botón equivalente de la unidad visible
+			const inBar = !!opener?.closest('.window-bar');
+			const target = opener?.closest('[hidden]')
+				? units[current].querySelector<HTMLElement>(`${inBar ? '.window-bar' : '.ficha'} [data-act="zoom"]`)
+				: opener;
+			target?.focus();
+		});
+
+		// Deslizar: por distancia o por velocidad; con 1:1 el gesto desplaza la imagen
+		let startX = 0;
+		let startY = 0;
+		let startT = 0;
+		stage?.addEventListener('pointerdown', (event) => {
+			if (event.pointerType === 'mouse' || !event.isPrimary) return;
+			startX = event.clientX;
+			startY = event.clientY;
+			startT = performance.now();
+		});
+		stage?.addEventListener('pointerup', (event) => {
+			if (event.pointerType === 'mouse' || !event.isPrimary || !startT) return;
+			const dx = event.clientX - startX;
+			const dy = event.clientY - startY;
+			const velocity = Math.abs(dx) / (performance.now() - startT);
+			startT = 0;
+			if (stage.classList.contains('is-actual') || Math.abs(dx) < Math.abs(dy)) return;
+			if (Math.abs(dx) > 60 || (Math.abs(dx) > 20 && velocity > 0.11)) showSlide(slide + (dx < 0 ? 1 : -1), true);
+		});
+		stage?.addEventListener('pointercancel', () => (startT = 0));
+	}
+</script>

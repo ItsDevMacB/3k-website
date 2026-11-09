@@ -1,0 +1,481 @@
+---
+import { Image } from 'astro:assets';
+import type { Project } from '../../data/site';
+
+interface Props {
+	project: Project;
+	slug: string;
+	index: number;
+}
+
+const { project, slug, index } = Astro.props;
+const shotWidths = [480, 800, 1200, 1600].filter((w) => w < project.image.width).concat(project.image.width);
+---
+
+<article
+	class="term"
+	id={`proyecto-${slug}`}
+	aria-labelledby={`proyecto-${slug}-title`}
+	data-unit={index}
+	data-file={project.file}
+	data-name={project.name}
+>
+	<div class="term-case">
+		<div class="term-monitor" data-monitor>
+			<div class="term-bezel" data-bezel>
+				<div class="term-glass">
+					<div class="window-bar term-bar">
+						<span class="flex min-w-0 items-center gap-2" aria-hidden="true">
+							{
+								project.icon ? (
+									<Image
+										src={project.icon}
+										alt=""
+										width={40}
+										height={40}
+										format="webp"
+										class="size-5 shrink-0 rounded-full border border-cream bg-cream"
+									/>
+								) : (
+									<span class="inline-block size-2.5 shrink-0 rounded-sm bg-orange" />
+								)
+							}
+							<span class="truncate"><span class="hidden sm:inline">3K_OS · </span>{project.file}</span>
+						</span>
+						<span class="js-only flex shrink-0 gap-1.5">
+							<button
+								type="button"
+								class="win-btn"
+								data-act="zoom"
+								aria-haspopup="dialog"
+								aria-label={`Ampliar captura de ${project.name}`}
+							>
+								<svg viewBox="0 0 12 12" aria-hidden="true">
+									<path d="M1 1h4v2H3v2H1zM7 1h4v4H9V3H7zM1 7h2v2h2v2H1zM9 7h2v4H7V9h2z"></path>
+								</svg>
+							</button>
+							<button type="button" class="win-btn" data-act="close" aria-label={`Cerrar ${project.file}`}>
+								<svg viewBox="0 0 12 12" aria-hidden="true">
+									<path d="M2 2h2l2 2 2-2h2v2L8 6l2 2v2H8L6 8l-2 2H2V8l2-2-2-2z"></path>
+								</svg>
+							</button>
+						</span>
+					</div>
+					<div class="crt-screen" data-crt>
+						<Image
+							src={project.image}
+							alt={project.imageAlt}
+							widths={shotWidths}
+							sizes="(min-width: 1360px) 860px, (min-width: 1024px) 62vw, 90vw"
+							class="size-full object-cover object-left-top"
+							data-shot
+						/>
+						<span class="scanlines" aria-hidden="true"></span>
+						<span class="glare" aria-hidden="true"></span>
+						<span class="static" aria-hidden="true" data-static></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="term-chin" aria-hidden="true">
+				<span class="badge">3K-2600</span>
+				<span class="knob"></span>
+				<span class="knob knob-b"></span>
+				<span class="vents"></span>
+				<span class="power"></span>
+			</div>
+		</div>
+
+		<div class="term-side">
+			<div class="drive" aria-hidden="true">
+				<span class="drive-letter">A:</span>
+				<span class="drive-slot" data-slot></span>
+				<span class="drive-led" data-led></span>
+				<span class="drive-eject"></span>
+			</div>
+
+			<div class="ficha">
+				<h3
+					id={`proyecto-${slug}-title`}
+					class="font-display text-[clamp(1.5rem,2.4vw,2.125rem)] leading-[1.05] uppercase"
+				>
+					{project.name}
+				</h3>
+				<p class="leading-relaxed text-ink/80">{project.description}</p>
+				<dl class="grid gap-3 border-t-2 border-dashed border-ink/25 pt-4 font-mono text-sm">
+					<div class="flex flex-wrap items-center justify-between gap-2">
+						<dt class="text-ink/75">Tipo</dt>
+						<dd class="font-bold">{project.tags}</dd>
+					</div>
+				</dl>
+				<div class="js-only flex flex-wrap items-center gap-2 pt-1">
+					<button type="button" class="key" data-act="prev" aria-label="Proyecto anterior">
+						<svg viewBox="0 0 12 12" aria-hidden="true"
+							><path d="M8 1h2v10H8zM6 3h2v6H6zM4 4h2v4H4zM2 5h2v2H2z"></path></svg
+						>
+					</button>
+					<button type="button" class="key" data-act="next" aria-label="Proyecto siguiente">
+						<svg viewBox="0 0 12 12" aria-hidden="true"
+							><path d="M2 1h2v10H2zM4 3h2v6H4zM6 4h2v4H6zM8 5h2v2H8z"></path></svg
+						>
+					</button>
+					<button type="button" class="btn btn-ghost ml-auto px-5 py-3" data-act="zoom" aria-haspopup="dialog">
+						<svg class="size-3 fill-current" viewBox="0 0 12 12" aria-hidden="true">
+							<path d="M1 1h4v2H3v2H1zM7 1h4v4H9V3H7zM1 7h2v2h2v2H1zM9 7h2v4H7V9h2z"></path>
+						</svg>
+						Ampliar
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</article>
+
+<style>
+	/* Gabinete: plástico naranja con brillo arriba a la izquierda, sombra abajo y tornillos en las esquinas */
+	.term-case {
+		--screw: radial-gradient(
+			circle,
+			var(--color-ink) 0 1.5px,
+			var(--color-orange-dark) 1.5px 4px,
+			var(--color-ink) 4px 5px,
+			transparent 5.5px
+		);
+		position: relative;
+		display: grid;
+		gap: 1rem;
+		border: 2px solid var(--color-ink);
+		border-radius: 1.5rem;
+		background-color: var(--color-orange);
+		background-image: var(--screw), var(--screw), var(--screw), var(--screw);
+		background-size: 12px 12px;
+		background-repeat: no-repeat;
+		background-position:
+			10px 10px,
+			calc(100% - 10px) 10px,
+			10px calc(100% - 10px),
+			calc(100% - 10px) calc(100% - 10px);
+		padding: 1.5rem 1rem 1rem;
+		box-shadow:
+			inset 4px 4px 0 0 color-mix(in srgb, var(--color-orange) 70%, var(--color-cream)),
+			inset -4px -4px 0 0 var(--color-orange-dark),
+			8px 8px 0 0 var(--color-ink);
+	}
+	@media (min-width: 768px) {
+		.term-case {
+			padding: 1.75rem;
+		}
+	}
+	@media (min-width: 1024px) {
+		.term-case {
+			grid-template-columns: minmax(0, 1fr) 21rem;
+			gap: 1.5rem;
+		}
+	}
+	@media (min-width: 1280px) {
+		.term-case {
+			grid-template-columns: minmax(0, 1fr) 23rem;
+		}
+	}
+
+	.term-monitor {
+		position: relative;
+		display: flex;
+		min-width: 0;
+		flex-direction: column;
+		gap: 0.875rem;
+	}
+	.term-monitor.is-shaking {
+		animation: term-shake 0.3s steps(6);
+	}
+	@keyframes term-shake {
+		0%,
+		100% {
+			translate: 0 0;
+		}
+		20%,
+		60% {
+			translate: -4px 0;
+		}
+		40%,
+		80% {
+			translate: 4px 0;
+		}
+	}
+
+	/* Marco oscuro del CRT, como el de la computadora del hero */
+	.term-bezel {
+		position: relative;
+		border: 2px solid var(--color-ink);
+		border-radius: 1.25rem;
+		background: var(--color-ink-2);
+		padding: 0.625rem;
+		box-shadow:
+			inset 3px 3px 0 0 var(--color-ink-3),
+			inset -3px -3px 0 0 var(--color-ink);
+	}
+	@media (min-width: 768px) {
+		.term-bezel {
+			padding: 1rem;
+		}
+	}
+	.term-glass {
+		position: relative;
+		overflow: hidden;
+		border: 2px solid var(--color-ink);
+		border-radius: 0.75rem;
+		background: var(--color-ink);
+	}
+	.term-bar {
+		gap: 0.75rem;
+		padding-block: 0.3125rem;
+	}
+
+	.crt-screen {
+		position: relative;
+		aspect-ratio: 16 / 10;
+		overflow: hidden;
+		background: var(--color-cream);
+	}
+	.scanlines,
+	.glare,
+	.static {
+		pointer-events: none;
+		position: absolute;
+		inset: 0;
+	}
+	.scanlines {
+		background: repeating-linear-gradient(0deg, rgb(16 16 16 / 0.06) 0 1px, transparent 1px 3px);
+	}
+	.glare {
+		background:
+			radial-gradient(70% 45% at 28% 12%, rgb(255 255 255 / 0.14), transparent 70%),
+			radial-gradient(140% 130% at 50% 50%, transparent 62%, rgb(16 16 16 / 0.35) 100%);
+	}
+	/* Estática del cambio de canal: tramado crema sobre ink; JS la anima a opacidad ≤ 0.25 */
+	.static {
+		opacity: 0;
+		background-color: var(--color-ink);
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' shape-rendering='crispEdges'%3E%3Cg fill='%23f4f3ef'%3E%3Crect width='2' height='2'/%3E%3Crect x='4' y='2' width='2' height='2'/%3E%3Crect x='2' y='4' width='2' height='2'/%3E%3Crect x='6' y='6' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E");
+		background-size: 8px 8px;
+		image-rendering: pixelated;
+	}
+
+	/* Frente inferior: placa del modelo, perillas, rejilla de ventilación y botón de encendido */
+	.term-chin {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		padding-inline: 0.25rem;
+	}
+	.badge {
+		border: 2px solid var(--color-ink);
+		border-radius: 0.25rem;
+		background: var(--color-ink);
+		padding: 0.25rem 0.5rem;
+		font-family: var(--font-display);
+		font-size: 0.8125rem;
+		letter-spacing: 0.04em;
+		line-height: 1;
+		color: var(--color-cream);
+	}
+	.knob {
+		position: relative;
+		width: 1.75rem;
+		height: 1.75rem;
+		flex-shrink: 0;
+		border: 2px solid var(--color-ink);
+		border-radius: 9999px;
+		background: var(--color-cream);
+		box-shadow:
+			inset -3px -3px 0 0 var(--color-stone),
+			2px 2px 0 0 var(--color-ink);
+		rotate: -35deg;
+	}
+	.knob::after {
+		content: '';
+		position: absolute;
+		top: 2px;
+		left: calc(50% - 1px);
+		width: 2px;
+		height: 0.5rem;
+		background: var(--color-ink);
+	}
+	.knob-b {
+		rotate: 60deg;
+	}
+	.vents {
+		flex: 1;
+		max-width: 9rem;
+		height: 1.25rem;
+		margin-left: auto;
+		background: repeating-linear-gradient(90deg, var(--color-ink) 0 3px, transparent 3px 7px);
+		opacity: 0.85;
+	}
+	.power {
+		width: 1.75rem;
+		height: 1.125rem;
+		flex-shrink: 0;
+		border: 2px solid var(--color-ink);
+		border-radius: 0.25rem;
+		background: linear-gradient(90deg, var(--color-cream) 0 50%, var(--color-stone) 50%);
+		box-shadow: 2px 2px 0 0 var(--color-ink);
+	}
+	@media (max-width: 479px) {
+		.vents {
+			display: none;
+		}
+		.power {
+			margin-left: auto;
+		}
+	}
+
+	.term-side {
+		display: flex;
+		min-width: 0;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	/* Unidad de disquete: ranura, LED y botón de expulsión */
+	.drive {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		border: 2px solid var(--color-ink);
+		border-radius: 0.5rem;
+		background: var(--color-stone);
+		padding: 0.75rem 0.875rem;
+		box-shadow:
+			inset 3px 3px 0 0 var(--color-cream),
+			3px 3px 0 0 var(--color-ink);
+	}
+	.drive-letter {
+		font-family: var(--font-pixel);
+		font-size: 1.375rem;
+		line-height: 1;
+	}
+	.drive-slot {
+		height: 0.625rem;
+		flex: 1;
+		border-radius: 2px;
+		background: var(--color-ink);
+		box-shadow: inset 0 -3px 0 0 var(--color-ink-3);
+	}
+	.drive-led {
+		width: 0.75rem;
+		height: 0.75rem;
+		flex-shrink: 0;
+		border: 2px solid var(--color-ink);
+		border-radius: 9999px;
+		background: var(--color-lime);
+	}
+	.drive-led.is-reading {
+		animation: led-read 160ms steps(2) 2;
+	}
+	@keyframes led-read {
+		50% {
+			background: var(--color-orange);
+		}
+	}
+	.drive-eject {
+		width: 1.5rem;
+		height: 0.75rem;
+		flex-shrink: 0;
+		border: 2px solid var(--color-ink);
+		border-radius: 2px;
+		background: var(--color-cream);
+	}
+
+	.ficha {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		gap: 1rem;
+		border: 2px solid var(--color-ink);
+		border-radius: 0.75rem;
+		background: var(--color-cream);
+		padding: 1.25rem;
+	}
+	@media (min-width: 768px) {
+		.ficha {
+			padding: 1.5rem;
+		}
+	}
+	/* En escritorio la ficha mide lo que su contenido y la unidad A: baja al frente, alineada con el pie del monitor */
+	@media (min-width: 1024px) {
+		.ficha {
+			flex: 0 0 auto;
+		}
+		.drive {
+			order: 2;
+			margin-top: auto;
+		}
+	}
+
+	/* Botones de la barra 3K_OS: el foco va por dentro porque el cristal recorta lo que sobresale */
+	.win-btn {
+		display: inline-grid;
+		place-items: center;
+		width: 1.75rem;
+		height: 1.75rem;
+		border: 2px solid var(--color-ink);
+		border-radius: 0.25rem;
+		background: var(--color-cream);
+		color: var(--color-ink);
+		box-shadow: inset -2px -2px 0 0 var(--color-stone);
+	}
+	.win-btn svg,
+	.key svg {
+		width: 0.75rem;
+		height: 0.75rem;
+		fill: currentColor;
+		shape-rendering: crispEdges;
+	}
+	.win-btn:hover {
+		background: var(--color-lime);
+	}
+	.win-btn:active {
+		box-shadow: inset 2px 2px 0 0 var(--color-stone);
+	}
+	.win-btn:focus-visible {
+		outline: 2px solid var(--color-ink);
+		outline-offset: -5px;
+		box-shadow: none;
+	}
+
+	/* Teclas ◀ ▶: se hunden al presionar como las del teclado del hero */
+	.key {
+		display: inline-grid;
+		place-items: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		border: 2px solid var(--color-ink);
+		border-radius: 0.5rem;
+		background: var(--color-cream);
+		color: var(--color-ink);
+		box-shadow:
+			inset -3px -3px 0 0 var(--color-stone),
+			3px 3px 0 0 var(--color-ink);
+		transition:
+			transform 120ms ease-out,
+			box-shadow 120ms ease-out;
+	}
+	.key:hover {
+		background: var(--color-lime);
+	}
+	.key:active {
+		transform: translate(3px, 3px);
+		box-shadow: inset 3px 3px 0 0 var(--color-stone);
+	}
+	.key:focus-visible {
+		box-shadow:
+			var(--focus-halo),
+			3px 3px 0 0 var(--color-ink);
+	}
+
+	/* Controles que solo funcionan con JS */
+	:global(#trabajo:not([data-ready])) .js-only {
+		display: none;
+	}
+</style>

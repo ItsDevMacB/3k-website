@@ -1,9 +1,10 @@
 // Contenido central del sitio. Edita aquí textos, proyectos y contacto.
 import type { ImageMetadata } from 'astro';
+import sociogramaImg from '../assets/projects/Sociograma UTP/MainScreen.png';
+import sociogramaIcon from '../assets/projects/Sociograma UTP/logo-comite-icon.png';
+// Bordicrea y Egresados siguen con imagen provisional hasta tener capturas reales.
 import bordicreaImg from '../assets/projects/bordicrea.jpg';
 import egresadosImg from '../assets/projects/egresados.jpg';
-import studioImg from '../assets/projects/3k-studio.jpg';
-import mathmassImg from '../assets/projects/mathmass.jpg';
 
 export const contact = {
 	// TODO: reemplazar con el número real de WhatsApp Business (formato internacional, sin "+").
@@ -38,53 +39,63 @@ export const marquee = [
 	'Experiencias digitales',
 ];
 
+export type ProjectShot = {
+	src: ImageMetadata;
+	alt: string;
+	// Nombre corto de la pantalla (miniaturas del visor).
+	label?: string;
+};
+
 export type Project = {
 	name: string;
 	file: string;
 	tags: string;
 	description: string;
-	tone: 'orange' | 'stone' | 'lime' | 'ink';
-	status: string;
+	// Color del disquete.
+	tone: 'orange' | 'stone' | 'lime';
+	// Captura principal: la que se ve en el monitor.
 	image: ImageMetadata;
+	imageAlt: string;
+	// Capturas del visor a pantalla completa; sin ellas se usa solo la principal.
+	gallery?: ProjectShot[];
+	// Sitio publicado; agrega el enlace «Ver sitio» en el visor.
+	url?: string;
+	// Ícono de la barra 3K_OS; sin él se muestra el cuadro naranja genérico.
+	icon?: ImageMetadata;
 };
 
+// El primer proyecto es el que está en la unidad al cargar la página.
 export const projects: Project[] = [
 	{
-		name: 'Bordicrea',
-		file: 'bordicrea.exe',
-		tags: 'E-commerce / Web Design',
+		name: 'Sociograma UTP',
+		file: 'sociograma.exe',
+		tags: 'Sistema web / Educación',
 		description:
-			'Sitio comercial y catálogo para una microempresa de bordados personalizados, con cotización directa por WhatsApp.',
+			'Sistema para el Comité de Tutorías de la Universidad Tecnológica de Puebla que registra cómo se relacionan los alumnos de cada grupo y genera su sociograma.',
 		tone: 'orange',
-		status: 'Caso de estudio',
-		image: bordicreaImg,
+		image: sociogramaImg,
+		icon: sociogramaIcon,
+		imageAlt:
+			'Pantalla de inicio de sesión de Sociograma UTP: escudo de la universidad sobre fondo verde y formulario con matrícula, contraseña y captcha.',
 	},
 	{
 		name: 'App Egresados',
 		file: 'egresados.app',
-		tags: 'Web App / Producto',
+		tags: 'Web app / Producto',
 		description: 'Plataforma para conectar y dar seguimiento a la comunidad de egresados.',
 		tone: 'stone',
-		status: 'Web App',
 		image: egresadosImg,
+		imageAlt: 'Imagen provisional del proyecto App Egresados.',
 	},
 	{
-		name: '3K Studio',
-		file: '3k_studio.sys',
-		tags: 'Marca / Creative Dev',
-		description: 'Nuestra propia identidad: Digital Playground. Retro, pixelado y hecho a mano.',
+		name: 'Bordicrea',
+		file: 'bordicrea.exe',
+		tags: 'E-commerce / Diseño web',
+		description:
+			'Sitio comercial y catálogo para una microempresa de bordados personalizados, con cotización directa por WhatsApp.',
 		tone: 'lime',
-		status: 'En línea',
-		image: studioImg,
-	},
-	{
-		name: 'MathMass',
-		file: 'mathmass.pwa',
-		tags: 'PWA / Educación',
-		description: 'App progresiva para practicar matemáticas de forma ligera y offline.',
-		tone: 'orange',
-		status: 'PWA',
-		image: mathmassImg,
+		image: bordicreaImg,
+		imageAlt: 'Imagen provisional del proyecto Bordicrea.',
 	},
 ];
 

@@ -1,0 +1,321 @@
+---
+import { getImage } from 'astro:assets';
+import type { Project } from '../../data/site';
+
+interface Props {
+	projects: Project[];
+}
+
+const { projects } = Astro.props;
+
+// Secuencia plana de todas las capturas de todos los proyectos: ◀ ▶ la recorren cruzando proyectos.
+const groups = projects.map((p) => p.gallery ?? [{ src: p.image, alt: p.imageAlt }]);
+const slides = groups.flatMap((shots, pi) =>
+	shots.map((shot, si) => ({ ...shot, pi, si, count: shots.length, project: projects[pi] })),
+);
+const widthsFor = (w: number) => [960, 1440, 1920, 2560].filter((x) => x < w).concat(w);
+
+// URLs generadas en el build pero sin src en el HTML: nada se descarga hasta abrir el visor.
+const shots = await Promise.all(
+	slides.map((s) => getImage({ src: s.src, widths: widthsFor(s.src.width), sizes: '100vw' })),
+);
+const thumbs = await Promise.all(slides.map((s) => getImage({ src: s.src, width: 160 })));
+const closeIcon = 'M2 2h2l2 2 2-2h2v2L8 6l2 2v2H8L6 8l-2 2H2V8l2-2-2-2z';
+---
+
+<dialog class="viewer" aria-labelledby="viewer-title" data-viewer>
+	<div class="viewer-bar">
+		<h2 id="viewer-title" class="viewer-title">
+			<span aria-hidden="true"><span data-viewer-file></span> · <span data-viewer-count></span></span>
+			<span class="sr-only" data-viewer-label></span>
+		</h2>
+		<div class="viewer-tools">
+			<button type="button" class="v-btn" data-v="prev" aria-label="Captura anterior">
+				<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M8 1h2v10H8zM6 3h2v6H6zM4 4h2v4H4zM2 5h2v2H2z"></path></svg
+				>
+			</button>
+			<button type="button" class="v-btn" data-v="next" aria-label="Captura siguiente">
+				<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1h2v10H2zM4 3h2v6H4zM6 4h2v4H6zM8 5h2v2H8z"></path></svg
+				>
+			</button>
+			<button type="button" class="v-btn v-text" data-v="zoom" aria-pressed="false">
+				1:1<span class="sr-only"> tamaño real</span>
+			</button>
+			<a class="v-btn v-text" data-v="site" href="#" target="_blank" rel="noopener" hidden>
+				Ver sitio <span aria-hidden="true">↗</span><span class="sr-only"> (abre en otra pestaña)</span>
+			</a>
+			<button type="button" class="v-btn v-close" data-v="close" aria-label="Cerrar pantalla completa">
+				<svg viewBox="0 0 12 12" aria-hidden="true"><path d={closeIcon}></path></svg>
+			</button>
+		</div>
+	</div>
+
+	<div
+		class="viewer-stage"
+		tabindex="0"
+		role="group"
+		aria-label="Captura ampliada"
+		data-lenis-prevent
+		data-viewer-stage
+	>
+		{
+			slides.map((s, i) => (
+				<img
+					data-src={shots[i].src}
+					data-srcset={shots[i].srcSet.attribute}
+					sizes="100vw"
+					width={s.src.width}
+					height={s.src.height}
+					alt={s.alt}
+					decoding="async"
+					class="viewer-img"
+					style={`--w:${s.src.width}px`}
+					hidden
+					data-slide={i}
+					data-project={s.pi}
+					data-shot={s.si}
+					data-count={s.count}
+					data-name={s.project.name}
+					data-file={s.project.file}
+					data-url={s.project.url}
+				/>
+			))
+		}
+	</div>
+
+	{
+		groups.map(
+			(group, pi) =>
+				group.length > 1 && (
+					<div class="viewer-thumbs" data-thumbs={pi} hidden>
+						<template data-thumbs-tpl>
+							{group.map((shot, si) => {
+								const index = slides.findIndex((s) => s.pi === pi && s.si === si);
+								return (
+									<button
+										type="button"
+										class="thumb"
+										data-thumb={index}
+										aria-label={`Ver captura ${si + 1} de ${group.length}${shot.label ? `: ${shot.label}` : ''}`}
+									>
+										<img
+											src={thumbs[index].src}
+											width={160}
+											height={Math.round((160 * shot.src.height) / shot.src.width)}
+											alt=""
+											decoding="async"
+											class="size-full object-cover object-left-top"
+										/>
+									</button>
+								);
+							})}
+						</template>
+					</div>
+				),
+		)
+	}
+
+	<p class="sr-only" aria-live="polite" data-viewer-live></p>
+</dialog>
+
+<style>
+	.viewer {
+		width: 100vw;
+		max-width: none;
+		height: 100dvh;
+		max-height: none;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: var(--color-ink);
+		color: var(--color-cream);
+		overscroll-behavior: contain;
+	}
+	.viewer[open] {
+		display: flex;
+		flex-direction: column;
+	}
+	.viewer::backdrop {
+		background: var(--color-ink);
+	}
+	/* Sin View Transitions: fundido corto */
+	:global(html:not(.vt)) .viewer[open] {
+		animation: viewer-fade 180ms cubic-bezier(0.23, 1, 0.32, 1) both;
+	}
+	@keyframes viewer-fade {
+		from {
+			opacity: 0;
+		}
+	}
+
+	.viewer-bar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem 1rem;
+		border-bottom: 2px solid var(--color-ink-3);
+		padding: 0.5rem 0.75rem 0.5rem 1rem;
+	}
+	.viewer-title {
+		min-width: 0;
+		overflow: hidden;
+		font-family: var(--font-pixel);
+		font-size: 1.375rem;
+		font-weight: 400;
+		line-height: 1.1;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.viewer-tools {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+		margin-left: auto;
+	}
+	.v-btn {
+		display: inline-flex;
+		min-width: 2.75rem;
+		height: 2.75rem;
+		align-items: center;
+		justify-content: center;
+		gap: 0.375rem;
+		border: 2px solid var(--color-cream);
+		border-radius: 0.375rem;
+		background: var(--color-ink);
+		color: var(--color-cream);
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		font-weight: 700;
+		text-decoration: none;
+		transition: transform 120ms ease-out;
+	}
+	.v-text {
+		padding-inline: 0.75rem;
+	}
+	.v-btn svg {
+		width: 0.875rem;
+		height: 0.875rem;
+		fill: currentColor;
+		shape-rendering: crispEdges;
+	}
+	.v-btn:hover,
+	.v-btn[aria-pressed='true'] {
+		background: var(--color-lime);
+		border-color: var(--color-lime);
+		color: var(--color-ink);
+	}
+	.v-btn:active {
+		transform: scale(0.97);
+	}
+	.v-close {
+		background: var(--color-cream);
+		color: var(--color-ink);
+	}
+	/* Foco sobre fondo ink: anillo lima con halo ink */
+	.viewer :focus-visible {
+		outline: 3px solid var(--color-lime);
+		outline-offset: 2px;
+		box-shadow: none;
+	}
+
+	.viewer-stage {
+		position: relative;
+		display: grid;
+		min-height: 0;
+		flex: 1;
+		overflow: hidden;
+		padding: 0.75rem;
+		touch-action: pan-y pinch-zoom;
+	}
+	@media (min-width: 768px) {
+		.viewer-stage {
+			padding: 1.5rem;
+		}
+	}
+	.viewer-stage:focus-visible {
+		outline-offset: -4px;
+	}
+	.viewer-img {
+		position: absolute;
+		inset: 0;
+		max-width: calc(100% - 1.5rem);
+		max-height: calc(100% - 1.5rem);
+		width: auto;
+		height: auto;
+		margin: auto;
+		border: 2px solid var(--color-ink-3);
+		border-radius: 0.5rem;
+		object-fit: contain;
+	}
+	@media (min-width: 768px) {
+		.viewer-img {
+			max-width: calc(100% - 3rem);
+			max-height: calc(100% - 3rem);
+		}
+	}
+	.viewer-img[hidden] {
+		display: none;
+	}
+
+	/* 1:1: tamaño natural dentro de un área con scroll propio */
+	.viewer-stage.is-actual {
+		overflow: auto;
+		touch-action: auto;
+		overscroll-behavior: contain;
+	}
+	.viewer-stage.is-actual .viewer-img {
+		position: static;
+		width: var(--w);
+		max-width: none;
+		max-height: none;
+		border-radius: 0;
+	}
+
+	.viewer-thumbs {
+		display: flex;
+		justify-content: center;
+		gap: 0.5rem;
+		overflow-x: auto;
+		border-top: 2px solid var(--color-ink-3);
+		padding: 0.625rem;
+	}
+	.viewer-thumbs[hidden] {
+		display: none;
+	}
+	.thumb {
+		width: 5rem;
+		height: 3.125rem;
+		flex-shrink: 0;
+		overflow: hidden;
+		border: 2px solid var(--color-ink-3);
+		border-radius: 0.25rem;
+	}
+	.thumb[aria-current='true'] {
+		border-color: var(--color-lime);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.viewer[open] {
+			animation: viewer-fade 120ms linear both !important;
+		}
+	}
+</style>
+
+<style is:global>
+	/* La captura del monitor «se expande» hasta el visor (View Transitions) */
+	::view-transition-group(shot) {
+		animation-duration: 260ms;
+		animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+	}
+	::view-transition-old(root),
+	::view-transition-new(root) {
+		animation-duration: 260ms;
+	}
+	html.vt-out::view-transition-group(shot),
+	html.vt-out::view-transition-old(root),
+	html.vt-out::view-transition-new(root) {
+		animation-duration: 180ms;
+	}
+</style>
