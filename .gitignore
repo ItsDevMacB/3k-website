@@ -28,3 +28,6 @@ docs/
 
 # artefactos del MCP de Playwright
 .playwright-mcp/
+
+# AI
+.claude
