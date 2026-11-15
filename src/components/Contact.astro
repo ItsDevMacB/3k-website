@@ -8,7 +8,11 @@ const icons = { instagram: Instagram, facebook: Facebook, tiktok: Tiktok };
 const year = new Date().getFullYear();
 ---
 
-<footer id="contacto" class="relative overflow-hidden bg-orange px-4 pt-24 pb-8 text-ink md:px-8 md:pt-32">
+<footer
+	id="contacto"
+	class="relative overflow-hidden bg-orange px-4 pt-24 pb-8 text-ink md:px-8 md:pt-32"
+	data-nav-bg="orange"
+>
 	<!-- Pixeles decorativos -->
 	<div class="pixels pointer-events-none absolute inset-0" aria-hidden="true">
 		{Array.from({ length: 14 }).map((_, i) => <span style={`--i:${i}`} />)}
@@ -28,7 +32,7 @@ const year = new Date().getFullYear();
 				respondemos con una propuesta clara y sin letras chiquitas.
 			</p>
 
-			<div class="window bg-ink text-cream" data-reveal="pop" style="--d:1">
+			<div class="window bg-ink text-cream" data-reveal="pop" style="--d:1" data-nav-bg="dark">
 				<div class="window-bar !bg-cream !text-ink"><span>contacto.exe</span><span>▢ ✕</span></div>
 				<div class="space-y-4 p-6 font-pixel text-xl leading-tight">
 					<p><span class="text-lime">&gt;</span> respuesta en menos de 24 h</p>

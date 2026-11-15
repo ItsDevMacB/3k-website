@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # documentacion interna de trabajo (tareas, preguntas, flujo); no se sube a GitHub
 docs/
+
+# artefactos del MCP de Playwright
+.playwright-mcp/
