@@ -1,13 +1,11 @@
 ---
-import { Image } from 'astro:assets';
 import { projects } from '../data/site';
+import Cartridge from './projects/Cartridge.astro';
+import ProjectConsole from './projects/ProjectConsole.astro';
+import ProjectInfo from './projects/ProjectInfo.astro';
+import ProjectViewer from './projects/ProjectViewer.astro';
 
-const tones = {
-	orange: { frame: 'bg-orange', screen: 'bg-cream', accent: 'bg-orange' },
-	stone: { frame: 'bg-stone', screen: 'bg-cream', accent: 'bg-ink' },
-	lime: { frame: 'bg-lime', screen: 'bg-cream', accent: 'bg-lime' },
-	ink: { frame: 'bg-ink', screen: 'bg-cream', accent: 'bg-orange' },
-};
+const slugs = projects.map((p) => p.file.split('.')[0]);
 ---
 
 <section id="trabajo" class="px-4 py-24 md:px-8 md:py-32">
@@ -17,7 +15,9 @@ const tones = {
 				<p class="kicker" data-reveal>[ Trabajo seleccionado ]</p>
 				<h2 class="mt-4 font-display text-[clamp(1.9rem,5.5vw,4.5rem)] leading-[0.95] uppercase">
 					<span class="block" data-wipe>Proyectos</span>
-					<span class="block" data-wipe style="--d:1">que nos enorgullecen<span class="text-orange">.</span></span>
+					<span class="block" data-wipe style="--d:1"
+						>que nos enorgullecen<span class="text-orange" aria-hidden="true">.</span></span
+					>
 				</h2>
 			</div>
 			<p class="max-w-sm text-ink/75 md:justify-self-end" data-reveal style="--d:2">
@@ -25,68 +25,903 @@ const tones = {
 			</p>
 		</div>
 
-		<div class="mt-16 grid gap-10 md:grid-cols-2 md:gap-x-12">
-			{
-				projects.map((p, i) => {
-					const t = tones[p.tone];
-					return (
-						<article class:list={['project group', i % 2 === 1 && 'md:mt-24']} data-reveal style={`--d:${i % 2}`}>
-							<div class="window transition-transform duration-300 group-hover:-translate-y-2 group-hover:-rotate-1">
-								<div class="window-bar">
-									<span class="flex items-center gap-2">
-										<span class="inline-block size-2.5 rounded-sm bg-orange" />
-										{p.file}
-									</span>
-									<span class="tracking-widest">_ ▢ ✕</span>
-								</div>
+		<div class="arcade mt-14 md:mt-16" data-arcade>
+			<div class="shelf" data-reveal>
+				<p class="shelf-hint" id="cart-hint">
+					<span class="js-hint">Elige un cartucho para cargarlo en la consola</span>
+					<span class="nojs-hint">Proyectos</span>
+				</p>
+				<div class="shelf-row" data-tablist aria-describedby="cart-hint">
+					{projects.map((p, i) => <Cartridge project={p} slug={slugs[i]} index={i} variant="tab" active={i === 0} />)}
+				</div>
+			</div>
 
-								<div class:list={['relative p-5 md:p-7', t.frame]}>
-									<div class:list={['window aspect-[16/10] !shadow-none', t.screen]}>
-										<div class="flex h-5 items-center gap-1.5 border-b-2 border-ink bg-ink px-2">
-											<span class="size-1.5 rounded-full bg-orange" />
-											<span class="size-1.5 rounded-full bg-lime" />
-											<span class="size-1.5 rounded-full bg-cream" />
-										</div>
-										<div class="relative h-[calc(100%-1.25rem)] overflow-hidden">
-											<Image
-												src={p.image}
-												alt={`Vista del proyecto ${p.name}`}
-												widths={[480, 800, 1264]}
-												sizes="(min-width: 768px) 600px, 90vw"
-												class="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-											/>
-											<span
-												class:list={[
-													'absolute top-3 left-3 rounded-md border-2 border-ink px-2.5 py-1 font-display text-sm uppercase shadow-[var(--shadow-pixel-sm)] md:text-base',
-													t.accent,
-													p.tone === 'stone' ? 'text-cream' : 'text-ink',
-												]}
-											>
-												{p.name}
-											</span>
-											<span class="pointer-events-none absolute inset-0 translate-y-full bg-ink/90 p-5 font-pixel text-xl leading-tight text-lime transition-transform duration-300 group-hover:translate-y-0 md:p-7 md:text-2xl">
-												&gt; {p.description}
-												<span class="ml-1 inline-block h-5 w-2.5 animate-blink bg-lime align-middle" />
-											</span>
-										</div>
-									</div>
-								</div>
-
-								<div class="flex items-end justify-between gap-4 border-t-2 border-ink bg-cream px-5 py-4">
-									<div>
-										<p class="font-mono text-[10px] text-orange">0{i + 1}</p>
-										<h3 class="text-lg font-bold">{p.name}</h3>
-										<p class="text-xs text-ink/60">{p.tags}</p>
-									</div>
-									<span class="flex size-10 items-center justify-center rounded-full border-2 border-ink text-lg transition-all group-hover:rotate-45 group-hover:bg-orange group-hover:text-cream">
-										↗
-									</span>
-								</div>
-							</div>
-						</article>
-					);
-				})
-			}
+			<div class="deck" id="project-panel" data-panel>
+				<ProjectConsole projects={projects} slugs={slugs} />
+				<div class="infos" data-reveal style="--d:2">
+					{projects.map((p, i) => <ProjectInfo project={p} slug={slugs[i]} index={i} active={i === 0} />)}
+				</div>
+			</div>
 		</div>
 	</div>
+
+	<p class="sr-only" aria-live="polite" data-cart-live></p>
+
+	<div class="err-toast window" data-err hidden>
+		<div class="err-bar" aria-hidden="true">error.exe</div>
+		<div class="flex items-start gap-3 p-4">
+			<span class="err-icon" aria-hidden="true">!</span>
+			<p class="font-mono text-sm leading-snug font-bold" data-err-text></p>
+		</div>
+		<div class="flex justify-end px-4 pb-4">
+			<button type="button" class="btn btn-ghost px-5 py-2.5" data-err-ok>Ok</button>
+		</div>
+	</div>
+	<p class="sr-only" role="status" data-err-live></p>
+
+	<ProjectViewer projects={projects} />
 </section>
+
+<style>
+	.shelf-hint {
+		font-family: var(--font-mono);
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: color-mix(in srgb, var(--color-ink) 75%, transparent);
+	}
+	.nojs-hint {
+		display: none;
+	}
+	:global(#trabajo:not([data-ready])) .js-hint {
+		display: none;
+	}
+	:global(#trabajo:not([data-ready])) .nojs-hint {
+		display: inline;
+	}
+
+	/*
+	 * Escena: estante, consola y fichas. El ancho del cartucho sale del ancho de la escena (cqi),
+	 * igual en el estante y en la consola para que el vuelo no escale.
+	 */
+	.arcade {
+		--shelf-gap: 0.5rem;
+		--cart-depth: 8px;
+		--cart-w: min(9.375rem, calc((100cqi - 3 * var(--shelf-gap) - 3 * var(--cart-depth)) / 3));
+		container: arcade / inline-size;
+		position: relative;
+		display: grid;
+		gap: 2.5rem;
+	}
+	/* Bajo 380 px: 2 + 1, con cartuchos de al menos 120 px */
+	@media (max-width: 379.98px) {
+		.arcade {
+			--cart-w: min(9.375rem, calc((100cqi - 2 * var(--shelf-gap) - 2 * var(--cart-depth)) / 2));
+		}
+	}
+	@media (min-width: 640px) {
+		.arcade {
+			--shelf-gap: 0.875rem;
+			--cart-depth: 12px;
+		}
+	}
+
+	.shelf {
+		position: relative;
+		z-index: 1;
+		min-width: 0;
+	}
+	/* Sin overflow:hidden: las caras 3D y el foco de los cartuchos se salen de la caja */
+	.shelf-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		justify-content: center;
+		gap: 1.5rem var(--shelf-gap);
+		margin-top: 1rem;
+		padding-inline: calc(var(--shelf-gap) / 2);
+	}
+
+	.deck {
+		display: grid;
+		min-width: 0;
+		gap: 2.5rem;
+	}
+	/* Línea del escritorio bajo la consola */
+	.deck > :global(.c-wrap) {
+		border-bottom: 2px solid var(--color-ink);
+	}
+	@media (min-width: 640px) and (max-width: 1179.98px) {
+		.deck > :global(.c-wrap),
+		.infos {
+			justify-self: center;
+			width: 100%;
+			max-width: 44rem;
+		}
+	}
+	.infos {
+		display: grid;
+		min-width: 0;
+		gap: 2rem;
+	}
+	/* Con JS las tres fichas comparten celda (las inactivas ocultas) para que la altura no salte */
+	:global(#trabajo[data-ready]) .infos {
+		grid-template-rows: 1fr;
+	}
+	:global(#trabajo[data-ready]) .infos > :global(.info) {
+		grid-area: 1 / 1;
+	}
+	:global(#trabajo[data-ready]) .infos > :global(.info:not([data-active])) {
+		visibility: hidden;
+	}
+
+	/* Escritorio: estante y ficha a la izquierda (5/12), consola a la derecha (7/12) sobre el escritorio */
+	@media (min-width: 1180px) {
+		.arcade {
+			--col-gap: clamp(2rem, 4vw, 4rem);
+			--cart-w: min(
+				9.375rem,
+				calc(((100cqi - var(--col-gap)) * 5 / 12 - 3 * var(--shelf-gap) - 3 * var(--cart-depth)) / 3)
+			);
+			grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+			grid-template-rows: auto 1fr auto;
+			column-gap: var(--col-gap);
+			row-gap: 0;
+		}
+		.arcade::after {
+			content: '';
+			grid-area: 3 / 1 / 4 / 3;
+			height: 2px;
+			background: var(--color-ink);
+		}
+		.shelf {
+			grid-area: 1 / 1;
+		}
+		.shelf-row {
+			justify-content: flex-start;
+		}
+		/* Un solo tabpanel que abarca las dos columnas; el estante queda encima para recibir los clics */
+		.deck {
+			grid-area: 1 / 1 / 3 / 3;
+			grid-template-columns: subgrid;
+			grid-template-rows: subgrid;
+			column-gap: var(--col-gap);
+			row-gap: 0;
+		}
+		.deck > :global(.c-wrap) {
+			grid-area: 1 / 2 / 3 / 3;
+			align-self: end;
+			justify-self: center;
+			width: 100%;
+			/* En pantallas bajas (1366 × 768) la pantalla se limita por la altura; mínimo 440 px de cristal */
+			max-width: calc(max(27.5rem, (100svh - 32.5rem) * 16 / 9) + 4.25rem + clamp(14px, 2vw, 28px));
+			border-bottom: 0;
+		}
+		/* El margen inferior deja la sombra pixel de la ficha sobre el escritorio, no encima de la línea */
+		.infos {
+			grid-area: 2 / 1;
+			margin-top: 2rem;
+			margin-bottom: 8px;
+		}
+		:global(#trabajo:not([data-ready])) .deck > :global(.c-wrap) {
+			align-self: start;
+		}
+	}
+
+	/* error.exe: aparece dentro del monitor, sobre la captura */
+	.err-toast {
+		position: absolute;
+		bottom: 1.25rem;
+		left: 1.25rem;
+		z-index: 5;
+		width: min(21rem, calc(100% - 2.5rem));
+		animation: err-open 0.2s steps(5) both;
+	}
+	.err-toast[hidden] {
+		display: none;
+	}
+	@keyframes err-open {
+		from {
+			transform: scale(0.8);
+			opacity: 0;
+		}
+	}
+	.err-bar {
+		border-bottom: 2px solid var(--color-ink);
+		background: var(--color-orange);
+		padding: 0.25rem 0.75rem;
+		font-family: var(--font-pixel);
+		font-size: 1.25rem;
+		line-height: 1.2;
+		color: var(--color-ink);
+	}
+	.err-icon {
+		display: grid;
+		flex-shrink: 0;
+		place-items: center;
+		width: 2rem;
+		height: 2rem;
+		border: 2px solid var(--color-ink);
+		background: var(--color-lime);
+		font-family: var(--font-display);
+		font-size: 1.125rem;
+		color: var(--color-ink);
+	}
+</style>
+
+<script>
+	const section = document.getElementById('trabajo');
+	const arcade = section?.querySelector<HTMLElement>('[data-arcade]');
+	const tablist = section?.querySelector<HTMLElement>('[data-tablist]');
+	const panel = section?.querySelector<HTMLElement>('[data-panel]');
+	const consoleEl = section?.querySelector<HTMLElement>('[data-console]');
+	const screen = section?.querySelector<HTMLElement>('[data-crt]');
+
+	if (section && arcade && tablist && panel && consoleEl && screen) {
+		const root = document.documentElement;
+		const tabs = [...tablist.querySelectorAll<HTMLElement>('[data-cart]')];
+		const seats = [...consoleEl.querySelectorAll<HTMLElement>('[data-seat]')];
+		const programs = [...consoleEl.querySelectorAll<HTMLElement>('[data-program]')];
+		const titles = [...consoleEl.querySelectorAll<HTMLElement>('[data-bar]')];
+		const presets = [...consoleEl.querySelectorAll<HTMLElement>('[data-presets]')];
+		const infos = [...panel.querySelectorAll<HTMLElement>('[data-info]')];
+		const wrap = section.querySelector<HTMLElement>('[data-console-wrap]');
+		const well = consoleEl.querySelector<HTMLElement>('[data-well]');
+		const captureGroup = consoleEl.querySelector<HTMLElement>('[data-capture-group]');
+		const staticEl = screen.querySelector<HTMLElement>('[data-static]');
+		const flash = screen.querySelector<HTMLElement>('[data-flash]');
+		const knob = consoleEl.querySelector<HTMLElement>('[data-knob]');
+		const led = consoleEl.querySelector<HTMLElement>('[data-led]');
+		const lcdCount = consoleEl.querySelector<HTMLElement>('[data-lcd-count]');
+		const lcdLabel = consoleEl.querySelector<HTMLElement>('[data-lcd-label]');
+		const barZoom = consoleEl.querySelector<HTMLElement>('.c-bar [data-act="zoom"]');
+		const barClose = consoleEl.querySelector<HTMLElement>('.c-bar [data-act="close"]');
+		const cartLive = section.querySelector<HTMLElement>('[data-cart-live]');
+
+		const isStatic = () => root.classList.contains('is-static');
+		const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const calm = () => isStatic() || reduced();
+
+		let current = 0;
+		let shot = 0;
+		let lastFx = -Infinity;
+
+		const announce = (el: HTMLElement | null | undefined, message: string) => {
+			if (!el) return;
+			el.textContent = '';
+			window.setTimeout(() => (el.textContent = message), 50);
+		};
+		const shotsOf = (i: number) => [...programs[i].querySelectorAll<HTMLImageElement>('img[data-shot]')];
+		// Las capturas ocultas (monitor y visor) no traen src en el HTML: se asignan al mostrarse o precargarse
+		const load = (img: HTMLImageElement) => {
+			if (img.getAttribute('src')) return;
+			if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+			if (img.dataset.src) img.src = img.dataset.src;
+		};
+		const bodyOf = (el: Element) => el.querySelector<HTMLElement>('.cart-body');
+		// Lo que queda dentro de la ranura (27 % del alto) más un margen: altura desde la que cae o a la que sube
+		const liftOf = (seat: HTMLElement) => (bodyOf(seat)?.offsetHeight ?? 0) * 0.27 + 10;
+		const onScreen = (el: Element | null) => {
+			if (!el) return false;
+			const r = el.getBoundingClientRect();
+			return r.bottom > 0 && r.top < window.innerHeight;
+		};
+
+		/* ---------- Efectos: todos decoran; el estado ya cambió antes de que empiecen ---------- */
+		const running = new Set<Animation>();
+		let timers: number[] = [];
+		const play = (el: Element | null | undefined, frames: Keyframe[], options: KeyframeAnimationOptions) => {
+			if (!el) return null;
+			const anim = el.animate(frames, options);
+			running.add(anim);
+			const forget = () => running.delete(anim);
+			anim.addEventListener('finish', forget);
+			anim.addEventListener('cancel', forget);
+			return anim;
+		};
+		const later = (ms: number, fn: () => void) => {
+			timers.push(window.setTimeout(fn, ms));
+		};
+		const setLed = (state: 'off' | 'read' | 'ready') => {
+			if (led) led.dataset.state = state;
+		};
+		// Un efecto de estática o encendido cada 400 ms como máximo (WCAG 2.3.1); si llega antes, va sin efecto
+		const allowFx = () => {
+			const now = performance.now();
+			if (now - lastFx < 400) return false;
+			lastFx = now;
+			return true;
+		};
+		// Termina en seco lo que esté corriendo (un clic nuevo reinicia la secuencia)
+		const settle = () => {
+			timers.forEach((t) => window.clearTimeout(t));
+			timers = [];
+			[...running].forEach((a) => a.cancel());
+			arcade.querySelectorAll('.cart-ghost').forEach((g) => g.remove());
+			seats.forEach((s, i) => {
+				s.hidden = i !== current;
+				s.style.visibility = '';
+			});
+			setLed('ready');
+		};
+
+		const LINE = 'inset(calc(50% - 1px) 0 calc(50% - 1px) 0)';
+		// Teclado: estática corta y encendido de línea a pantalla
+		const powerOn = () => {
+			play(staticEl, [{ opacity: 0.25 }, { opacity: 0 }], { duration: 120, easing: 'steps(2, end)' });
+			play(screen, [{ clipPath: LINE, easing: 'steps(5, end)' }, { clipPath: 'inset(0)' }], {
+				duration: 220,
+				delay: 80,
+				fill: 'backwards',
+			});
+			play(flash, [{ opacity: 0.35, easing: 'steps(5, end)' }, { opacity: 0 }], {
+				duration: 220,
+				delay: 80,
+				fill: 'backwards',
+			});
+		};
+		// Sin cartucho la pantalla queda en una línea; al asentarse el nuevo, estática y encendido
+		const powerCycle = (offFor: number) => {
+			const total = offFor + 220;
+			const at = offFor / total;
+			play(
+				screen,
+				[{ clipPath: LINE }, { clipPath: LINE, offset: at, easing: 'steps(5, end)' }, { clipPath: 'inset(0)' }],
+				{
+					duration: total,
+				},
+			);
+			play(flash, [{ opacity: 0 }, { opacity: 0.35, offset: at, easing: 'steps(5, end)' }, { opacity: 0 }], {
+				duration: total,
+			});
+			play(staticEl, [{ opacity: 0.25 }, { opacity: 0 }], {
+				duration: 120,
+				delay: Math.max(0, offFor - 40),
+				easing: 'steps(2, end)',
+			});
+		};
+
+		// El cartucho anterior sube por la ranura (el pozo recorta su conector hasta que asoma) y se desvanece
+		const eject = (i: number) => {
+			const seat = seats[i];
+			seat.hidden = false;
+			const rise = liftOf(seat);
+			const anim = play(
+				seat,
+				[
+					{ transform: 'translateY(0)', opacity: 1, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' },
+					{ transform: `translateY(${-rise}px)`, opacity: 1, offset: 0.6 },
+					{ transform: `translateY(${-rise - 8}px)`, opacity: 0 },
+				],
+				{ duration: 220 },
+			);
+			anim?.addEventListener('finish', () => {
+				if (i !== current) seat.hidden = true;
+			});
+		};
+		// …y reaparece en su lugar del estante
+		const refill = (i: number) => {
+			play(
+				bodyOf(tabs[i]),
+				[
+					{ opacity: 0, transform: 'translateY(-12px)' },
+					{ opacity: 1, transform: 'translateY(0)' },
+				],
+				{
+					duration: 160,
+					delay: 200,
+					easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
+					fill: 'backwards',
+				},
+			);
+			// El hueco se sostiene hasta que el cartucho empieza a caer y desaparece de golpe (sin textos encimados)
+			play(tabs[i].querySelector('.cart-hole'), [{ opacity: 1 }, { opacity: 1 }], { duration: 200 });
+		};
+		// Un clon decorativo viaja del estante a la vertical de la ranura: tomar, llevar, dejar
+		const fly = (i: number, done: () => void) => {
+			const body = bodyOf(tabs[i]);
+			const seat = seats[i];
+			const seatBody = bodyOf(seat);
+			if (!body || !seatBody) return done();
+			seat.hidden = false;
+			seat.style.visibility = 'hidden';
+			const a = body.getBoundingClientRect();
+			const b = seatBody.getBoundingClientRect();
+			const host = arcade.getBoundingClientRect();
+			// Tamaño de layout (sin el scale del :active); la posición sale del centro del rectángulo
+			const w = body.offsetWidth;
+			const h = body.offsetHeight;
+			const x = a.left + a.width / 2 - w / 2;
+			const y = a.top + a.height / 2 - h / 2;
+			const lift = liftOf(seat);
+			const ghost = body.cloneNode(true) as HTMLElement;
+			ghost.classList.add('cart-ghost');
+			ghost.setAttribute('aria-hidden', 'true');
+			Object.assign(ghost.style, {
+				position: 'absolute',
+				left: `${x - host.left}px`,
+				top: `${y - host.top}px`,
+				width: `${w}px`,
+				height: `${h}px`,
+				zIndex: '40',
+				opacity: '1',
+				pointerEvents: 'none',
+				transition: 'none',
+				willChange: 'transform',
+			});
+			arcade.append(ghost);
+			const dx = b.left - x;
+			const dy = b.top - lift - y;
+			const anim = play(
+				ghost,
+				[
+					{ transform: 'translate(0, 0)', easing: 'cubic-bezier(0.23, 1, 0.32, 1)' },
+					{ transform: 'translate(0, -16px)', offset: 0.18, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' },
+					{ transform: `translate(${dx}px, ${dy - 18}px)`, offset: 0.79, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' },
+					{ transform: `translate(${dx}px, ${dy}px)` },
+				],
+				{ duration: 380, fill: 'forwards' },
+			);
+			anim?.addEventListener('finish', () => {
+				ghost.remove();
+				seat.style.visibility = '';
+				done();
+			});
+		};
+		// Entra recortándose en el labio (empujón que acelera y frena en seco) y hace «clic»
+		const drop = (i: number) => {
+			const seat = seats[i];
+			seat.hidden = false;
+			seat.style.visibility = '';
+			const lift = liftOf(seat);
+			play(
+				seat,
+				[
+					{ transform: `translateY(${-lift}px)`, easing: 'cubic-bezier(0.55, 0, 1, 0.45)' },
+					{ transform: 'translateY(3px)', offset: 0.6, easing: 'steps(1, end)' },
+					{ transform: 'translateY(0)', offset: 0.8 },
+					{ transform: 'translateY(0)' },
+				],
+				{ duration: 200 },
+			);
+			later(120, () => {
+				play(consoleEl, [{ transform: 'translateY(2px)' }, { transform: 'translateY(2px)' }], { duration: 80 });
+				setLed('read');
+			});
+		};
+		// Secuencia completa (~0.8 s con vuelo); con ◀ ▶ o fuera de pantalla, sin vuelo
+		const insert = (prev: number, next: number, flight: boolean) => {
+			setLed('off');
+			eject(prev);
+			refill(prev);
+			const seatAt = flight ? 380 : 220;
+			if (allowFx()) powerCycle(seatAt + 200);
+			later(seatAt + 420, () => setLed('ready'));
+			if (flight) fly(next, () => drop(next));
+			else {
+				seats[next].hidden = true;
+				later(seatAt, () => drop(next));
+			}
+		};
+
+		/* ---------- Capturas dentro del monitor ---------- */
+		let wipe = 0;
+		const showShot = (j: number, speak: boolean, fx: boolean) => {
+			const shots = shotsOf(current);
+			if (!shots.length) return;
+			const n = shots.length;
+			const k = ((j % n) + n) % n;
+			const prevImg = shots[shot];
+			const img = shots[k];
+			const changed = k !== shot;
+			const token = ++wipe;
+			shot = k;
+			load(img);
+			shots.forEach((s, x) => {
+				s.hidden = x !== k;
+				s.removeAttribute('aria-hidden');
+				s.style.zIndex = '';
+				s.style.clipPath = '';
+				s.style.opacity = '';
+			});
+			presets
+				.find((g) => Number(g.dataset.presets) === current)
+				?.querySelectorAll<HTMLElement>('[data-shot-btn]')
+				.forEach((b, x) => {
+					if (x === k) b.setAttribute('aria-current', 'true');
+					else b.removeAttribute('aria-current');
+				});
+			const label = img.dataset.label ?? '';
+			if (lcdCount) lcdCount.textContent = `${k + 1}/${n}`;
+			if (lcdLabel) lcdLabel.textContent = label;
+			knob?.style.setProperty('--turn', `${n > 1 ? -45 + (90 * k) / (n - 1) : 0}deg`);
+			if (speak) announce(cartLive, `Captura ${k + 1} de ${n}${label ? `: ${label}` : ''}`);
+			if (!fx || !changed || !prevImg || isStatic()) return;
+			// La anterior queda debajo (oculta para lectores) mientras la nueva se dibuja de arriba abajo
+			const soft = reduced();
+			prevImg.hidden = false;
+			prevImg.setAttribute('aria-hidden', 'true');
+			img.style.zIndex = '1';
+			if (soft) img.style.opacity = '0';
+			else img.style.clipPath = 'inset(0 0 100% 0)';
+			const clean = () => {
+				prevImg.hidden = Number(prevImg.dataset.shot) !== shot;
+				prevImg.removeAttribute('aria-hidden');
+				img.style.zIndex = '';
+				img.style.clipPath = '';
+				img.style.opacity = '';
+			};
+			Promise.race([img.decode().catch(() => {}), new Promise((r) => window.setTimeout(r, 300))]).then(() => {
+				if (token !== wipe) return;
+				const anim = soft
+					? play(img, [{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: 'ease-out' })
+					: play(img, [{ clipPath: 'inset(0 0 100% 0)', easing: 'steps(6, end)' }, { clipPath: 'inset(0)' }], {
+							duration: 180,
+						});
+				if (!anim) return clean();
+				anim.addEventListener('finish', clean);
+				anim.addEventListener('cancel', clean);
+			});
+		};
+		// Precarga las capturas del cartucho actual al acercarse a las teclas o tocar la pantalla
+		const warm = () =>
+			shotsOf(current).forEach((img) => {
+				img.loading = 'eager';
+				load(img);
+			});
+		const chin = consoleEl.querySelector('.c-chin');
+		chin?.addEventListener('pointerenter', warm);
+		chin?.addEventListener('focusin', warm);
+		screen.addEventListener('pointerdown', warm);
+		// Al acercarse al estante se piden las capturas principales: el cartucho elegido enciende con imagen
+		const warmMain = () =>
+			programs.forEach((_, i) => {
+				const img = shotsOf(i)[0];
+				img.loading = 'eager';
+				load(img);
+			});
+		tablist.addEventListener('pointerenter', warmMain, { once: true });
+		tablist.addEventListener('focusin', warmMain, { once: true });
+
+		/* ---------- Cartuchos como tabs (roving tabindex, activación automática) ---------- */
+		type Source = 'init' | 'pointer' | 'key' | 'repeat' | 'button' | 'viewer';
+
+		const select = (index: number, source: Source, toShot?: number) => {
+			const next = (index + tabs.length) % tabs.length;
+			const prev = current;
+			const changed = next !== prev;
+			if (changed) settle();
+			current = next;
+			tabs.forEach((tab, i) => {
+				const on = i === next;
+				tab.setAttribute('aria-selected', String(on));
+				tab.tabIndex = on ? 0 : -1;
+				tab.toggleAttribute('data-active', on);
+			});
+			seats.forEach((s, i) => (s.hidden = i !== next));
+			programs.forEach((p, i) => (p.hidden = i !== next));
+			titles.forEach((t, i) => (t.hidden = i !== next));
+			presets.forEach((g) => (g.hidden = Number(g.dataset.presets) !== next));
+			if (captureGroup) captureGroup.hidden = !presets.some((g) => Number(g.dataset.presets) === next);
+			infos.forEach((f, i) => f.toggleAttribute('data-active', i === next));
+			panel.setAttribute('aria-labelledby', tabs[next].id);
+			const program = programs[next];
+			barZoom?.setAttribute('aria-label', `Ampliar captura de ${program.dataset.name}`);
+			barClose?.setAttribute('aria-label', `Cerrar ${program.dataset.file}`);
+			if (changed) shot = 0;
+			showShot(toShot ?? shot, false, false);
+			if (!changed || source === 'init') return;
+
+			hideToast();
+			if (source === 'button') announce(cartLive, `${program.dataset.name} en la consola`);
+			if (source === 'viewer' || isStatic()) return;
+			if (reduced()) {
+				play(screen, [{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: 'ease-out' });
+				return;
+			}
+			if (source === 'key') {
+				if (allowFx()) powerOn();
+				return;
+			}
+			if (source === 'repeat') return;
+			insert(prev, next, source === 'pointer' && onScreen(tabs[next]) && onScreen(well));
+		};
+
+		tablist.setAttribute('role', 'tablist');
+		tablist.setAttribute('aria-label', 'Proyectos');
+		panel.setAttribute('role', 'tabpanel');
+		tabs.forEach((tab) => {
+			tab.setAttribute('role', 'tab');
+			tab.setAttribute('aria-controls', panel.id);
+			tab.removeAttribute('href');
+		});
+
+		tablist.addEventListener('click', (event) => {
+			const tab = (event.target as Element).closest<HTMLElement>('[role="tab"]');
+			if (!tab) return;
+			event.preventDefault();
+			select(tabs.indexOf(tab), event.detail === 0 ? 'key' : 'pointer');
+		});
+		tablist.addEventListener('keydown', (event) => {
+			const keys: Record<string, number> = {
+				ArrowRight: current + 1,
+				ArrowDown: current + 1,
+				ArrowLeft: current - 1,
+				ArrowUp: current - 1,
+				Home: 0,
+				End: tabs.length - 1,
+			};
+			if (!(event.key in keys)) return;
+			event.preventDefault();
+			select(keys[event.key], event.repeat ? 'repeat' : 'key');
+			tabs[current].focus();
+		});
+
+		/* ---------- error.exe al intentar cerrar ---------- */
+		const toast = section.querySelector<HTMLElement>('[data-err]');
+		const toastText = section.querySelector<HTMLElement>('[data-err-text]');
+		const errLive = section.querySelector<HTMLElement>('[data-err-live]');
+		const lines = [
+			(file: string) => `No se puede cerrar ${file}. Este proyecto se queda.`,
+			(file: string) => `Acceso denegado: ${file} está demasiado bien hecho para cerrarlo.`,
+			() => 'Error 3K: cerrar proyectos no viene en el plan.',
+			() => 'Ya en serio, no se cierra. Mejor escríbenos y hacemos el tuyo.',
+		];
+		let closeCount = 0;
+		let toastTimer: number | undefined;
+		let lastCloser: HTMLElement | null = null;
+
+		function hideToast(fromOk = false) {
+			window.clearTimeout(toastTimer);
+			if (!toast || toast.hidden) return;
+			const hadFocus = toast.contains(document.activeElement);
+			toast.hidden = true;
+			if ((hadFocus || fromOk) && lastCloser && !lastCloser.closest('[hidden]')) lastCloser.focus();
+		}
+		const armToast = () => {
+			window.clearTimeout(toastTimer);
+			toastTimer = window.setTimeout(() => hideToast(), 6000);
+		};
+		const refuseClose = (btn: HTMLElement) => {
+			lastCloser = btn;
+			consoleEl.classList.remove('is-shaking');
+			void consoleEl.offsetWidth;
+			consoleEl.classList.add('is-shaking');
+			const bezel = consoleEl.querySelector<HTMLElement>('[data-bezel]');
+			if (toast && bezel && toast.parentElement !== bezel) bezel.append(toast);
+			const message = lines[closeCount % lines.length](programs[current].dataset.file ?? '');
+			closeCount++;
+			if (toast && toastText) {
+				toastText.textContent = message;
+				toast.hidden = false;
+			}
+			announce(errLive, message);
+			armToast();
+		};
+		section.addEventListener('animationend', (event) => {
+			const el = event.target as HTMLElement;
+			if (el.classList.contains('is-shaking')) el.classList.remove('is-shaking');
+			// El encendido de entrada ocurre una vez
+			if (event.animationName.startsWith('crt-on') && wrap) wrap.dataset.booted = '';
+		});
+		section.querySelector('[data-err-ok]')?.addEventListener('click', () => hideToast(true));
+		toast?.addEventListener('mouseenter', () => window.clearTimeout(toastTimer));
+		toast?.addEventListener('mouseleave', () => {
+			if (!toast.contains(document.activeElement)) armToast();
+		});
+		toast?.addEventListener('focusin', () => window.clearTimeout(toastTimer));
+		toast?.addEventListener('focusout', armToast);
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape' && toast && !toast.hidden && !viewer?.open) hideToast(true);
+		});
+
+		/* ---------- Visor a pantalla completa ---------- */
+		const viewer = section.querySelector<HTMLDialogElement>('[data-viewer]');
+		const stage = viewer?.querySelector<HTMLElement>('[data-viewer-stage]');
+		const slides = [...(viewer?.querySelectorAll<HTMLImageElement>('[data-slide]') ?? [])];
+		const zoomBtn = viewer?.querySelector<HTMLButtonElement>('[data-v="zoom"]');
+		const siteLink = viewer?.querySelector<HTMLAnchorElement>('[data-v="site"]');
+		const viewerLive = viewer?.querySelector<HTMLElement>('[data-viewer-live]');
+		let slide = 0;
+		let opener: HTMLElement | null = null;
+		let open = false;
+
+		const text = (sel: string, value: string) => {
+			const el = viewer?.querySelector<HTMLElement>(sel);
+			if (el) el.textContent = value;
+		};
+		const monitorShot = () => shotsOf(current)[shot];
+
+		const setZoom = (on: boolean) => {
+			stage?.classList.toggle('is-actual', on);
+			zoomBtn?.setAttribute('aria-pressed', String(on));
+			stage?.setAttribute(
+				'aria-label',
+				on ? 'Captura a tamaño real; usa las flechas para desplazarte' : 'Captura ampliada',
+			);
+			if (stage) stage.scrollTo(0, 0);
+		};
+
+		// En el visor se cargan la captura mostrada, la anterior y la siguiente
+		const showSlide = (index: number, speak: boolean) => {
+			slide = (index + slides.length) % slides.length;
+			const img = slides[slide];
+			const d = img.dataset;
+			const pi = Number(d.project);
+			const si = Number(d.shot);
+			load(img);
+			load(slides[(slide + 1) % slides.length]);
+			load(slides[(slide - 1 + slides.length) % slides.length]);
+			slides.forEach((s) => (s.hidden = s !== img));
+			const n = si + 1;
+			text('[data-viewer-file]', d.file ?? '');
+			text('[data-viewer-count]', `${n}/${d.count}`);
+			text('[data-viewer-label]', `${d.name}, captura ${n} de ${d.count}`);
+			if (siteLink) {
+				siteLink.hidden = !d.url;
+				if (d.url) siteLink.href = d.url;
+			}
+			viewer?.querySelectorAll<HTMLElement>('[data-thumbs]').forEach((g) => {
+				const on = Number(g.dataset.thumbs) === pi;
+				g.hidden = !on;
+				// Las miniaturas viven en un <template> hasta que su proyecto se muestra
+				const tpl = g.querySelector<HTMLTemplateElement>('template[data-thumbs-tpl]');
+				if (on && tpl) tpl.replaceWith(tpl.content.cloneNode(true));
+			});
+			viewer?.querySelectorAll<HTMLElement>('[data-thumb]').forEach((t) => {
+				t.setAttribute('aria-current', String(Number(t.dataset.thumb) === slide));
+			});
+			// La consola sigue al visor (proyecto y captura) para que al cerrar todo coincida
+			if (pi !== current) select(pi, 'viewer', si);
+			else if (si !== shot) showShot(si, false, false);
+			if (speak) announce(viewerLive, `Captura ${n} de ${d.count}, ${d.name}`);
+		};
+
+		const lockScroll = (on: boolean) => {
+			// Lenis ignora overflow:hidden, por eso se detiene aparte
+			root.style.overflow = on ? 'hidden' : '';
+			if (on) window.lenis?.stop();
+			else window.lenis?.start();
+		};
+
+		const transition = (update: () => void, out: boolean, after?: () => void) => {
+			if (!document.startViewTransition || calm()) {
+				update();
+				after?.();
+				return;
+			}
+			root.classList.add('vt');
+			root.classList.toggle('vt-out', out);
+			const vt = document.startViewTransition(update);
+			vt.finished.finally(() => {
+				root.classList.remove('vt', 'vt-out');
+				slides.forEach((s) => (s.style.viewTransitionName = ''));
+				const img = monitorShot();
+				if (img) img.style.viewTransitionName = '';
+				after?.();
+			});
+		};
+
+		const openViewer = async (btn: HTMLElement) => {
+			if (!viewer || open) return;
+			open = true;
+			opener = btn;
+			settle();
+			const first = slides.findIndex((s) => Number(s.dataset.project) === current && Number(s.dataset.shot) === shot);
+			showSlide(Math.max(0, first), false);
+			setZoom(false);
+			const img = slides[slide];
+			// Espera breve a que la captura grande esté lista para que la transición no muestre un hueco
+			await Promise.race([img.decode().catch(() => {}), new Promise((r) => setTimeout(r, 300))]);
+			const fromShot = monitorShot();
+			if (fromShot) fromShot.style.viewTransitionName = 'shot';
+			// El bloqueo quita la barra de scroll (cambia el viewport) y abortaría la transición: va al terminar
+			transition(
+				() => {
+					if (fromShot) fromShot.style.viewTransitionName = '';
+					img.style.viewTransitionName = 'shot';
+					viewer.showModal();
+					stage?.focus({ preventScroll: true });
+				},
+				false,
+				() => {
+					if (viewer.open) lockScroll(true);
+				},
+			);
+		};
+
+		const closeViewer = () => {
+			if (!viewer?.open) return;
+			const img = slides[slide];
+			const actual = stage?.classList.contains('is-actual');
+			if (!actual) img.style.viewTransitionName = 'shot';
+			transition(() => {
+				img.style.viewTransitionName = '';
+				const toShot = monitorShot();
+				if (toShot && !actual) toShot.style.viewTransitionName = 'shot';
+				viewer.close();
+			}, true);
+		};
+
+		panel.addEventListener('click', (event) => {
+			const btn = (event.target as Element).closest<HTMLElement>('[data-act], [data-shot-btn]');
+			if (!btn) return;
+			if (btn.dataset.shotBtn !== undefined) {
+				showShot(Number(btn.dataset.shotBtn), true, true);
+				return;
+			}
+			const act = btn.dataset.act;
+			if (act === 'zoom') openViewer(btn);
+			else if (act === 'close') refuseClose(btn);
+			else if (act === 'prev' || act === 'next') select(current + (act === 'next' ? 1 : -1), 'button');
+		});
+
+		viewer?.addEventListener('click', (event) => {
+			const el = (event.target as Element).closest<HTMLElement>('[data-v], [data-thumb]');
+			if (!el) return;
+			if (el.dataset.thumb) return showSlide(Number(el.dataset.thumb), true);
+			const v = el.dataset.v;
+			if (v === 'prev' || v === 'next') {
+				setZoom(false);
+				showSlide(slide + (v === 'next' ? 1 : -1), true);
+			} else if (v === 'zoom') {
+				setZoom(!stage?.classList.contains('is-actual'));
+				if (stage?.classList.contains('is-actual')) stage.focus();
+			} else if (v === 'close') closeViewer();
+		});
+		viewer?.addEventListener('keydown', (event) => {
+			if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+			// Con 1:1 las flechas desplazan la imagen (scroll nativo del área)
+			if (stage?.classList.contains('is-actual')) return;
+			event.preventDefault();
+			showSlide(slide + (event.key === 'ArrowRight' ? 1 : -1), true);
+		});
+		viewer?.addEventListener('cancel', (event) => {
+			event.preventDefault();
+			closeViewer();
+		});
+		viewer?.addEventListener('close', () => {
+			open = false;
+			lockScroll(false);
+			setZoom(false);
+			// Si en el visor se cruzó de proyecto, el foco va al «Ampliar» de la ficha visible
+			const stale = !opener || !!opener.closest('[data-info]:not([data-active])');
+			const target = stale ? panel.querySelector<HTMLElement>('[data-info][data-active] [data-act="zoom"]') : opener;
+			target?.focus();
+		});
+
+		// Deslizar (táctil): por distancia o por velocidad
+		const swipe = (el: HTMLElement, go: (dir: number) => void, skip: () => boolean = () => false) => {
+			let startX = 0;
+			let startY = 0;
+			let startT = 0;
+			el.addEventListener('pointerdown', (event) => {
+				if (event.pointerType === 'mouse' || !event.isPrimary) return;
+				startX = event.clientX;
+				startY = event.clientY;
+				startT = performance.now();
+			});
+			el.addEventListener('pointerup', (event) => {
+				if (event.pointerType === 'mouse' || !event.isPrimary || !startT) return;
+				const dx = event.clientX - startX;
+				const dy = event.clientY - startY;
+				const velocity = Math.abs(dx) / (performance.now() - startT);
+				startT = 0;
+				if (skip() || Math.abs(dx) < Math.abs(dy)) return;
+				if (Math.abs(dx) > 60 || (Math.abs(dx) > 20 && velocity > 0.11)) go(dx < 0 ? 1 : -1);
+			});
+			el.addEventListener('pointercancel', () => (startT = 0));
+		};
+		// En el visor, con 1:1 el gesto desplaza la imagen
+		if (stage)
+			swipe(
+				stage,
+				(dir) => showSlide(slide + dir, true),
+				() => stage.classList.contains('is-actual'),
+			);
+		swipe(screen, (dir) => showShot(shot + dir, true, true));
+
+		const initial = infos.findIndex((f) => location.hash === `#${f.id}`);
+		select(initial > 0 ? initial : 0, 'init');
+		section.dataset.ready = '';
+	}
+</script>

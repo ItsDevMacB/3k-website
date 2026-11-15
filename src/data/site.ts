@@ -1,9 +1,21 @@
 // Contenido central del sitio. Edita aquí textos, proyectos y contacto.
 import type { ImageMetadata } from 'astro';
-import bordicreaImg from '../assets/projects/bordicrea.jpg';
-import egresadosImg from '../assets/projects/egresados.jpg';
-import studioImg from '../assets/projects/3k-studio.jpg';
-import mathmassImg from '../assets/projects/mathmass.jpg';
+// Cada proyecto tiene su carpeta en assets/projects: MainScreen (captura principal), Screen2 y Screen3,
+// y logo-icon (versión ligera de su Logo, que en SVG trae un PNG incrustado y pesa demasiado).
+// Las capturas con datos personales se usan en su copia pixelada (*-public.png); los originales no se versionan.
+import sociogramaImg from '../assets/projects/Sociograma UTP/MainScreen.png';
+import sociogramaShot2 from '../assets/projects/Sociograma UTP/Screen2-public.png';
+import sociogramaShot3 from '../assets/projects/Sociograma UTP/Screen3-public.png';
+import sociogramaIcon from '../assets/projects/Sociograma UTP/logo-icon.png';
+import egresadosImg from '../assets/projects/AppEgresados/MainScreen.png';
+import egresadosShot2 from '../assets/projects/AppEgresados/Screen2-public.png';
+import egresadosShot3 from '../assets/projects/AppEgresados/Screen3-public.png';
+import egresadosIcon from '../assets/projects/AppEgresados/logo-icon.png';
+import bordicreaImg from '../assets/projects/Bordicrea/MainScreen.png';
+import bordicreaShot2 from '../assets/projects/Bordicrea/Screen2.png';
+import bordicreaShot3 from '../assets/projects/Bordicrea/Screen3.png';
+// Solo el abanico del logo: en la etiqueta del cartucho el logo completo queda ilegible.
+import bordicreaIcon from '../assets/projects/Bordicrea/logo-mark.png';
 
 export const contact = {
 	// TODO: reemplazar con el número real de WhatsApp Business (formato internacional, sin "+").
@@ -38,53 +50,118 @@ export const marquee = [
 	'Experiencias digitales',
 ];
 
+export type ProjectShot = {
+	src: ImageMetadata;
+	alt: string;
+	// Nombre corto de la pantalla (miniaturas del visor).
+	label?: string;
+};
+
 export type Project = {
 	name: string;
 	file: string;
 	tags: string;
 	description: string;
-	tone: 'orange' | 'stone' | 'lime' | 'ink';
-	status: string;
+	// Color del cartucho.
+	tone: 'orange' | 'stone' | 'lime';
+	// Captura principal: la que se ve en el monitor.
 	image: ImageMetadata;
+	imageAlt: string;
+	// Capturas del visor a pantalla completa; sin ellas se usa solo la principal.
+	gallery?: ProjectShot[];
+	// Sitio publicado; agrega el enlace «Ver sitio» en el visor.
+	url?: string;
+	// Ícono de la barra 3K_OS; sin él se muestra el cuadro naranja genérico.
+	icon?: ImageMetadata;
 };
 
+// El primer proyecto es el que está en la unidad al cargar la página.
 export const projects: Project[] = [
 	{
-		name: 'Bordicrea',
-		file: 'bordicrea.exe',
-		tags: 'E-commerce / Web Design',
+		name: 'Sociograma UTP',
+		file: 'sociograma.exe',
+		tags: 'Sistema web / Educación',
 		description:
-			'Sitio comercial y catálogo para una microempresa de bordados personalizados, con cotización directa por WhatsApp.',
+			'Sistema para el Comité de Tutorías de la Universidad Tecnológica de Puebla que registra cómo se relacionan los alumnos de cada grupo y genera su sociograma.',
 		tone: 'orange',
-		status: 'Caso de estudio',
-		image: bordicreaImg,
+		image: sociogramaImg,
+		icon: sociogramaIcon,
+		imageAlt:
+			'Pantalla de inicio de sesión de Sociograma UTP: escudo de la universidad sobre fondo verde y formulario con matrícula, contraseña y captcha.',
+		gallery: [
+			{
+				src: sociogramaImg,
+				alt: 'Pantalla de inicio de sesión de Sociograma UTP: escudo de la universidad sobre fondo verde y formulario con matrícula, contraseña y captcha.',
+				label: 'Inicio de sesión',
+			},
+			{
+				src: sociogramaShot2,
+				alt: 'Panel del grupo: sociograma con las relaciones de aceptación y rechazo entre alumnos, avance de respuestas y clasificación con los nombres pixelados.',
+				label: 'Panel del grupo',
+			},
+			{
+				src: sociogramaShot3,
+				alt: 'Vista previa de la encuesta sociométrica con los logos de la UTP y del Comité de Tutorías y las instrucciones para elegir a tres compañeros.',
+				label: 'Encuesta',
+			},
+		],
 	},
 	{
 		name: 'App Egresados',
 		file: 'egresados.app',
-		tags: 'Web App / Producto',
+		tags: 'Web app / Producto',
 		description: 'Plataforma para conectar y dar seguimiento a la comunidad de egresados.',
 		tone: 'stone',
-		status: 'Web App',
 		image: egresadosImg,
+		icon: egresadosIcon,
+		imageAlt:
+			'Pantalla de inicio de sesión del Sistema de Egresados UTP: panel guinda con el escudo de la universidad y formulario de usuario y contraseña.',
+		gallery: [
+			{
+				src: egresadosImg,
+				alt: 'Pantalla de inicio de sesión del Sistema de Egresados UTP: panel guinda con el escudo de la universidad y formulario de usuario y contraseña.',
+				label: 'Inicio de sesión',
+			},
+			{
+				src: egresadosShot2,
+				alt: 'Panel de inicio del egresado: resumen de ofertas, aplicaciones y avance del perfil, con accesos rápidos.',
+				label: 'Panel del egresado',
+			},
+			{
+				src: egresadosShot3,
+				alt: 'Sección «Mis postulaciones»: contadores por estado y una vacante de desarrollador web jr enviada.',
+				label: 'Postulaciones',
+			},
+		],
 	},
 	{
-		name: '3K Studio',
-		file: '3k_studio.sys',
-		tags: 'Marca / Creative Dev',
-		description: 'Nuestra propia identidad: Digital Playground. Retro, pixelado y hecho a mano.',
+		name: 'Bordicrea',
+		file: 'bordicrea.exe',
+		tags: 'E-commerce / Diseño web',
+		description:
+			'Sitio comercial y catálogo para una microempresa de bordados personalizados, con cotización directa por WhatsApp.',
 		tone: 'lime',
-		status: 'En línea',
-		image: studioImg,
-	},
-	{
-		name: 'MathMass',
-		file: 'mathmass.pwa',
-		tags: 'PWA / Educación',
-		description: 'App progresiva para practicar matemáticas de forma ligera y offline.',
-		tone: 'orange',
-		status: 'PWA',
-		image: mathmassImg,
+		image: bordicreaImg,
+		icon: bordicreaIcon,
+		imageAlt:
+			'Página de inicio de Bordicrea: titular «Bordados personalizados con calidad y precisión», botón para cotizar por WhatsApp y fotos de prendas bordadas.',
+		gallery: [
+			{
+				src: bordicreaImg,
+				alt: 'Página de inicio de Bordicrea: titular «Bordados personalizados con calidad y precisión», botón para cotizar por WhatsApp y fotos de prendas bordadas.',
+				label: 'Inicio',
+			},
+			{
+				src: bordicreaShot2,
+				alt: 'Sección «Prendas listas para llevar tu identidad»: tarjetas de playeras, polos y gorras bordadas.',
+				label: 'Productos',
+			},
+			{
+				src: bordicreaShot3,
+				alt: 'Sección para cotizar: «Te ayudamos a definir tu bordado sin complicaciones», con los datos que se piden y el botón «Enviar mi idea».',
+				label: 'Cotización',
+			},
+		],
 	},
 ];
 

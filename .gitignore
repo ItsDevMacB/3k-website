@@ -28,3 +28,12 @@ docs/
 
 # artefactos del MCP de Playwright
 .playwright-mcp/
+
+# AI
+.claude
+
+# Capturas originales con datos personales; el sitio usa las copias pixeladas (*-public.png)
+src/assets/projects/Sociograma UTP/Screen2.png
+src/assets/projects/Sociograma UTP/Screen3.png
+src/assets/projects/AppEgresados/Screen2.png
+src/assets/projects/AppEgresados/Screen3.png

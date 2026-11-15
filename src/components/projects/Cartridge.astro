@@ -1,0 +1,358 @@
+---
+import { Image } from 'astro:assets';
+import type { Project } from '../../data/site';
+
+interface Props {
+	project: Project;
+	slug: string;
+	index: number;
+	// tab: cartucho del estante (ancla sin JS, tab con JS). seated: el que asoma de la consola (decorativo).
+	variant: 'tab' | 'seated';
+	active?: boolean;
+}
+
+const { project, slug, index, variant, active = false } = Astro.props;
+
+const tones = {
+	orange: 'var(--color-orange)',
+	stone: 'var(--color-stone)',
+	lime: 'var(--color-lime)',
+};
+// Género de la etiqueta: el primer tramo del tipo («Sistema web / Educación» → «Sistema web»)
+const genre = project.tags.split(' / ')[0];
+
+const Tag = variant === 'tab' ? 'a' : 'span';
+const attrs =
+	variant === 'tab'
+		? { href: `#proyecto-${slug}`, id: `cart-${slug}`, 'data-cart': index, 'data-active': active ? '' : undefined }
+		: { 'aria-hidden': 'true' as const, 'data-seat': index, hidden: !active };
+---
+
+<Tag class:list={['cart', variant === 'seated' && 'cart-seated']} {...attrs}>
+	<span class="cart-body" style={`--tone:${tones[project.tone]}`}>
+		<span class="cart-grip"></span>
+		<span class="cart-label">
+			<span class="cart-logo">
+				{
+					project.icon ? (
+						<Image
+							src={project.icon}
+							alt=""
+							widths={[80, 160]}
+							sizes="80px"
+							loading="lazy"
+							decoding="async"
+							class="cart-logo-img"
+						/>
+					) : (
+						<span class="cart-logo-text" aria-hidden="true">
+							{project.name}
+						</span>
+					)
+				}
+			</span>
+			<span class="cart-title">
+				<span class="cart-name">{project.name}</span>
+				<span class="cart-genre">{genre}</span>
+			</span>
+		</span>
+		<span class="cart-arrow"></span>
+		<span class="cart-pins"></span>
+	</span>
+	{
+		variant === 'tab' && (
+			<span class="cart-hole" aria-hidden="true">
+				<span class="cart-hole-name">{project.name}</span>
+				<span class="cart-hole-pill">En la consola</span>
+			</span>
+		)
+	}
+</Tag>
+
+<style>
+	/*
+	 * Cartucho en proyección oblicua: el frente queda plano (texto nítido) y la tapa y el costado
+	 * son pseudoelementos sesgados. --cart-w (ancho) y --cart-depth (grosor) los define la escena.
+	 * El frente mide 1 : 1.38 y el agarre + la etiqueta ocupan el 73 % superior: es lo que asoma de la ranura.
+	 */
+	.cart {
+		position: relative;
+		display: block;
+		flex: none;
+		width: calc(var(--cart-w) + var(--cart-depth));
+		padding: var(--cart-depth) var(--cart-depth) 0 0;
+		color: var(--color-ink);
+		text-decoration: none;
+	}
+
+	/* Estante: cada cartucho trae su tramo de repisa (canto y tapa); juntos forman la repisa con sus uniones */
+	.cart:not(.cart-seated) {
+		padding-bottom: 1rem;
+		border-radius: 0.375rem;
+	}
+	.cart:not(.cart-seated)::before,
+	.cart:not(.cart-seated)::after {
+		content: '';
+		position: absolute;
+		left: calc(var(--shelf-gap) / -2);
+		right: calc(var(--shelf-gap) / -2);
+		border: 2px solid var(--color-ink);
+		pointer-events: none;
+	}
+	.cart:not(.cart-seated)::before {
+		bottom: 1rem;
+		height: calc(var(--cart-depth) + 0.625rem);
+		border-bottom: 0;
+		background: color-mix(in srgb, var(--color-stone) 70%, var(--color-cream));
+		transform: skewX(-45deg);
+		transform-origin: 0 100%;
+	}
+	.cart:not(.cart-seated)::after {
+		bottom: 0;
+		height: 1rem;
+		background: var(--color-stone);
+		box-shadow:
+			inset 0 2px 0 0 color-mix(in srgb, var(--color-cream) 60%, transparent),
+			inset 0 -3px 0 0 color-mix(in srgb, var(--color-ink) 14%, transparent);
+	}
+
+	.cart-body {
+		--face-top: color-mix(in srgb, var(--tone) 62%, var(--color-cream));
+		--face-side: color-mix(in srgb, var(--tone) 68%, var(--color-ink));
+		container: cart / inline-size;
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		width: var(--cart-w);
+		height: calc(var(--cart-w) * 1.38);
+		border: 2px solid var(--color-ink);
+		border-radius: 4px 4px 3px 3px;
+		background: var(--tone);
+		box-shadow:
+			inset 3px 3px 0 0 color-mix(in srgb, var(--color-cream) 45%, transparent),
+			inset -3px -3px 0 0 color-mix(in srgb, var(--color-ink) 16%, transparent);
+		transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+	}
+	/* Tapa: estrías de agarre */
+	.cart-body::before {
+		content: '';
+		position: absolute;
+		left: -2px;
+		right: -2px;
+		bottom: calc(100% + 2px);
+		height: var(--cart-depth);
+		border: 2px solid var(--color-ink);
+		border-bottom: 0;
+		background:
+			repeating-linear-gradient(
+				90deg,
+				transparent 0 5px,
+				color-mix(in srgb, var(--color-ink) 24%, transparent) 5px 7px
+			),
+			var(--face-top);
+		transform: skewX(-45deg);
+		transform-origin: 0 100%;
+	}
+	/* Costado: costillas */
+	.cart-body::after {
+		content: '';
+		position: absolute;
+		top: -2px;
+		bottom: -2px;
+		left: calc(100% + 2px);
+		width: var(--cart-depth);
+		border: 2px solid var(--color-ink);
+		border-left: 0;
+		background:
+			repeating-linear-gradient(
+				to bottom,
+				transparent 0 6px,
+				color-mix(in srgb, var(--color-ink) 26%, transparent) 6px 8px
+			),
+			var(--face-side);
+		transform: skewY(-45deg);
+		transform-origin: 0 0;
+	}
+
+	.cart-grip {
+		flex: none;
+		height: 5cqi;
+		margin: 3cqi 8cqi 0;
+		background: repeating-linear-gradient(
+			to bottom,
+			color-mix(in srgb, var(--color-ink) 40%, transparent) 0 2px,
+			transparent 2px 4px
+		);
+	}
+
+	/* La etiqueta termina en el 72 % del alto (11 + 88 de 138 cqi): justo encima del labio de la ranura */
+	.cart-label {
+		display: flex;
+		flex: none;
+		flex-direction: column;
+		height: 88cqi;
+		margin: 3cqi 4.5cqi 0;
+		border: 2px solid var(--color-ink);
+		border-radius: 3px;
+		background: var(--color-cream);
+	}
+	.cart-logo {
+		position: relative;
+		display: grid;
+		flex: 1;
+		min-height: 26cqi;
+		place-items: center;
+	}
+	/* Posición absoluta: así el logo siempre cabe en la zona que deja la franja del nombre */
+	.cart-logo-img {
+		position: absolute;
+		inset: 2.5cqi;
+		width: calc(100% - 5cqi);
+		height: calc(100% - 5cqi);
+		object-fit: contain;
+	}
+	.cart-logo-text {
+		font-family: var(--font-display);
+		font-size: 0.875rem;
+		line-height: 1.05;
+		text-align: center;
+	}
+	/* Franja del título: tinta con un reflejo diagonal que no baja el contraste del nombre */
+	.cart-title {
+		display: grid;
+		flex: none;
+		gap: 2px;
+		padding: 3cqi 4cqi 3.5cqi;
+		border-top: 2px solid var(--color-ink);
+		background:
+			linear-gradient(
+				110deg,
+				transparent 0 62%,
+				color-mix(in srgb, var(--color-cream) 12%, transparent) 62% 74%,
+				transparent 74%
+			),
+			var(--color-ink);
+		color: var(--color-cream);
+	}
+	.cart-name {
+		font-family: var(--font-display);
+		font-size: clamp(0.875rem, 12cqi, 1.125rem);
+		line-height: 1.05;
+		letter-spacing: -0.01em;
+		text-wrap: balance;
+	}
+	.cart-genre {
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		font-weight: 700;
+		line-height: 1.2;
+		color: var(--color-lime);
+	}
+	/* Cartuchos chicos (3 en fila en celular): nombre en Inter 700 y sin género para que nada se desborde */
+	@container cart (width < 116px) {
+		.cart-name {
+			font-family: var(--font-sans);
+			font-weight: 700;
+			letter-spacing: -0.01em;
+		}
+		.cart-genre {
+			display: none;
+		}
+	}
+
+	/* Flecha moldeada (por aquí entra) y conector de pines; quedan dentro de la ranura al cargarlo */
+	.cart-arrow {
+		flex: none;
+		width: 0;
+		height: 0;
+		margin: 6cqi auto 0;
+		border-top: 6cqi solid color-mix(in srgb, var(--tone) 55%, var(--color-ink));
+		border-right: 6cqi solid transparent;
+		border-left: 6cqi solid transparent;
+	}
+	.cart-pins {
+		position: absolute;
+		right: 22%;
+		bottom: 4cqi;
+		left: 22%;
+		height: 8cqi;
+		border: 2px solid var(--color-ink);
+		border-radius: 2px;
+		background: repeating-linear-gradient(90deg, var(--color-stone) 0 3px, var(--color-ink) 3px 5px);
+	}
+
+	/* Hueco del estante: el tab sigue en su lugar con nombre y estado; solo el cuerpo se vuelve transparente */
+	.cart-hole {
+		position: absolute;
+		bottom: 1rem;
+		left: 0;
+		display: grid;
+		width: var(--cart-w);
+		height: calc(var(--cart-w) * 1.38);
+		place-content: center;
+		justify-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem;
+		border: 2px dashed var(--color-ink);
+		border-radius: 4px;
+		text-align: center;
+		opacity: 0;
+		pointer-events: none;
+	}
+	.cart-hole-name {
+		font-family: var(--font-sans);
+		font-size: 0.875rem;
+		font-weight: 700;
+		line-height: 1.15;
+	}
+	.cart-hole-pill {
+		border: 2px solid var(--color-ink);
+		border-radius: 0.25rem;
+		background: var(--color-lime);
+		padding: 0.125rem 0.375rem;
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		font-weight: 700;
+		line-height: 1.2;
+		color: var(--color-ink);
+	}
+	.cart[data-active] .cart-body {
+		opacity: 0;
+	}
+	.cart[data-active] .cart-hole {
+		opacity: 1;
+	}
+
+	.cart:not(.cart-seated):focus-visible {
+		outline-offset: 4px;
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.cart:not([data-active]):hover .cart-body {
+			transform: translateY(-6px);
+		}
+	}
+	.cart:not([data-active]):active .cart-body {
+		transform: scale(0.97);
+	}
+
+	/* En la consola: solo se ve lo que queda por encima del labio; el pozo recorta el resto */
+	.cart-seated {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		height: calc(var(--cart-w) * 1.0074 + var(--cart-depth));
+	}
+	.cart-seated .cart-body {
+		position: absolute;
+		top: var(--cart-depth);
+		left: 0;
+		transition: none;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.cart .cart-body {
+			transform: none !important;
+			transition: none;
+		}
+	}
+</style>
