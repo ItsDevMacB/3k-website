@@ -1,7 +1,7 @@
 # CONTEXT — Portafolio 3K
 
 > **Lo primero que se lee en cada conversación.** Fuente de verdad del proyecto. Si algo del código contradice este archivo, se corrige el que esté mal y se anota en el [Registro de cambios](#13-registro-de-cambios).
-> Última verificación contra el código: **2026-11-08** (commit `5d4ec18` + cambios sin commitear).
+> Última verificación contra el código: **2026-11-14**.
 > **Reglas fijas:** (1) todo paquete necesario o recomendado por la IA se **pregunta al usuario primero** (nombre y versión) y, si se aprueba, se instala **siempre con `pnpm`** por seguridad; (2) `main` se protege (ver `WORKFLOW.md` §10); (3) al iniciar sesión se muestran tareas pendientes y se pregunta cuál sigue, y si otros compañeros tienen tareas contempladas para el usuario; (4) **cambios de UI/UX**: Omar y Mauricio siempre preguntan y explican a Brandon antes de implementar; en sesiones de Brandon se usa el subagente `ux-ui-reviewer`; (5) `docs/` es individual por persona con el mismo formato (`WORKFLOW.md` §1–2).
 
 Archivos relacionados: [`AGENTS.md`](AGENTS.md) (`CLAUDE.md` es un symlink a este) · [`WORKFLOW.md`](WORKFLOW.md) (flujo de sesión, formatos de `docs/`, prioridades, traspasos, commits y paquetes; compartido por todos) · [`.claude/agents/ux-ui-reviewer.md`](.claude/agents/ux-ui-reviewer.md) (subagente UX/UI y accesibilidad) · `docs/` (**individual por persona**, local, no se sube a GitHub): `docs/README.md`, `docs/TASKS.md`, `docs/QUESTIONS.md`.
@@ -67,7 +67,7 @@ Scripts (`package.json`): `dev`, `build`, `preview`, `astro`, `generate-types`, 
     ├── components/                  ver §6
     └── assets/
         ├── retro-computer.png       1024×1024 RGBA (hero y stop motion)
-        ├── projects/                bordicrea.jpg y egresados.jpg (placeholders 1264×848, T-30); Sociograma UTP/ (MainScreen.png 1920×1080 real y logo-comite-icon.png 96 px para la barra)
+        ├── projects/                una carpeta por proyecto (Sociograma UTP/, AppEgresados/, Bordicrea/): MainScreen.png, Screen2/Screen3 (las que traen datos personales se usan en copia pixelada *-public.png; los originales están en .gitignore), Logo (fuente) y logo-icon.png / logo-mark.png (versión ligera que usa el sitio)
         └── icons/*.svg              computer, cursor, facebook, instagram, tiktok
 ```
 
@@ -132,7 +132,7 @@ Notas: VT323 no tiene `↗` (usar mono). Hay textos de 10–11 px (kickers, etiq
 | `boil` (temblor de stop motion) | pills, iniciales, iconos | `steps(1)` |
 | Estela de píxeles del cursor | `RetroFx.astro` | Solo mouse fino y sin reduced-motion; máx. 18 nodos |
 | Código Konami → modo turbo (`html.turbo` invierte colores) + toast `role="status"` | `RetroFx.astro` | Easter egg |
-| Disquete que entra a la ranura, LED, cambio de canal (estática ≤ 0.25, máx. 1 cada 400 ms) y encendido CRT de la terminal; transición del visor (View Transitions 260/180 ms) | `Projects.astro`, `projects/*` | Sin viaje ni estática con reduced-motion y `?static`; fundido si no hay View Transitions |
+| Inserción del cartucho (~0.8 s: despega del estante, viaja en arco, el anterior sale por la ranura y vuelve al estante, entra recortado por el labio, «clic», LED) + cambio de canal (estática ≤ 0.25, máx. 1 efecto cada 400 ms) y encendido; barrido al cambiar de captura; transición del visor (View Transitions 260/180 ms) | `Projects.astro`, `projects/*` | Sin vuelo con teclado, ◀ ▶ o fuera de pantalla; fundidos ≤ 150 ms con reduced-motion; instantáneo con `?static`; fundido si no hay View Transitions |
 | Marquee, progreso «instalador», flip de tarjetas del equipo (hover/focus-within), píxeles que suben en el footer, reloj en vivo | varios | Marquee/píxeles no tienen botón de pausa (T-09) |
 | Modos de depuración | `?static` (sin animaciones), `#figmacapture` (script de Figma) | Útiles para capturas/QA |
 
@@ -146,7 +146,7 @@ Notas: VT323 no tiene `↗` (usar mono). Hay textos de 10–11 px (kickers, etiq
 | 1 | Navegación fija | `Nav` | — | Logo 3K_, píldora con Trabajo/Servicios/Proceso/Equipo + «Iniciar ↗» (WhatsApp); texto «Estudio digital independiente / Puebla, MX» (xl); menú móvil `menu.exe` (cierra con `Esc`, bloquea scroll). **Tema adaptable** `data-nav-theme="light|dark|orange"` según la sección marcada con `data-nav-bg` bajo el nav (`src/scripts/nav-theme.ts`); el texto derecho es texto suelto (sin chip) que solo cambia de color; transición suave (T-17) |
 | 2 | Hero | `Hero` + `RetroComputer` | `#top` | H1, párrafo, 2 CTAs, computadora retro |
 | 3 | Marquee | `Marquee` | — | 6 servicios en cinta inclinada |
-| 4 | Trabajo | `Projects` + `projects/ProjectTerminal`, `FloppyDisk`, `ProjectViewer` | `#trabajo` | **Terminal 3K-2600** (dibujada en CSS/SVG) con un disquete 3½″ por proyecto como selector (tabs accesibles; el activo queda «En unidad» y un clon viaja a la ranura), monitor con captura, ficha (nombre, descripción, tipo, ◀ ▶, Ampliar) y unidad A: con LED; el ✕ se niega con `error.exe`; **visor a pantalla completa** (View Transitions, ◀ ▶ cruza todos los proyectos, zoom 1:1, swipe, Esc; imágenes cargadas solo al abrir) (T-23) |
+| 4 | Trabajo | `Projects` + `projects/Cartridge`, `ProjectConsole`, `ProjectInfo`, `ProjectViewer` | `#trabajo` | **Consola 3K-2600 de carga superior** (CSS/SVG en proyección oblicua, como la compu del hero) y un **cartucho por proyecto** con su logo, nombre y tipo, en un estante 3D (tabs accesibles; el elegido deja un hueco «En la consola» y se queda asomando de la ranura con la etiqueta visible). Monitor con la captura activa; mentón con ◀ ▶ «cartucho», presintonías `1 2 3` para las capturas, LCD y LED; ficha con nombre (h3), descripción, tipo y «Ampliar»; el ✕ se niega con `error.exe`; **visor a pantalla completa** (View Transitions, ◀ ▶ cruza todas las capturas de todos los proyectos, zoom 1:1, swipe, Esc; imágenes cargadas solo al mostrarse) |
 | 5 | Servicios | `Services` | `#servicios` | 5 servicios en lista (fondo ink) |
 | 6 | Proceso | `Process` | `#proceso` | 4 pasos + barra de progreso |
 | 7 | Stop motion | `StopMotion` | `#stop-motion` | Animación interactiva |
@@ -154,7 +154,7 @@ Notas: VT323 no tiene `↗` (usar mono). Hay textos de 10–11 px (kickers, etiq
 | 9 | Contacto / footer | `Contact` | `#contacto` | CTA WhatsApp, correo, redes, barra de tareas |
 | — | Efectos globales | `RetroFx` | — | Estela de cursor, Konami, toast |
 
-Proyectos mostrados (en este orden): **Sociograma UTP** (sistema web, captura real), **App Egresados** (web app) y **Bordicrea** (e-commerce); los dos últimos aún con imagen provisional (T-30). MathMass y 3K Studio se retiraron. Servicios: Desarrollo web, Catálogos y e-commerce, Sistemas web a medida, Automatización e integraciones, Mantenimiento y soporte.
+Proyectos mostrados (en este orden): **Sociograma UTP** (sistema web), **App Egresados** (web app) y **Bordicrea** (e-commerce), cada uno con 3 capturas reales y su logo; Bordicrea usa solo el abanico de su logo. MathMass y 3K Studio se retiraron. Servicios: Desarrollo web, Catálogos y e-commerce, Sistemas web a medida, Automatización e integraciones, Mantenimiento y soporte.
 
 ## 7. Especificaciones y convenciones técnicas
 
@@ -217,6 +217,7 @@ Ver `AGENTS.md` y `WORKFLOW.md`. Resumen: al terminar cualquier cambio que afect
 
 | Fecha | Cambio |
 | --- | --- |
+| 2026-11-14 | Sección «Trabajo» rediseñada con cartuchos y consola retro (`projects/Cartridge`, `ProjectConsole`, `ProjectInfo`; se eliminan `FloppyDisk` y `ProjectTerminal`). Cada proyecto con 3 capturas y su logo; las capturas con datos de terceros se publican en copias pixeladas (`*-public.png`) y los originales quedan fuera del repositorio (`.gitignore`). Logos ligeros `logo-icon.png` y `logo-mark.png`. |
 | 2026-11-08 | T-23 (tercera ronda): «Trabajo» pasa de ventanas a una terminal 3K-2600 con disquetes (concepto de `creative-designer`, revisado por `ux-ui-reviewer`): `src/components/projects/` (`ProjectTerminal`, `FloppyDisk`, `ProjectViewer`), visor a pantalla completa; se elimina `ProjectWindowBar.astro`, minimizar y el campo `status`; `Project` suma `gallery?` y `url?`. |
 | 2026-11-08 | Nuevo subagente `creative-designer` (`opus`, skills de diseño precargadas) para conceptos y layouts creativos; registrado en `AGENTS.md` y `WORKFLOW.md` §6. Nueva tarea T-31 (Lenis: tipos, bloqueo de scroll centralizado y scroll fluido). |
 | 2026-11-08 | T-23 (segunda ronda): nuevo `ProjectWindowBar.astro` con ícono del proyecto (campo `icon` opcional; Sociograma con `logo-comite-icon.png` rasterizado desde su SVG) y botones minimizar / maximizar (`<dialog>`) / cerrar (mensaje `error.exe`, no se cierra); ventana activa en hover y foco. |
