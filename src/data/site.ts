@@ -1,10 +1,21 @@
 // Contenido central del sitio. Edita aquí textos, proyectos y contacto.
 import type { ImageMetadata } from 'astro';
+// Cada proyecto tiene su carpeta en assets/projects: MainScreen (captura principal), Screen2 y Screen3,
+// y logo-icon (versión ligera de su Logo, que en SVG trae un PNG incrustado y pesa demasiado).
+// Las capturas con datos personales se usan en su copia pixelada (*-public.png); los originales no se versionan.
 import sociogramaImg from '../assets/projects/Sociograma UTP/MainScreen.png';
-import sociogramaIcon from '../assets/projects/Sociograma UTP/logo-comite-icon.png';
-// Bordicrea y Egresados siguen con imagen provisional hasta tener capturas reales.
-import bordicreaImg from '../assets/projects/bordicrea.jpg';
-import egresadosImg from '../assets/projects/egresados.jpg';
+import sociogramaShot2 from '../assets/projects/Sociograma UTP/Screen2-public.png';
+import sociogramaShot3 from '../assets/projects/Sociograma UTP/Screen3-public.png';
+import sociogramaIcon from '../assets/projects/Sociograma UTP/logo-icon.png';
+import egresadosImg from '../assets/projects/AppEgresados/MainScreen.png';
+import egresadosShot2 from '../assets/projects/AppEgresados/Screen2-public.png';
+import egresadosShot3 from '../assets/projects/AppEgresados/Screen3-public.png';
+import egresadosIcon from '../assets/projects/AppEgresados/logo-icon.png';
+import bordicreaImg from '../assets/projects/Bordicrea/MainScreen.png';
+import bordicreaShot2 from '../assets/projects/Bordicrea/Screen2.png';
+import bordicreaShot3 from '../assets/projects/Bordicrea/Screen3.png';
+// Solo el abanico del logo: en la etiqueta del cartucho el logo completo queda ilegible.
+import bordicreaIcon from '../assets/projects/Bordicrea/logo-mark.png';
 
 export const contact = {
 	// TODO: reemplazar con el número real de WhatsApp Business (formato internacional, sin "+").
@@ -51,7 +62,7 @@ export type Project = {
 	file: string;
 	tags: string;
 	description: string;
-	// Color del disquete.
+	// Color del cartucho.
 	tone: 'orange' | 'stone' | 'lime';
 	// Captura principal: la que se ve en el monitor.
 	image: ImageMetadata;
@@ -77,6 +88,23 @@ export const projects: Project[] = [
 		icon: sociogramaIcon,
 		imageAlt:
 			'Pantalla de inicio de sesión de Sociograma UTP: escudo de la universidad sobre fondo verde y formulario con matrícula, contraseña y captcha.',
+		gallery: [
+			{
+				src: sociogramaImg,
+				alt: 'Pantalla de inicio de sesión de Sociograma UTP: escudo de la universidad sobre fondo verde y formulario con matrícula, contraseña y captcha.',
+				label: 'Inicio de sesión',
+			},
+			{
+				src: sociogramaShot2,
+				alt: 'Panel del grupo: sociograma con las relaciones de aceptación y rechazo entre alumnos, avance de respuestas y clasificación con los nombres pixelados.',
+				label: 'Panel del grupo',
+			},
+			{
+				src: sociogramaShot3,
+				alt: 'Vista previa de la encuesta sociométrica con los logos de la UTP y del Comité de Tutorías y las instrucciones para elegir a tres compañeros.',
+				label: 'Encuesta',
+			},
+		],
 	},
 	{
 		name: 'App Egresados',
@@ -85,7 +113,26 @@ export const projects: Project[] = [
 		description: 'Plataforma para conectar y dar seguimiento a la comunidad de egresados.',
 		tone: 'stone',
 		image: egresadosImg,
-		imageAlt: 'Imagen provisional del proyecto App Egresados.',
+		icon: egresadosIcon,
+		imageAlt:
+			'Pantalla de inicio de sesión del Sistema de Egresados UTP: panel guinda con el escudo de la universidad y formulario de usuario y contraseña.',
+		gallery: [
+			{
+				src: egresadosImg,
+				alt: 'Pantalla de inicio de sesión del Sistema de Egresados UTP: panel guinda con el escudo de la universidad y formulario de usuario y contraseña.',
+				label: 'Inicio de sesión',
+			},
+			{
+				src: egresadosShot2,
+				alt: 'Panel de inicio del egresado: resumen de ofertas, aplicaciones y avance del perfil, con accesos rápidos.',
+				label: 'Panel del egresado',
+			},
+			{
+				src: egresadosShot3,
+				alt: 'Sección «Mis postulaciones»: contadores por estado y una vacante de desarrollador web jr enviada.',
+				label: 'Postulaciones',
+			},
+		],
 	},
 	{
 		name: 'Bordicrea',
@@ -95,7 +142,26 @@ export const projects: Project[] = [
 			'Sitio comercial y catálogo para una microempresa de bordados personalizados, con cotización directa por WhatsApp.',
 		tone: 'lime',
 		image: bordicreaImg,
-		imageAlt: 'Imagen provisional del proyecto Bordicrea.',
+		icon: bordicreaIcon,
+		imageAlt:
+			'Página de inicio de Bordicrea: titular «Bordados personalizados con calidad y precisión», botón para cotizar por WhatsApp y fotos de prendas bordadas.',
+		gallery: [
+			{
+				src: bordicreaImg,
+				alt: 'Página de inicio de Bordicrea: titular «Bordados personalizados con calidad y precisión», botón para cotizar por WhatsApp y fotos de prendas bordadas.',
+				label: 'Inicio',
+			},
+			{
+				src: bordicreaShot2,
+				alt: 'Sección «Prendas listas para llevar tu identidad»: tarjetas de playeras, polos y gorras bordadas.',
+				label: 'Productos',
+			},
+			{
+				src: bordicreaShot3,
+				alt: 'Sección para cotizar: «Te ayudamos a definir tu bordado sin complicaciones», con los datos que se piden y el botón «Enviar mi idea».',
+				label: 'Cotización',
+			},
+		],
 	},
 ];
 

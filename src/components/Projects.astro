@@ -1,10 +1,11 @@
 ---
 import { projects } from '../data/site';
-import FloppyDisk from './projects/FloppyDisk.astro';
-import ProjectTerminal from './projects/ProjectTerminal.astro';
+import Cartridge from './projects/Cartridge.astro';
+import ProjectConsole from './projects/ProjectConsole.astro';
+import ProjectInfo from './projects/ProjectInfo.astro';
 import ProjectViewer from './projects/ProjectViewer.astro';
 
-const slugOf = (file: string) => file.split('.')[0];
+const slugs = projects.map((p) => p.file.split('.')[0]);
 ---
 
 <section id="trabajo" class="px-4 py-24 md:px-8 md:py-32">
@@ -24,22 +25,27 @@ const slugOf = (file: string) => file.split('.')[0];
 			</p>
 		</div>
 
-		<div class="desk mt-14 md:mt-16" data-reveal>
-			<p class="desk-hint" id="disk-hint">
-				<span class="js-hint">Elige un disquete para cargarlo en la terminal</span>
-				<span class="nojs-hint">Proyectos</span>
-			</p>
-			<div class="floppies" data-tablist aria-describedby="disk-hint">
-				{projects.map((p, i) => <FloppyDisk project={p} slug={slugOf(p.file)} index={i} active={i === 0} />)}
+		<div class="arcade mt-14 md:mt-16" data-arcade>
+			<div class="shelf" data-reveal>
+				<p class="shelf-hint" id="cart-hint">
+					<span class="js-hint">Elige un cartucho para cargarlo en la consola</span>
+					<span class="nojs-hint">Proyectos</span>
+				</p>
+				<div class="shelf-row" data-tablist aria-describedby="cart-hint">
+					{projects.map((p, i) => <Cartridge project={p} slug={slugs[i]} index={i} variant="tab" active={i === 0} />)}
+				</div>
 			</div>
-		</div>
 
-		<div class="term-stage mt-8" id="project-panel" data-reveal style="--d:1" data-panel>
-			{projects.map((p, i) => <ProjectTerminal project={p} slug={slugOf(p.file)} index={i} />)}
+			<div class="deck" id="project-panel" data-panel>
+				<ProjectConsole projects={projects} slugs={slugs} />
+				<div class="infos" data-reveal style="--d:2">
+					{projects.map((p, i) => <ProjectInfo project={p} slug={slugs[i]} index={i} active={i === 0} />)}
+				</div>
+			</div>
 		</div>
 	</div>
 
-	<p class="sr-only" aria-live="polite" data-disk-live></p>
+	<p class="sr-only" aria-live="polite" data-cart-live></p>
 
 	<div class="err-toast window" data-err hidden>
 		<div class="err-bar" aria-hidden="true">error.exe</div>
@@ -57,7 +63,7 @@ const slugOf = (file: string) => file.split('.')[0];
 </section>
 
 <style>
-	.desk-hint {
+	.shelf-hint {
 		font-family: var(--font-mono);
 		font-size: 0.875rem;
 		font-weight: 500;
@@ -73,73 +79,131 @@ const slugOf = (file: string) => file.split('.')[0];
 		display: inline;
 	}
 
-	/* Fila de disquetes sobre la línea del escritorio; en escritorio quedan encima de la unidad A: */
-	.desk {
-		border-bottom: 2px solid var(--color-ink);
-		padding-bottom: 1.25rem;
-	}
-	.floppies {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 8.5rem));
-		gap: 1.75rem 1rem;
-		margin-top: 1.25rem;
-		padding: 0.75rem 0.25rem 0;
-	}
-	@media (min-width: 380px) {
-		.floppies {
-			grid-template-columns: repeat(3, minmax(0, 8.5rem));
-		}
-	}
-	@media (min-width: 768px) {
-		.floppies {
-			gap: 1.5rem;
-			padding-inline: 0.5rem;
-		}
-	}
-	@media (min-width: 1024px) {
-		.desk {
-			display: grid;
-			grid-template-columns: minmax(0, 1fr) auto;
-			align-items: end;
-			gap: 2rem;
-		}
-		.desk-hint {
-			max-width: 18rem;
-			justify-self: end;
-			align-self: center;
-			text-align: right;
-		}
-		/* Borde derecho de la fila alineado con la unidad A: (padding + borde del gabinete) */
-		.floppies {
-			margin-top: 0;
-			padding-right: calc(1.75rem + 2px);
-		}
-	}
-
-	.term-stage {
+	/*
+	 * Escena: estante, consola y fichas. El ancho del cartucho sale del ancho de la escena (cqi),
+	 * igual en el estante y en la consola para que el vuelo no escale.
+	 */
+	.arcade {
+		--shelf-gap: 0.5rem;
+		--cart-depth: 8px;
+		--cart-w: min(9.375rem, calc((100cqi - 3 * var(--shelf-gap) - 3 * var(--cart-depth)) / 3));
+		container: arcade / inline-size;
+		position: relative;
 		display: grid;
 		gap: 2.5rem;
 	}
+	/* Bajo 380 px: 2 + 1, con cartuchos de al menos 120 px */
+	@media (max-width: 379.98px) {
+		.arcade {
+			--cart-w: min(9.375rem, calc((100cqi - 2 * var(--shelf-gap) - 2 * var(--cart-depth)) / 2));
+		}
+	}
+	@media (min-width: 640px) {
+		.arcade {
+			--shelf-gap: 0.875rem;
+			--cart-depth: 12px;
+		}
+	}
 
-	/* Encendido CRT al entrar en pantalla: punto, línea y pantalla completa, una sola vez.
-	   Solo se oculta con JS activo y fuera de ?static, para que nunca quede apagada sin revelado. */
-	:global(:root:not(.no-js):not(.is-static) #trabajo [data-panel]:not(.is-in) [data-crt]) {
-		clip-path: inset(50% 50% 50% 50%);
+	.shelf {
+		position: relative;
+		z-index: 1;
+		min-width: 0;
 	}
-	:global(:root:not(.no-js):not(.is-static) #trabajo [data-panel].is-in:not([data-booted]) [data-crt]) {
-		animation: crt-on 0.7s steps(8) 0.15s both;
+	/* Sin overflow:hidden: las caras 3D y el foco de los cartuchos se salen de la caja */
+	.shelf-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		justify-content: center;
+		gap: 1.5rem var(--shelf-gap);
+		margin-top: 1rem;
+		padding-inline: calc(var(--shelf-gap) / 2);
 	}
-	@keyframes crt-on {
-		0% {
-			clip-path: inset(50% 50% 50% 50%);
-			filter: brightness(1.4);
+
+	.deck {
+		display: grid;
+		min-width: 0;
+		gap: 2.5rem;
+	}
+	/* Línea del escritorio bajo la consola */
+	.deck > :global(.c-wrap) {
+		border-bottom: 2px solid var(--color-ink);
+	}
+	@media (min-width: 640px) and (max-width: 1179.98px) {
+		.deck > :global(.c-wrap),
+		.infos {
+			justify-self: center;
+			width: 100%;
+			max-width: 44rem;
 		}
-		35% {
-			clip-path: inset(calc(50% - 1px) 0 calc(50% - 1px) 0);
+	}
+	.infos {
+		display: grid;
+		min-width: 0;
+		gap: 2rem;
+	}
+	/* Con JS las tres fichas comparten celda (las inactivas ocultas) para que la altura no salte */
+	:global(#trabajo[data-ready]) .infos {
+		grid-template-rows: 1fr;
+	}
+	:global(#trabajo[data-ready]) .infos > :global(.info) {
+		grid-area: 1 / 1;
+	}
+	:global(#trabajo[data-ready]) .infos > :global(.info:not([data-active])) {
+		visibility: hidden;
+	}
+
+	/* Escritorio: estante y ficha a la izquierda (5/12), consola a la derecha (7/12) sobre el escritorio */
+	@media (min-width: 1180px) {
+		.arcade {
+			--col-gap: clamp(2rem, 4vw, 4rem);
+			--cart-w: min(
+				9.375rem,
+				calc(((100cqi - var(--col-gap)) * 5 / 12 - 3 * var(--shelf-gap) - 3 * var(--cart-depth)) / 3)
+			);
+			grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+			grid-template-rows: auto 1fr auto;
+			column-gap: var(--col-gap);
+			row-gap: 0;
 		}
-		100% {
-			clip-path: inset(0);
-			filter: brightness(1);
+		.arcade::after {
+			content: '';
+			grid-area: 3 / 1 / 4 / 3;
+			height: 2px;
+			background: var(--color-ink);
+		}
+		.shelf {
+			grid-area: 1 / 1;
+		}
+		.shelf-row {
+			justify-content: flex-start;
+		}
+		/* Un solo tabpanel que abarca las dos columnas; el estante queda encima para recibir los clics */
+		.deck {
+			grid-area: 1 / 1 / 3 / 3;
+			grid-template-columns: subgrid;
+			grid-template-rows: subgrid;
+			column-gap: var(--col-gap);
+			row-gap: 0;
+		}
+		.deck > :global(.c-wrap) {
+			grid-area: 1 / 2 / 3 / 3;
+			align-self: end;
+			justify-self: center;
+			width: 100%;
+			/* En pantallas bajas (1366 × 768) la pantalla se limita por la altura; mínimo 440 px de cristal */
+			max-width: calc(max(27.5rem, (100svh - 32.5rem) * 16 / 9) + 4.25rem + clamp(14px, 2vw, 28px));
+			border-bottom: 0;
+		}
+		/* El margen inferior deja la sombra pixel de la ficha sobre el escritorio, no encima de la línea */
+		.infos {
+			grid-area: 2 / 1;
+			margin-top: 2rem;
+			margin-bottom: 8px;
+		}
+		:global(#trabajo:not([data-ready])) .deck > :global(.c-wrap) {
+			align-self: start;
 		}
 	}
 
@@ -182,120 +246,350 @@ const slugOf = (file: string) => file.split('.')[0];
 		font-size: 1.125rem;
 		color: var(--color-ink);
 	}
-
-	@media (prefers-reduced-motion: reduce) {
-		:global(#trabajo [data-crt]) {
-			clip-path: none !important;
-			animation: none !important;
-			filter: none !important;
-		}
-	}
 </style>
 
 <script>
 	const section = document.getElementById('trabajo');
+	const arcade = section?.querySelector<HTMLElement>('[data-arcade]');
 	const tablist = section?.querySelector<HTMLElement>('[data-tablist]');
 	const panel = section?.querySelector<HTMLElement>('[data-panel]');
+	const consoleEl = section?.querySelector<HTMLElement>('[data-console]');
+	const screen = section?.querySelector<HTMLElement>('[data-crt]');
 
-	if (section && tablist && panel) {
+	if (section && arcade && tablist && panel && consoleEl && screen) {
 		const root = document.documentElement;
-		const tabs = [...tablist.querySelectorAll<HTMLAnchorElement>('[data-disk]')];
-		const units = [...panel.querySelectorAll<HTMLElement>('[data-unit]')];
-		const diskLive = section.querySelector<HTMLElement>('[data-disk-live]');
-		const calm = () =>
-			root.classList.contains('is-static') || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const tabs = [...tablist.querySelectorAll<HTMLElement>('[data-cart]')];
+		const seats = [...consoleEl.querySelectorAll<HTMLElement>('[data-seat]')];
+		const programs = [...consoleEl.querySelectorAll<HTMLElement>('[data-program]')];
+		const titles = [...consoleEl.querySelectorAll<HTMLElement>('[data-bar]')];
+		const presets = [...consoleEl.querySelectorAll<HTMLElement>('[data-presets]')];
+		const infos = [...panel.querySelectorAll<HTMLElement>('[data-info]')];
+		const wrap = section.querySelector<HTMLElement>('[data-console-wrap]');
+		const well = consoleEl.querySelector<HTMLElement>('[data-well]');
+		const captureGroup = consoleEl.querySelector<HTMLElement>('[data-capture-group]');
+		const staticEl = screen.querySelector<HTMLElement>('[data-static]');
+		const flash = screen.querySelector<HTMLElement>('[data-flash]');
+		const knob = consoleEl.querySelector<HTMLElement>('[data-knob]');
+		const led = consoleEl.querySelector<HTMLElement>('[data-led]');
+		const lcdCount = consoleEl.querySelector<HTMLElement>('[data-lcd-count]');
+		const lcdLabel = consoleEl.querySelector<HTMLElement>('[data-lcd-label]');
+		const barZoom = consoleEl.querySelector<HTMLElement>('.c-bar [data-act="zoom"]');
+		const barClose = consoleEl.querySelector<HTMLElement>('.c-bar [data-act="close"]');
+		const cartLive = section.querySelector<HTMLElement>('[data-cart-live]');
+
+		const isStatic = () => root.classList.contains('is-static');
+		const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const calm = () => isStatic() || reduced();
 
 		let current = 0;
-		let lastStatic = 0;
-
-		/* ---------- Disquetes como tabs (roving tabindex, activación automática) ---------- */
-		tablist.setAttribute('role', 'tablist');
-		tablist.setAttribute('aria-label', 'Proyectos');
-		panel.setAttribute('role', 'tabpanel');
-		tabs.forEach((tab, i) => {
-			tab.setAttribute('role', 'tab');
-			tab.setAttribute('aria-controls', panel.id);
-			tab.removeAttribute('href');
-			tab.dataset.unit = String(i);
-		});
-
-		const eagerLoad = () => {
-			units.forEach((u) => u.querySelector<HTMLImageElement>('img[data-shot]')?.setAttribute('loading', 'eager'));
-		};
-		tablist.addEventListener('pointerenter', eagerLoad, { once: true });
-		tablist.addEventListener('focusin', eagerLoad, { once: true });
+		let shot = 0;
+		let lastFx = -Infinity;
 
 		const announce = (el: HTMLElement | null | undefined, message: string) => {
 			if (!el) return;
 			el.textContent = '';
 			window.setTimeout(() => (el.textContent = message), 50);
 		};
-
-		// Estática ≤ 0.25 y encendido corto; nunca en ráfaga (WCAG 2.3.1)
-		const channelFx = (unit: HTMLElement, repeat: boolean) => {
-			const now = performance.now();
-			if (repeat || now - lastStatic < 400) return;
-			lastStatic = now;
-			unit
-				.querySelector<HTMLElement>('[data-static]')
-				?.animate([{ opacity: 0.25 }, { opacity: 0 }], { duration: 120, easing: 'steps(2)' });
-			unit.querySelector<HTMLElement>('[data-crt]')?.animate(
-				[
-					{ clipPath: 'inset(calc(50% - 1px) 0 calc(50% - 1px) 0)', filter: 'brightness(1.4)' },
-					{ clipPath: 'inset(0)', filter: 'brightness(1)' },
-				],
-				{ duration: 220, delay: 80, easing: 'steps(5)', fill: 'backwards' },
-			);
+		const shotsOf = (i: number) => [...programs[i].querySelectorAll<HTMLImageElement>('img[data-shot]')];
+		// Las capturas ocultas (monitor y visor) no traen src en el HTML: se asignan al mostrarse o precargarse
+		const load = (img: HTMLImageElement) => {
+			if (img.getAttribute('src')) return;
+			if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+			if (img.dataset.src) img.src = img.dataset.src;
+		};
+		const bodyOf = (el: Element) => el.querySelector<HTMLElement>('.cart-body');
+		// Lo que queda dentro de la ranura (27 % del alto) más un margen: altura desde la que cae o a la que sube
+		const liftOf = (seat: HTMLElement) => (bodyOf(seat)?.offsetHeight ?? 0) * 0.27 + 10;
+		const onScreen = (el: Element | null) => {
+			if (!el) return false;
+			const r = el.getBoundingClientRect();
+			return r.bottom > 0 && r.top < window.innerHeight;
 		};
 
-		// Un clon decorativo del disquete viaja a la ranura; el disquete real se queda como hueco
-		const flyDisk = (tab: HTMLElement, unit: HTMLElement) => {
-			const art = tab.querySelector<SVGSVGElement>('[data-disk-art]');
-			const slot = unit.querySelector<HTMLElement>('[data-slot]');
-			if (!art || !slot) return;
-			const a = art.getBoundingClientRect();
-			const b = slot.getBoundingClientRect();
-			if (b.bottom < 0 || b.top > window.innerHeight) return;
-			const ghost = art.cloneNode(true) as SVGSVGElement;
+		/* ---------- Efectos: todos decoran; el estado ya cambió antes de que empiecen ---------- */
+		const running = new Set<Animation>();
+		let timers: number[] = [];
+		const play = (el: Element | null | undefined, frames: Keyframe[], options: KeyframeAnimationOptions) => {
+			if (!el) return null;
+			const anim = el.animate(frames, options);
+			running.add(anim);
+			const forget = () => running.delete(anim);
+			anim.addEventListener('finish', forget);
+			anim.addEventListener('cancel', forget);
+			return anim;
+		};
+		const later = (ms: number, fn: () => void) => {
+			timers.push(window.setTimeout(fn, ms));
+		};
+		const setLed = (state: 'off' | 'read' | 'ready') => {
+			if (led) led.dataset.state = state;
+		};
+		// Un efecto de estática o encendido cada 400 ms como máximo (WCAG 2.3.1); si llega antes, va sin efecto
+		const allowFx = () => {
+			const now = performance.now();
+			if (now - lastFx < 400) return false;
+			lastFx = now;
+			return true;
+		};
+		// Termina en seco lo que esté corriendo (un clic nuevo reinicia la secuencia)
+		const settle = () => {
+			timers.forEach((t) => window.clearTimeout(t));
+			timers = [];
+			[...running].forEach((a) => a.cancel());
+			arcade.querySelectorAll('.cart-ghost').forEach((g) => g.remove());
+			seats.forEach((s, i) => {
+				s.hidden = i !== current;
+				s.style.visibility = '';
+			});
+			setLed('ready');
+		};
+
+		const LINE = 'inset(calc(50% - 1px) 0 calc(50% - 1px) 0)';
+		// Teclado: estática corta y encendido de línea a pantalla
+		const powerOn = () => {
+			play(staticEl, [{ opacity: 0.25 }, { opacity: 0 }], { duration: 120, easing: 'steps(2, end)' });
+			play(screen, [{ clipPath: LINE, easing: 'steps(5, end)' }, { clipPath: 'inset(0)' }], {
+				duration: 220,
+				delay: 80,
+				fill: 'backwards',
+			});
+			play(flash, [{ opacity: 0.35, easing: 'steps(5, end)' }, { opacity: 0 }], {
+				duration: 220,
+				delay: 80,
+				fill: 'backwards',
+			});
+		};
+		// Sin cartucho la pantalla queda en una línea; al asentarse el nuevo, estática y encendido
+		const powerCycle = (offFor: number) => {
+			const total = offFor + 220;
+			const at = offFor / total;
+			play(
+				screen,
+				[{ clipPath: LINE }, { clipPath: LINE, offset: at, easing: 'steps(5, end)' }, { clipPath: 'inset(0)' }],
+				{
+					duration: total,
+				},
+			);
+			play(flash, [{ opacity: 0 }, { opacity: 0.35, offset: at, easing: 'steps(5, end)' }, { opacity: 0 }], {
+				duration: total,
+			});
+			play(staticEl, [{ opacity: 0.25 }, { opacity: 0 }], {
+				duration: 120,
+				delay: Math.max(0, offFor - 40),
+				easing: 'steps(2, end)',
+			});
+		};
+
+		// El cartucho anterior sube por la ranura (el pozo recorta su conector hasta que asoma) y se desvanece
+		const eject = (i: number) => {
+			const seat = seats[i];
+			seat.hidden = false;
+			const rise = liftOf(seat);
+			const anim = play(
+				seat,
+				[
+					{ transform: 'translateY(0)', opacity: 1, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' },
+					{ transform: `translateY(${-rise}px)`, opacity: 1, offset: 0.6 },
+					{ transform: `translateY(${-rise - 8}px)`, opacity: 0 },
+				],
+				{ duration: 220 },
+			);
+			anim?.addEventListener('finish', () => {
+				if (i !== current) seat.hidden = true;
+			});
+		};
+		// …y reaparece en su lugar del estante
+		const refill = (i: number) => {
+			play(
+				bodyOf(tabs[i]),
+				[
+					{ opacity: 0, transform: 'translateY(-12px)' },
+					{ opacity: 1, transform: 'translateY(0)' },
+				],
+				{
+					duration: 160,
+					delay: 200,
+					easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
+					fill: 'backwards',
+				},
+			);
+			// El hueco se sostiene hasta que el cartucho empieza a caer y desaparece de golpe (sin textos encimados)
+			play(tabs[i].querySelector('.cart-hole'), [{ opacity: 1 }, { opacity: 1 }], { duration: 200 });
+		};
+		// Un clon decorativo viaja del estante a la vertical de la ranura: tomar, llevar, dejar
+		const fly = (i: number, done: () => void) => {
+			const body = bodyOf(tabs[i]);
+			const seat = seats[i];
+			const seatBody = bodyOf(seat);
+			if (!body || !seatBody) return done();
+			seat.hidden = false;
+			seat.style.visibility = 'hidden';
+			const a = body.getBoundingClientRect();
+			const b = seatBody.getBoundingClientRect();
+			const host = arcade.getBoundingClientRect();
+			// Tamaño de layout (sin el scale del :active); la posición sale del centro del rectángulo
+			const w = body.offsetWidth;
+			const h = body.offsetHeight;
+			const x = a.left + a.width / 2 - w / 2;
+			const y = a.top + a.height / 2 - h / 2;
+			const lift = liftOf(seat);
+			const ghost = body.cloneNode(true) as HTMLElement;
+			ghost.classList.add('cart-ghost');
 			ghost.setAttribute('aria-hidden', 'true');
 			Object.assign(ghost.style, {
-				position: 'fixed',
-				left: `${a.left}px`,
-				top: `${a.top}px`,
-				width: `${a.width}px`,
-				height: `${a.height}px`,
+				position: 'absolute',
+				left: `${x - host.left}px`,
+				top: `${y - host.top}px`,
+				width: `${w}px`,
+				height: `${h}px`,
 				zIndex: '40',
+				opacity: '1',
 				pointerEvents: 'none',
-				transformOrigin: 'top left',
+				transition: 'none',
+				willChange: 'transform',
 			});
-			document.body.append(ghost);
-			const scale = Math.min(1, (b.width * 0.8) / a.width);
-			const dx = b.left + (b.width - a.width * scale) / 2 - a.left;
-			const dy = b.top + b.height / 2 - a.top;
-			ghost
-				.animate(
-					[
-						{ transform: 'translate(0, 0) scale(1)', opacity: 1 },
-						{ transform: `translate(${dx}px, ${dy}px) scale(${scale}, 0.08)`, opacity: 0.6 },
-					],
-					{ duration: 280, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' },
-				)
-				.finished.finally(() => ghost.remove());
+			arcade.append(ghost);
+			const dx = b.left - x;
+			const dy = b.top - lift - y;
+			const anim = play(
+				ghost,
+				[
+					{ transform: 'translate(0, 0)', easing: 'cubic-bezier(0.23, 1, 0.32, 1)' },
+					{ transform: 'translate(0, -16px)', offset: 0.18, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' },
+					{ transform: `translate(${dx}px, ${dy - 18}px)`, offset: 0.79, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' },
+					{ transform: `translate(${dx}px, ${dy}px)` },
+				],
+				{ duration: 380, fill: 'forwards' },
+			);
+			anim?.addEventListener('finish', () => {
+				ghost.remove();
+				seat.style.visibility = '';
+				done();
+			});
+		};
+		// Entra recortándose en el labio (empujón que acelera y frena en seco) y hace «clic»
+		const drop = (i: number) => {
+			const seat = seats[i];
+			seat.hidden = false;
+			seat.style.visibility = '';
+			const lift = liftOf(seat);
+			play(
+				seat,
+				[
+					{ transform: `translateY(${-lift}px)`, easing: 'cubic-bezier(0.55, 0, 1, 0.45)' },
+					{ transform: 'translateY(3px)', offset: 0.6, easing: 'steps(1, end)' },
+					{ transform: 'translateY(0)', offset: 0.8 },
+					{ transform: 'translateY(0)' },
+				],
+				{ duration: 200 },
+			);
+			later(120, () => {
+				play(consoleEl, [{ transform: 'translateY(2px)' }, { transform: 'translateY(2px)' }], { duration: 80 });
+				setLed('read');
+			});
+		};
+		// Secuencia completa (~0.8 s con vuelo); con ◀ ▶ o fuera de pantalla, sin vuelo
+		const insert = (prev: number, next: number, flight: boolean) => {
+			setLed('off');
+			eject(prev);
+			refill(prev);
+			const seatAt = flight ? 380 : 220;
+			if (allowFx()) powerCycle(seatAt + 200);
+			later(seatAt + 420, () => setLed('ready'));
+			if (flight) fly(next, () => drop(next));
+			else {
+				seats[next].hidden = true;
+				later(seatAt, () => drop(next));
+			}
 		};
 
-		const readLed = (unit: HTMLElement) => {
-			const led = unit.querySelector<HTMLElement>('[data-led]');
-			if (!led) return;
-			led.classList.remove('is-reading');
-			void led.offsetWidth;
-			led.classList.add('is-reading');
+		/* ---------- Capturas dentro del monitor ---------- */
+		let wipe = 0;
+		const showShot = (j: number, speak: boolean, fx: boolean) => {
+			const shots = shotsOf(current);
+			if (!shots.length) return;
+			const n = shots.length;
+			const k = ((j % n) + n) % n;
+			const prevImg = shots[shot];
+			const img = shots[k];
+			const changed = k !== shot;
+			const token = ++wipe;
+			shot = k;
+			load(img);
+			shots.forEach((s, x) => {
+				s.hidden = x !== k;
+				s.removeAttribute('aria-hidden');
+				s.style.zIndex = '';
+				s.style.clipPath = '';
+				s.style.opacity = '';
+			});
+			presets
+				.find((g) => Number(g.dataset.presets) === current)
+				?.querySelectorAll<HTMLElement>('[data-shot-btn]')
+				.forEach((b, x) => {
+					if (x === k) b.setAttribute('aria-current', 'true');
+					else b.removeAttribute('aria-current');
+				});
+			const label = img.dataset.label ?? '';
+			if (lcdCount) lcdCount.textContent = `${k + 1}/${n}`;
+			if (lcdLabel) lcdLabel.textContent = label;
+			knob?.style.setProperty('--turn', `${n > 1 ? -45 + (90 * k) / (n - 1) : 0}deg`);
+			if (speak) announce(cartLive, `Captura ${k + 1} de ${n}${label ? `: ${label}` : ''}`);
+			if (!fx || !changed || !prevImg || isStatic()) return;
+			// La anterior queda debajo (oculta para lectores) mientras la nueva se dibuja de arriba abajo
+			const soft = reduced();
+			prevImg.hidden = false;
+			prevImg.setAttribute('aria-hidden', 'true');
+			img.style.zIndex = '1';
+			if (soft) img.style.opacity = '0';
+			else img.style.clipPath = 'inset(0 0 100% 0)';
+			const clean = () => {
+				prevImg.hidden = Number(prevImg.dataset.shot) !== shot;
+				prevImg.removeAttribute('aria-hidden');
+				img.style.zIndex = '';
+				img.style.clipPath = '';
+				img.style.opacity = '';
+			};
+			Promise.race([img.decode().catch(() => {}), new Promise((r) => window.setTimeout(r, 300))]).then(() => {
+				if (token !== wipe) return;
+				const anim = soft
+					? play(img, [{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: 'ease-out' })
+					: play(img, [{ clipPath: 'inset(0 0 100% 0)', easing: 'steps(6, end)' }, { clipPath: 'inset(0)' }], {
+							duration: 180,
+						});
+				if (!anim) return clean();
+				anim.addEventListener('finish', clean);
+				anim.addEventListener('cancel', clean);
+			});
 		};
+		// Precarga las capturas del cartucho actual al acercarse a las teclas o tocar la pantalla
+		const warm = () =>
+			shotsOf(current).forEach((img) => {
+				img.loading = 'eager';
+				load(img);
+			});
+		const chin = consoleEl.querySelector('.c-chin');
+		chin?.addEventListener('pointerenter', warm);
+		chin?.addEventListener('focusin', warm);
+		screen.addEventListener('pointerdown', warm);
+		// Al acercarse al estante se piden las capturas principales: el cartucho elegido enciende con imagen
+		const warmMain = () =>
+			programs.forEach((_, i) => {
+				const img = shotsOf(i)[0];
+				img.loading = 'eager';
+				load(img);
+			});
+		tablist.addEventListener('pointerenter', warmMain, { once: true });
+		tablist.addEventListener('focusin', warmMain, { once: true });
 
-		type Source = 'init' | 'tab-key' | 'pointer' | 'button' | 'viewer';
+		/* ---------- Cartuchos como tabs (roving tabindex, activación automática) ---------- */
+		type Source = 'init' | 'pointer' | 'key' | 'repeat' | 'button' | 'viewer';
 
-		const select = (index: number, source: Source, repeat = false) => {
-			const next = (index + units.length) % units.length;
-			const changed = next !== current;
+		const select = (index: number, source: Source, toShot?: number) => {
+			const next = (index + tabs.length) % tabs.length;
+			const prev = current;
+			const changed = next !== prev;
+			if (changed) settle();
 			current = next;
 			tabs.forEach((tab, i) => {
 				const on = i === next;
@@ -303,30 +597,49 @@ const slugOf = (file: string) => file.split('.')[0];
 				tab.tabIndex = on ? 0 : -1;
 				tab.toggleAttribute('data-active', on);
 			});
-			units.forEach((u, i) => (u.hidden = i !== next));
+			seats.forEach((s, i) => (s.hidden = i !== next));
+			programs.forEach((p, i) => (p.hidden = i !== next));
+			titles.forEach((t, i) => (t.hidden = i !== next));
+			presets.forEach((g) => (g.hidden = Number(g.dataset.presets) !== next));
+			if (captureGroup) captureGroup.hidden = !presets.some((g) => Number(g.dataset.presets) === next);
+			infos.forEach((f, i) => f.toggleAttribute('data-active', i === next));
 			panel.setAttribute('aria-labelledby', tabs[next].id);
+			const program = programs[next];
+			barZoom?.setAttribute('aria-label', `Ampliar captura de ${program.dataset.name}`);
+			barClose?.setAttribute('aria-label', `Cerrar ${program.dataset.file}`);
+			if (changed) shot = 0;
+			showShot(toShot ?? shot, false, false);
 			if (!changed || source === 'init') return;
 
 			hideToast();
-			const unit = units[next];
-			if (!calm() && source !== 'viewer') {
-				channelFx(unit, repeat);
-				if (source === 'pointer') flyDisk(tabs[next], unit);
-				readLed(unit);
+			if (source === 'button') announce(cartLive, `${program.dataset.name} en la consola`);
+			if (source === 'viewer' || isStatic()) return;
+			if (reduced()) {
+				play(screen, [{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: 'ease-out' });
+				return;
 			}
-			// Con los tabs el lector ya anuncia el disquete enfocado
-			if (source === 'button') announce(diskLive, `${unit.dataset.name} en la unidad`);
+			if (source === 'key') {
+				if (allowFx()) powerOn();
+				return;
+			}
+			if (source === 'repeat') return;
+			insert(prev, next, source === 'pointer' && onScreen(tabs[next]) && onScreen(well));
 		};
 
-		const initial = units.findIndex((u) => location.hash === `#${u.id}`);
-		select(initial > 0 ? initial : 0, 'init');
-		section.dataset.ready = '';
+		tablist.setAttribute('role', 'tablist');
+		tablist.setAttribute('aria-label', 'Proyectos');
+		panel.setAttribute('role', 'tabpanel');
+		tabs.forEach((tab) => {
+			tab.setAttribute('role', 'tab');
+			tab.setAttribute('aria-controls', panel.id);
+			tab.removeAttribute('href');
+		});
 
 		tablist.addEventListener('click', (event) => {
 			const tab = (event.target as Element).closest<HTMLElement>('[role="tab"]');
 			if (!tab) return;
 			event.preventDefault();
-			select(Number(tab.dataset.unit), event.detail === 0 ? 'tab-key' : 'pointer');
+			select(tabs.indexOf(tab), event.detail === 0 ? 'key' : 'pointer');
 		});
 		tablist.addEventListener('keydown', (event) => {
 			const keys: Record<string, number> = {
@@ -339,7 +652,7 @@ const slugOf = (file: string) => file.split('.')[0];
 			};
 			if (!(event.key in keys)) return;
 			event.preventDefault();
-			select(keys[event.key], 'tab-key', event.repeat);
+			select(keys[event.key], event.repeat ? 'repeat' : 'key');
 			tabs[current].focus();
 		});
 
@@ -368,17 +681,14 @@ const slugOf = (file: string) => file.split('.')[0];
 			window.clearTimeout(toastTimer);
 			toastTimer = window.setTimeout(() => hideToast(), 6000);
 		};
-		const refuseClose = (unit: HTMLElement, btn: HTMLElement) => {
+		const refuseClose = (btn: HTMLElement) => {
 			lastCloser = btn;
-			const monitor = unit.querySelector<HTMLElement>('[data-monitor]');
-			const bezel = unit.querySelector<HTMLElement>('[data-bezel]');
-			if (monitor) {
-				monitor.classList.remove('is-shaking');
-				void monitor.offsetWidth;
-				monitor.classList.add('is-shaking');
-			}
+			consoleEl.classList.remove('is-shaking');
+			void consoleEl.offsetWidth;
+			consoleEl.classList.add('is-shaking');
+			const bezel = consoleEl.querySelector<HTMLElement>('[data-bezel]');
 			if (toast && bezel && toast.parentElement !== bezel) bezel.append(toast);
-			const message = lines[closeCount % lines.length](unit.dataset.file ?? '');
+			const message = lines[closeCount % lines.length](programs[current].dataset.file ?? '');
 			closeCount++;
 			if (toast && toastText) {
 				toastText.textContent = message;
@@ -390,9 +700,8 @@ const slugOf = (file: string) => file.split('.')[0];
 		section.addEventListener('animationend', (event) => {
 			const el = event.target as HTMLElement;
 			if (el.classList.contains('is-shaking')) el.classList.remove('is-shaking');
-			if (el.classList.contains('is-reading')) el.classList.remove('is-reading');
-			// El encendido de entrada ocurre una vez; al mostrar otra unidad no se repite
-			if (event.animationName.startsWith('crt-on')) panel.dataset.booted = '';
+			// El encendido de entrada ocurre una vez
+			if (event.animationName.startsWith('crt-on') && wrap) wrap.dataset.booted = '';
 		});
 		section.querySelector('[data-err-ok]')?.addEventListener('click', () => hideToast(true));
 		toast?.addEventListener('mouseenter', () => window.clearTimeout(toastTimer));
@@ -420,7 +729,7 @@ const slugOf = (file: string) => file.split('.')[0];
 			const el = viewer?.querySelector<HTMLElement>(sel);
 			if (el) el.textContent = value;
 		};
-		const monitorShot = () => units[current].querySelector<HTMLImageElement>('img[data-shot]');
+		const monitorShot = () => shotsOf(current)[shot];
 
 		const setZoom = (on: boolean) => {
 			stage?.classList.toggle('is-actual', on);
@@ -432,23 +741,18 @@ const slugOf = (file: string) => file.split('.')[0];
 			if (stage) stage.scrollTo(0, 0);
 		};
 
-		// Las capturas del visor no traen src en el HTML: se asignan al mostrarse (y la anterior y la siguiente)
-		const load = (img: HTMLImageElement) => {
-			if (img.getAttribute('src')) return;
-			if (img.dataset.srcset) img.srcset = img.dataset.srcset;
-			if (img.dataset.src) img.src = img.dataset.src;
-		};
-
+		// En el visor se cargan la captura mostrada, la anterior y la siguiente
 		const showSlide = (index: number, speak: boolean) => {
 			slide = (index + slides.length) % slides.length;
 			const img = slides[slide];
 			const d = img.dataset;
 			const pi = Number(d.project);
+			const si = Number(d.shot);
 			load(img);
 			load(slides[(slide + 1) % slides.length]);
 			load(slides[(slide - 1 + slides.length) % slides.length]);
 			slides.forEach((s) => (s.hidden = s !== img));
-			const n = Number(d.shot) + 1;
+			const n = si + 1;
 			text('[data-viewer-file]', d.file ?? '');
 			text('[data-viewer-count]', `${n}/${d.count}`);
 			text('[data-viewer-label]', `${d.name}, captura ${n} de ${d.count}`);
@@ -466,7 +770,9 @@ const slugOf = (file: string) => file.split('.')[0];
 			viewer?.querySelectorAll<HTMLElement>('[data-thumb]').forEach((t) => {
 				t.setAttribute('aria-current', String(Number(t.dataset.thumb) === slide));
 			});
-			if (pi !== current) select(pi, 'viewer');
+			// La consola sigue al visor (proyecto y captura) para que al cerrar todo coincida
+			if (pi !== current) select(pi, 'viewer', si);
+			else if (si !== shot) showShot(si, false, false);
 			if (speak) announce(viewerLive, `Captura ${n} de ${d.count}, ${d.name}`);
 		};
 
@@ -477,9 +783,10 @@ const slugOf = (file: string) => file.split('.')[0];
 			else window.lenis?.start();
 		};
 
-		const transition = (update: () => void, out: boolean) => {
+		const transition = (update: () => void, out: boolean, after?: () => void) => {
 			if (!document.startViewTransition || calm()) {
 				update();
+				after?.();
 				return;
 			}
 			root.classList.add('vt');
@@ -488,8 +795,9 @@ const slugOf = (file: string) => file.split('.')[0];
 			vt.finished.finally(() => {
 				root.classList.remove('vt', 'vt-out');
 				slides.forEach((s) => (s.style.viewTransitionName = ''));
-				const shot = monitorShot();
-				if (shot) shot.style.viewTransitionName = '';
+				const img = monitorShot();
+				if (img) img.style.viewTransitionName = '';
+				after?.();
 			});
 		};
 
@@ -497,21 +805,28 @@ const slugOf = (file: string) => file.split('.')[0];
 			if (!viewer || open) return;
 			open = true;
 			opener = btn;
-			const first = slides.findIndex((s) => Number(s.dataset.project) === current);
-			showSlide(first, false);
+			settle();
+			const first = slides.findIndex((s) => Number(s.dataset.project) === current && Number(s.dataset.shot) === shot);
+			showSlide(Math.max(0, first), false);
 			setZoom(false);
 			const img = slides[slide];
 			// Espera breve a que la captura grande esté lista para que la transición no muestre un hueco
 			await Promise.race([img.decode().catch(() => {}), new Promise((r) => setTimeout(r, 300))]);
-			const shot = monitorShot();
-			if (shot) shot.style.viewTransitionName = 'shot';
-			transition(() => {
-				if (shot) shot.style.viewTransitionName = '';
-				img.style.viewTransitionName = 'shot';
-				viewer.showModal();
-				stage?.focus({ preventScroll: true });
-				lockScroll(true);
-			}, false);
+			const fromShot = monitorShot();
+			if (fromShot) fromShot.style.viewTransitionName = 'shot';
+			// El bloqueo quita la barra de scroll (cambia el viewport) y abortaría la transición: va al terminar
+			transition(
+				() => {
+					if (fromShot) fromShot.style.viewTransitionName = '';
+					img.style.viewTransitionName = 'shot';
+					viewer.showModal();
+					stage?.focus({ preventScroll: true });
+				},
+				false,
+				() => {
+					if (viewer.open) lockScroll(true);
+				},
+			);
 		};
 
 		const closeViewer = () => {
@@ -521,24 +836,23 @@ const slugOf = (file: string) => file.split('.')[0];
 			if (!actual) img.style.viewTransitionName = 'shot';
 			transition(() => {
 				img.style.viewTransitionName = '';
-				const shot = monitorShot();
-				if (shot && !actual) shot.style.viewTransitionName = 'shot';
+				const toShot = monitorShot();
+				if (toShot && !actual) toShot.style.viewTransitionName = 'shot';
 				viewer.close();
 			}, true);
 		};
 
-		section.addEventListener('click', (event) => {
-			const btn = (event.target as Element).closest<HTMLElement>('[data-act]');
-			const unit = btn?.closest<HTMLElement>('[data-unit]');
-			if (!btn || !unit) return;
+		panel.addEventListener('click', (event) => {
+			const btn = (event.target as Element).closest<HTMLElement>('[data-act], [data-shot-btn]');
+			if (!btn) return;
+			if (btn.dataset.shotBtn !== undefined) {
+				showShot(Number(btn.dataset.shotBtn), true, true);
+				return;
+			}
 			const act = btn.dataset.act;
 			if (act === 'zoom') openViewer(btn);
-			else if (act === 'close') refuseClose(unit, btn);
-			else {
-				select(current + (act === 'next' ? 1 : -1), 'button');
-				// El botón presionado quedó en la unidad oculta: el foco pasa al mismo botón de la nueva
-				units[current].querySelector<HTMLElement>(`[data-act="${act}"]`)?.focus();
-			}
+			else if (act === 'close') refuseClose(btn);
+			else if (act === 'prev' || act === 'next') select(current + (act === 'next' ? 1 : -1), 'button');
 		});
 
 		viewer?.addEventListener('click', (event) => {
@@ -569,33 +883,45 @@ const slugOf = (file: string) => file.split('.')[0];
 			open = false;
 			lockScroll(false);
 			setZoom(false);
-			// Si en el visor se cruzó de proyecto, el foco vuelve al botón equivalente de la unidad visible
-			const inBar = !!opener?.closest('.window-bar');
-			const target = opener?.closest('[hidden]')
-				? units[current].querySelector<HTMLElement>(`${inBar ? '.window-bar' : '.ficha'} [data-act="zoom"]`)
-				: opener;
+			// Si en el visor se cruzó de proyecto, el foco va al «Ampliar» de la ficha visible
+			const stale = !opener || !!opener.closest('[data-info]:not([data-active])');
+			const target = stale ? panel.querySelector<HTMLElement>('[data-info][data-active] [data-act="zoom"]') : opener;
 			target?.focus();
 		});
 
-		// Deslizar: por distancia o por velocidad; con 1:1 el gesto desplaza la imagen
-		let startX = 0;
-		let startY = 0;
-		let startT = 0;
-		stage?.addEventListener('pointerdown', (event) => {
-			if (event.pointerType === 'mouse' || !event.isPrimary) return;
-			startX = event.clientX;
-			startY = event.clientY;
-			startT = performance.now();
-		});
-		stage?.addEventListener('pointerup', (event) => {
-			if (event.pointerType === 'mouse' || !event.isPrimary || !startT) return;
-			const dx = event.clientX - startX;
-			const dy = event.clientY - startY;
-			const velocity = Math.abs(dx) / (performance.now() - startT);
-			startT = 0;
-			if (stage.classList.contains('is-actual') || Math.abs(dx) < Math.abs(dy)) return;
-			if (Math.abs(dx) > 60 || (Math.abs(dx) > 20 && velocity > 0.11)) showSlide(slide + (dx < 0 ? 1 : -1), true);
-		});
-		stage?.addEventListener('pointercancel', () => (startT = 0));
+		// Deslizar (táctil): por distancia o por velocidad
+		const swipe = (el: HTMLElement, go: (dir: number) => void, skip: () => boolean = () => false) => {
+			let startX = 0;
+			let startY = 0;
+			let startT = 0;
+			el.addEventListener('pointerdown', (event) => {
+				if (event.pointerType === 'mouse' || !event.isPrimary) return;
+				startX = event.clientX;
+				startY = event.clientY;
+				startT = performance.now();
+			});
+			el.addEventListener('pointerup', (event) => {
+				if (event.pointerType === 'mouse' || !event.isPrimary || !startT) return;
+				const dx = event.clientX - startX;
+				const dy = event.clientY - startY;
+				const velocity = Math.abs(dx) / (performance.now() - startT);
+				startT = 0;
+				if (skip() || Math.abs(dx) < Math.abs(dy)) return;
+				if (Math.abs(dx) > 60 || (Math.abs(dx) > 20 && velocity > 0.11)) go(dx < 0 ? 1 : -1);
+			});
+			el.addEventListener('pointercancel', () => (startT = 0));
+		};
+		// En el visor, con 1:1 el gesto desplaza la imagen
+		if (stage)
+			swipe(
+				stage,
+				(dir) => showSlide(slide + dir, true),
+				() => stage.classList.contains('is-actual'),
+			);
+		swipe(screen, (dir) => showShot(shot + dir, true, true));
+
+		const initial = infos.findIndex((f) => location.hash === `#${f.id}`);
+		select(initial > 0 ? initial : 0, 'init');
+		section.dataset.ready = '';
 	}
 </script>

@@ -1,0 +1,630 @@
+---
+import { Image, getImage } from 'astro:assets';
+import type { Project } from '../../data/site';
+import Cartridge from './Cartridge.astro';
+
+interface Props {
+	projects: Project[];
+	slugs: string[];
+}
+
+const { projects, slugs } = Astro.props;
+
+const shotsOf = (p: Project) => p.gallery ?? [{ src: p.image, alt: p.imageAlt, label: undefined }];
+const widthsFor = (w: number) => [480, 800, 1200, 1600].filter((x) => x < w).concat(w);
+const sizes = '(min-width: 1180px) 680px, (min-width: 640px) 620px, 92vw';
+const firstShots = shotsOf(projects[0]);
+// Solo la primera captura del primer cartucho trae src (también sin JS). Las demás guardan su URL en data-*
+// y el script la asigna al mostrarlas: así ninguna captura oculta se descarga al cargar la página.
+const programs = await Promise.all(
+	projects.map((p, i) =>
+		Promise.all(
+			shotsOf(p).map(async (shot, j) => ({
+				...shot,
+				live: i === 0 && j === 0,
+				img: await getImage({ src: shot.src, widths: widthsFor(shot.src.width), sizes }),
+			})),
+		),
+	),
+);
+const icons = {
+	zoom: 'M1 1h4v2H3v2H1zM7 1h4v4H9V3H7zM1 7h2v2h2v2H1zM9 7h2v4H7V9h2z',
+	close: 'M2 2h2l2 2 2-2h2v2L8 6l2 2v2H8L6 8l-2 2H2V8l2-2-2-2z',
+	prev: 'M8 1h2v10H8zM6 3h2v6H6zM4 4h2v4H4zM2 5h2v2H2z',
+	next: 'M2 1h2v10H2zM4 3h2v6H4zM6 4h2v4H6zM8 5h2v2H8z',
+};
+---
+
+<div class="c-wrap" data-reveal style="--d:1" data-console-wrap>
+	<div class="console" data-console>
+		<!-- Tapa: ranura de carga superior y pozo que recorta al cartucho en el labio -->
+		<div class="c-top" aria-hidden="true">
+			<span class="c-slot"></span>
+			<div class="c-well" data-well>
+				{projects.map((p, i) => <Cartridge project={p} slug={slugs[i]} index={i} variant="seated" active={i === 0} />)}
+			</div>
+		</div>
+
+		<div class="c-front">
+			<div class="c-bezel" data-bezel>
+				<div class="c-glass">
+					<div class="window-bar c-bar">
+						<span class="flex min-w-0 items-center gap-2" aria-hidden="true">
+							{
+								projects.map((p, i) => (
+									<span class="c-title" data-bar={i} hidden={i !== 0}>
+										{p.icon ? (
+											<Image
+												src={p.icon}
+												alt=""
+												width={80}
+												class="size-5 shrink-0 rounded-full border border-cream bg-cream object-contain"
+											/>
+										) : (
+											<span class="inline-block size-2.5 shrink-0 rounded-sm bg-orange" />
+										)}
+										<span class="truncate">
+											<span class="hidden sm:inline">3K_OS · </span>
+											{p.file}
+										</span>
+									</span>
+								))
+							}
+						</span>
+						<span class="js-only flex shrink-0 gap-1.5">
+							<button
+								type="button"
+								class="win-btn"
+								data-act="zoom"
+								aria-haspopup="dialog"
+								aria-label={`Ampliar captura de ${projects[0].name}`}
+							>
+								<svg viewBox="0 0 12 12" aria-hidden="true"><path d={icons.zoom}></path></svg>
+							</button>
+							<button type="button" class="win-btn" data-act="close" aria-label={`Cerrar ${projects[0].file}`}>
+								<svg viewBox="0 0 12 12" aria-hidden="true"><path d={icons.close}></path></svg>
+							</button>
+						</span>
+					</div>
+					<div class="crt-screen" data-crt>
+						{
+							projects.map((p, i) => (
+								<div class="program" data-program={i} data-name={p.name} data-file={p.file} hidden={i !== 0}>
+									{programs[i].map((shot, j) => (
+										<img
+											src={shot.live ? shot.img.src : undefined}
+											srcset={shot.live ? shot.img.srcSet.attribute : undefined}
+											data-src={shot.live ? undefined : shot.img.src}
+											data-srcset={shot.live ? undefined : shot.img.srcSet.attribute}
+											sizes={sizes}
+											width={shot.src.width}
+											height={shot.src.height}
+											alt={shot.alt}
+											loading="lazy"
+											decoding="async"
+											class="shot"
+											data-shot={j}
+											data-label={shot.label ?? ''}
+											hidden={j !== 0}
+										/>
+									))}
+								</div>
+							))
+						}
+						<span class="scanlines" aria-hidden="true"></span>
+						<span class="glare" aria-hidden="true"></span>
+						<span class="static" aria-hidden="true" data-static></span>
+						<span class="flash" aria-hidden="true" data-flash></span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Mentón: cambiar de cartucho, perilla, presintonías de captura, LCD y placa con LED -->
+			<div class="c-chin">
+				<div class="c-group js-only">
+					<span class="c-label" aria-hidden="true">Cartucho</span>
+					<div class="c-keys">
+						<button type="button" class="key" data-act="prev" aria-label="Cartucho anterior">
+							<svg viewBox="0 0 12 12" aria-hidden="true"><path d={icons.prev}></path></svg>
+						</button>
+						<button type="button" class="key" data-act="next" aria-label="Cartucho siguiente">
+							<svg viewBox="0 0 12 12" aria-hidden="true"><path d={icons.next}></path></svg>
+						</button>
+					</div>
+				</div>
+				<span class="c-knob" aria-hidden="true" data-knob></span>
+				<div class="c-group js-only" data-capture-group hidden={firstShots.length < 2}>
+					<span class="c-label" aria-hidden="true">Captura</span>
+					{
+						projects.map((p, i) => {
+							const shots = shotsOf(p);
+							return (
+								shots.length > 1 && (
+									<div
+										class="c-keys"
+										role="group"
+										aria-label={`Capturas de ${p.name}`}
+										data-presets={i}
+										hidden={i !== 0}
+									>
+										{shots.map((shot, j) => (
+											<button
+												type="button"
+												class="key key-num"
+												data-shot-btn={j}
+												aria-label={`Captura ${j + 1} de ${shots.length}${shot.label ? `: ${shot.label}` : ''}`}
+												aria-current={j === 0 ? 'true' : undefined}
+											>
+												{j + 1}
+											</button>
+										))}
+									</div>
+								)
+							);
+						})
+					}
+				</div>
+				<div class="c-lcd" aria-hidden="true">
+					<span class="c-lcd-count" data-lcd-count>1/{firstShots.length}</span>
+					<span class="c-lcd-label" data-lcd-label>{firstShots[0].label}</span>
+				</div>
+				<span class="c-badge" aria-hidden="true"><span class="c-led" data-led data-state="ready"></span>3K-2600</span>
+			</div>
+			<span class="c-feet" aria-hidden="true"></span>
+		</div>
+	</div>
+</div>
+
+<style>
+	/*
+	 * Consola 3K-2600 en proyección oblicua, como la compu del hero: frente plano, tapa (más clara)
+	 * y costado (más oscuro) como pseudoelementos sesgados. --depth es local; --cart-w y --cart-depth vienen de la escena.
+	 */
+	.c-wrap {
+		--depth: clamp(14px, 2vw, 28px);
+		--slot-back: calc((var(--depth) - var(--cart-depth)) / 2);
+		min-width: 0;
+	}
+	.console {
+		position: relative;
+		padding-bottom: 6px;
+	}
+	.console.is-shaking {
+		animation: c-shake 0.3s steps(6);
+	}
+	@keyframes c-shake {
+		0%,
+		100% {
+			translate: 0 0;
+		}
+		20%,
+		60% {
+			translate: -4px 0;
+		}
+		40%,
+		80% {
+			translate: 4px 0;
+		}
+	}
+
+	.c-top {
+		position: relative;
+		z-index: 1;
+		height: calc(var(--slot-back) + var(--cart-w) * 1.0074 + var(--cart-depth) + 4px);
+		margin-right: var(--depth);
+		pointer-events: none;
+	}
+	.c-slot {
+		position: absolute;
+		bottom: var(--slot-back);
+		left: calc(50% - var(--cart-w) / 2 - 0.5rem + var(--slot-back));
+		width: calc(var(--cart-w) + 1rem);
+		height: calc(var(--cart-depth) + 4px);
+		border-radius: 2px;
+		background: var(--color-ink);
+		box-shadow: inset 0 3px 0 0 var(--color-ink-3);
+		transform: skewX(-45deg);
+		transform-origin: 0 100%;
+	}
+	/* El labio es fijo: el pozo recorta todo lo que baja de él, así el cartucho entra y sale sin escalar */
+	.c-well {
+		position: absolute;
+		bottom: var(--slot-back);
+		left: calc(50% - var(--cart-w) / 2 + var(--slot-back));
+		width: calc(var(--cart-w) + var(--cart-depth));
+		height: calc(var(--cart-w) * 1.0074 + var(--cart-depth));
+		clip-path: inset(-100vh -100vw 0 -100vw);
+	}
+
+	.c-front {
+		position: relative;
+		margin-right: var(--depth);
+		padding: 1rem;
+		border: 2px solid var(--color-ink);
+		border-radius: 6px;
+		background: var(--color-orange);
+		box-shadow:
+			inset 4px 4px 0 0 color-mix(in srgb, var(--color-orange) 70%, var(--color-cream)),
+			inset -4px -4px 0 0 var(--color-orange-dark);
+	}
+	/* Tapa */
+	.c-front::before {
+		content: '';
+		position: absolute;
+		left: -2px;
+		right: -2px;
+		bottom: calc(100% + 2px);
+		height: var(--depth);
+		border: 2px solid var(--color-ink);
+		border-bottom: 0;
+		background: color-mix(in srgb, var(--color-orange) 62%, var(--color-cream));
+		transform: skewX(-45deg);
+		transform-origin: 0 100%;
+	}
+	/* Costado con rejilla de ventilación, como la del hero */
+	.c-front::after {
+		content: '';
+		position: absolute;
+		top: -2px;
+		bottom: -2px;
+		left: calc(100% + 2px);
+		width: var(--depth);
+		border: 2px solid var(--color-ink);
+		border-left: 0;
+		background:
+			repeating-linear-gradient(
+					to bottom,
+					transparent 0 7px,
+					color-mix(in srgb, var(--color-ink) 70%, transparent) 7px 11px
+				)
+				0 22% / 100% 30% no-repeat,
+			var(--color-orange-dark);
+		transform: skewY(-45deg);
+		transform-origin: 0 0;
+	}
+	.c-feet {
+		position: absolute;
+		top: calc(100% + 2px);
+		right: 1.25rem;
+		left: 1.25rem;
+		height: 6px;
+		background: linear-gradient(
+			90deg,
+			var(--color-ink) 0 2.5rem,
+			transparent 2.5rem calc(100% - 2.5rem),
+			var(--color-ink) calc(100% - 2.5rem)
+		);
+	}
+
+	/* Bisel oscuro del CRT, como el de la computadora del hero */
+	.c-bezel {
+		position: relative;
+		padding: 0.75rem;
+		border: 2px solid var(--color-ink);
+		border-radius: 1rem;
+		background: var(--color-ink-2);
+		box-shadow:
+			inset 3px 3px 0 0 var(--color-ink-3),
+			inset -3px -3px 0 0 var(--color-ink);
+	}
+	.c-glass {
+		position: relative;
+		overflow: hidden;
+		border: 2px solid var(--color-ink);
+		border-radius: 0.625rem;
+		background: var(--color-ink);
+	}
+	.c-bar {
+		gap: 0.75rem;
+		padding-block: 0.3125rem;
+	}
+	.c-title {
+		display: flex;
+		min-width: 0;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	.c-title[hidden] {
+		display: none;
+	}
+
+	.crt-screen {
+		position: relative;
+		aspect-ratio: 16 / 9;
+		overflow: hidden;
+		background: var(--color-ink);
+		touch-action: pan-y pinch-zoom;
+	}
+	.program,
+	.shot {
+		position: absolute;
+		inset: 0;
+	}
+	/* Capturas de otra proporción (App Egresados) se recortan centradas; en el visor se ven completas */
+	.shot {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+	}
+	.scanlines,
+	.glare,
+	.static,
+	.flash {
+		pointer-events: none;
+		position: absolute;
+		inset: 0;
+		z-index: 2;
+	}
+	.scanlines {
+		background: repeating-linear-gradient(0deg, rgb(16 16 16 / 0.06) 0 1px, transparent 1px 3px);
+	}
+	.glare {
+		background:
+			radial-gradient(70% 45% at 28% 12%, rgb(255 255 255 / 0.14), transparent 70%),
+			radial-gradient(140% 130% at 50% 50%, transparent 62%, rgb(16 16 16 / 0.35) 100%);
+	}
+	/* Estática del cambio de cartucho: tramado crema sobre ink; JS la anima a opacidad ≤ 0.25 */
+	.static {
+		opacity: 0;
+		background-color: var(--color-ink);
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' shape-rendering='crispEdges'%3E%3Cg fill='%23f4f3ef'%3E%3Crect width='2' height='2'/%3E%3Crect x='4' y='2' width='2' height='2'/%3E%3Crect x='2' y='4' width='2' height='2'/%3E%3Crect x='6' y='6' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E");
+		background-size: 8px 8px;
+		image-rendering: pixelated;
+	}
+	/* Brillo del encendido: una capa con opacidad en lugar de animar filter */
+	.flash {
+		opacity: 0;
+		background: var(--color-cream);
+	}
+
+	/* Encendido CRT al entrar en pantalla: punto, línea y pantalla completa, una sola vez */
+	:global(:root:not(.no-js):not(.is-static)) .c-wrap:not(.is-in) .crt-screen {
+		clip-path: inset(50% 50% 50% 50%);
+	}
+	:global(:root:not(.no-js):not(.is-static)) .c-wrap.is-in:not([data-booted]) .crt-screen {
+		animation: crt-on 0.7s steps(8) 0.15s both;
+	}
+	:global(:root:not(.no-js):not(.is-static)) .c-wrap.is-in:not([data-booted]) .flash {
+		animation: crt-glow 0.7s steps(8) 0.15s both;
+	}
+	@keyframes crt-on {
+		0% {
+			clip-path: inset(50% 50% 50% 50%);
+		}
+		35% {
+			clip-path: inset(calc(50% - 1px) 0 calc(50% - 1px) 0);
+		}
+		100% {
+			clip-path: inset(0);
+		}
+	}
+	@keyframes crt-glow {
+		0%,
+		35% {
+			opacity: 0.4;
+		}
+		100% {
+			opacity: 0;
+		}
+	}
+
+	/* Mentón */
+	.c-chin {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		gap: 0.875rem 1rem;
+		margin-top: 0.875rem;
+	}
+	.c-group {
+		display: grid;
+		gap: 0.375rem;
+	}
+	.c-label {
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		font-weight: 700;
+		line-height: 1;
+		color: var(--color-ink);
+	}
+	.c-keys {
+		display: flex;
+		gap: 0.375rem;
+	}
+	.c-keys[hidden],
+	.c-group[hidden] {
+		display: none;
+	}
+	.c-knob {
+		position: relative;
+		flex: none;
+		width: 2.5rem;
+		height: 2.5rem;
+		border: 2px solid var(--color-ink);
+		border-radius: 9999px;
+		background: var(--color-cream);
+		box-shadow:
+			inset -3px -3px 0 0 var(--color-stone),
+			var(--shadow-pixel-sm);
+	}
+	/* Solo gira la marca: la perilla apunta a la captura activa */
+	.c-knob::after {
+		content: '';
+		position: absolute;
+		top: 4px;
+		bottom: 50%;
+		left: calc(50% - 1px);
+		width: 2px;
+		background: var(--color-ink);
+		transform-origin: 50% 100%;
+		rotate: var(--turn, -45deg);
+		transition: rotate 150ms steps(3, end);
+	}
+	.c-lcd {
+		display: flex;
+		flex: 1 1 12rem;
+		min-width: 0;
+		align-items: center;
+		gap: 0.625rem;
+		min-height: 2.75rem;
+		padding: 0.375rem 0.75rem;
+		border: 2px solid var(--color-ink);
+		border-radius: 0.375rem;
+		background: var(--color-ink);
+		box-shadow: inset 0 0 0 2px var(--color-ink-3);
+		font-family: var(--font-mono);
+		font-weight: 700;
+		color: var(--color-lime);
+	}
+	.c-lcd-count {
+		flex: none;
+		padding-right: 0.625rem;
+		border-right: 2px solid color-mix(in srgb, var(--color-lime) 35%, var(--color-ink));
+		font-size: 1rem;
+		line-height: 1.2;
+	}
+	.c-lcd-label {
+		min-width: 0;
+		font-size: 0.8125rem;
+		line-height: 1.2;
+	}
+	.c-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-left: auto;
+		padding: 0.4375rem 0.625rem;
+		border: 2px solid var(--color-ink);
+		border-radius: 0.25rem;
+		background: var(--color-ink);
+		font-family: var(--font-display);
+		font-size: 0.8125rem;
+		letter-spacing: 0.04em;
+		line-height: 1;
+		color: var(--color-cream);
+	}
+	/* LED: apagado sin cartucho, naranja mientras lee y lima cuando está listo (el estado también va en texto) */
+	.c-led {
+		width: 0.625rem;
+		height: 0.625rem;
+		border: 2px solid var(--color-ink-3);
+		border-radius: 9999px;
+		background: var(--color-ink-3);
+	}
+	.c-led[data-state='read'] {
+		border-color: var(--color-orange);
+		background: var(--color-orange);
+	}
+	.c-led[data-state='ready'] {
+		border-color: var(--color-lime);
+		background: var(--color-lime);
+	}
+
+	/* Botones de la barra 3K_OS: el foco va por dentro porque el cristal recorta lo que sobresale */
+	.win-btn {
+		display: inline-grid;
+		place-items: center;
+		width: 1.75rem;
+		height: 1.75rem;
+		border: 2px solid var(--color-ink);
+		border-radius: 0.25rem;
+		background: var(--color-cream);
+		color: var(--color-ink);
+		box-shadow: inset -2px -2px 0 0 var(--color-stone);
+	}
+	.win-btn svg,
+	.key svg {
+		width: 0.75rem;
+		height: 0.75rem;
+		fill: currentColor;
+		shape-rendering: crispEdges;
+	}
+	.win-btn:active {
+		box-shadow: inset 2px 2px 0 0 var(--color-stone);
+	}
+	.win-btn:focus-visible {
+		outline: 2px solid var(--color-ink);
+		outline-offset: -5px;
+		box-shadow: none;
+	}
+
+	/* Teclas: se hunden al presionar; la presintonía activa queda hundida y en lima */
+	.key {
+		display: inline-grid;
+		place-items: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		border: 2px solid var(--color-ink);
+		border-radius: 0.5rem;
+		background: var(--color-cream);
+		color: var(--color-ink);
+		box-shadow:
+			inset -3px -3px 0 0 var(--color-stone),
+			var(--shadow-pixel-sm);
+		transition:
+			transform 120ms ease-out,
+			box-shadow 120ms ease-out;
+	}
+	.key-num {
+		font-family: var(--font-mono);
+		font-size: 1rem;
+		font-weight: 700;
+	}
+	.key:active {
+		transform: translate(3px, 3px);
+		box-shadow: inset 3px 3px 0 0 var(--color-stone);
+	}
+	.key[aria-current='true'] {
+		background: var(--color-lime);
+		transform: translate(3px, 3px);
+		box-shadow: inset 0 0 0 3px var(--color-ink);
+	}
+	.key:focus-visible {
+		box-shadow: var(--focus-halo), var(--shadow-pixel-sm);
+	}
+	.key[aria-current='true']:focus-visible {
+		box-shadow:
+			var(--focus-halo),
+			inset 0 0 0 3px var(--color-ink);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.win-btn:hover,
+		.key:hover {
+			background: var(--color-lime);
+		}
+	}
+
+	@media (max-width: 639.98px) {
+		.c-front {
+			padding: 0.75rem;
+		}
+		.c-bezel {
+			padding: 0.5rem;
+			border-radius: 0.75rem;
+		}
+	}
+
+	/* Controles que solo funcionan con JS */
+	:global(#trabajo:not([data-ready])) .js-only {
+		display: none;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.crt-screen {
+			clip-path: none !important;
+			animation: none !important;
+		}
+		.flash {
+			animation: none !important;
+		}
+		.key,
+		.key:active,
+		.key[aria-current='true'] {
+			transform: none !important;
+		}
+		.c-knob::after {
+			transition: none;
+		}
+	}
+</style>
